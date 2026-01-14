@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #9C27B0; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9f9f9; }
+        .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Reporte Generado</h1>
+        </div>
+        <div class="content">
+            <p>Hola {{userName}},</p>
+            <p>Se ha generado un nuevo reporte del tipo <strong>{{reportType}}</strong>.</p>
+            
+            <p><strong>Detalles del reporte:</strong></p>
+            <ul>
+                <li><strong>Tipo:</strong> {{reportType}}</li>
+                <li><strong>Generado:</strong> {{generatedAt}}</li>
+                <li><strong>Período:</strong> {{period}}</li>
+                {{#if summary}}
+                <li><strong>Resumen:</strong> {{summary}}</li>
+                {{/if}}
+            </ul>
+            
+            <p>Puede descargar el reporte completo desde el sistema.</p>
+        </div>
+        <div class="footer">
+            <p>Este es un mensaje automático del Sistema de Inventario QR.</p>
+        </div>
+    </div>
+</body>
+</html>

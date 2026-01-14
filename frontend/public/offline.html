@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modo Offline - Sistema de Inventario QR</title>
+    <link rel="stylesheet" href="/src/assets/styles/main.css">
+    <style>
+        .offline-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .offline-content {
+            max-width: 600px;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+        }
+        
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            animation: bounce 2s infinite;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+            animation: none;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-content">
+            <div class="offline-icon">📡</div>
+            
+            <h1>Modo Offline Activado</h1>
+            <p>Actualmente no tienes conexión a internet, pero puedes seguir usando algunas funciones del sistema de inventario.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">📋</div>
+                    <h3>Ver Inventario</h3>
+                    <p>Accede a la información de productos previamente cargada</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">➕</div>
+                    <h3>Agregar Productos</h3>
+                    <p>Crea nuevos productos que se sincronizarán cuando recuperes conexión</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Reportes Locales</h3>
+                    <p>Genera reportes con los datos disponibles en tu dispositivo</p>
+                </div>
+            </div>
+            
+            <div class="connection-status">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Sin conexión a internet</span>
+                </div>
+                <p id="connectionHelp">La aplicación se sincronizará automáticamente cuando recuperes la conexión</p>
+            </div>
+            
+            <div class="d-flex gap-3 justify-center mt-4">
+                <button class="btn btn-light" onclick="window.location.href='/'">🏠 Ir al Dashboard</button>
+                <button class="btn btn-outline-light" onclick="checkConnection()">🔄 Reintentar Conexión</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const connectionHelp = document.getElementById('connectionHelp');
+        
+        function checkConnection() {
+            if (navigator.onLine) {
+                statusDot.classList.add('connected');
+                statusText.textContent = '¡Conexión restablecida!';
+                connectionHelp.textContent = 'Redirigiendo a la aplicación principal...';
+                
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = 'Sin conexión a internet';
+                connectionHelp.textContent = 'Por favor, verifica tu conexión e intenta nuevamente';
+                
+                const originalText = connectionHelp.textContent;
+                connectionHelp.textContent = 'Conexión no disponible. Intenta nuevamente.';
+                
+                setTimeout(() => {
+                    connectionHelp.textContent = originalText;
+                }, 3000);
+            }
+        }
+        
+        function updateConnectionStatus() {
+            if (navigator.onLine) {
+                statusDot.classList.add('connected');
+                statusText.textContent = 'Conectado';
+                connectionHelp.textContent = 'Puedes continuar usando la aplicación con todas las funciones';
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = 'Sin conexión';
+                connectionHelp.textContent = 'Algunas funciones pueden estar limitadas';
+            }
+        }
+        
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateConnectionStatus();
+            setInterval(checkConnection, 30000);
+        });
+        
+        document.querySelector('.btn-light').addEventListener('click', () => {
+            if (!navigator.onLine) {
+                alert('Aún estás offline. Algunas funciones pueden no estar disponibles.');
+            }
+        });
+    </script>
+</body>
+</html>

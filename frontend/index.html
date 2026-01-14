@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="es" class="light">
+<head>
+  <!-- Meta Charset debe ser el primero -->
+  <meta charset="UTF-8" />
+  
+  <!-- Viewport optimizado para dispositivos móviles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+
+  <!-- Título principal para SEO -->
+  <title>Sistema de Inventario QR | Gestión Profesional de Inventarios</title>
+
+  <!-- Meta Description para SEO -->
+  <meta name="description" content="Sistema completo de gestión de inventario con generación y escaneo de códigos QR. Controla y organiza tu inventario de manera eficiente y moderna." />
+
+  <!-- Keywords para SEO -->
+  <meta name="keywords" content="inventario, QR, gestión de inventario, stock, productos, código QR, sistema de inventario, control de stock, gestión empresarial" />
+
+  <!-- Autor y robots -->
+  <meta name="author" content="Equipo de Desarrollo Inventario QR" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph para redes sociales -->
+  <meta property="og:title" content="Sistema de Inventario QR - Gestión Profesional" />
+  <meta property="og:description" content="Sistema completo de gestión de inventario con generación y escaneo de códigos QR." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://tudominio.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://tudominio.com" />
+
+  <!-- URL canónica -->
+  <link rel="canonical" href="https://tudominio.com" />
+
+  <!-- Favicon y iconos para múltiples dispositivos -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./public/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./public/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./public/apple-touch-icon.png" />
+
+  <!-- Manifest para PWA -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Colores de tema para navegadores móviles -->
+  <meta name="theme-color" content="#3b82f6" />
+  <meta name="msapplication-TileColor" content="#3b82f6" />
+
+  <!-- Configuración para iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Inventario QR" />
+
+  <!-- Configuración para Android -->
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- Prevenir detección automática de teléfonos -->
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- Preconexión a Google Fonts para mejor rendimiento -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Carga de fuentes con fallback -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Estilos críticos para renderizado inicial -->
+  <style>
+    /* ✅ VARIABLES CSS GLOBALES - Optimizadas */
+    :root {
+      /* Sistema de colores - Light Mode */
+      --color-bg-primary: #f8f9fa;
+      --color-bg-secondary: #ffffff;
+      --color-bg-tertiary: #f1f5f9;
+      --color-bg-sidebar: #1e293b;
+      
+      /* Colores de texto */
+      --color-text-primary: #1f2937;
+      --color-text-secondary: #6b7280;
+      --color-text-muted: #9ca3af;
+      --color-text-inverse: #ffffff;
+      
+      /* Colores primarios */
+      --color-primary: #4f46e5;
+      --color-primary-light: #e0e7ff;
+      --color-primary-dark: #4338ca;
+      --color-primary-rgb: 79, 70, 229;
+      
+      /* Colores de estado */
+      --color-success: #10b981;
+      --color-success-light: #d1fae5;
+      --color-success-dark: #059669;
+      
+      --color-warning: #f59e0b;
+      --color-warning-light: #fef3c7;
+      --color-warning-dark: #d97706;
+      
+      --color-danger: #dc2626;
+      --color-danger-light: #fef2f2;
+      --color-danger-dark: #b91c1c;
+      
+      --color-info: #3b82f6;
+      --color-info-light: #dbeafe;
+      --color-info-dark: #1d4ed8;
+      
+      /* Sistema de espaciado */
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      
+      /* Sistema de bordes redondeados */
+      --radius-sm: 0.25rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-full: 9999px;
+      
+      /* Sistema de sombras */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      
+      /* Sistema de transiciones */
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      
+      /* Sistema de z-index */
+      --z-dropdown: 1000;
+      --z-sticky: 1020;
+      --z-fixed: 1030;
+      --z-modal: 1050;
+      --z-notification: 1080;
+    }
+
+    /* ✅ DARK MODE - Optimizado */
+    .dark {
+      --color-bg-primary: #0f172a;
+      --color-bg-secondary: #1e293b;
+      --color-bg-tertiary: #334155;
+      --color-bg-sidebar: #0f172a;
+      
+      --color-text-primary: #f1f5f9;
+      --color-text-secondary: #cbd5e1;
+      --color-text-muted: #94a3b8;
+      
+      --color-primary: #6366f1;
+      --color-primary-light: #3730a3;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+    }
+
+    /* ✅ RESET Y ESTILOS BASE - Optimizados */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      font-family: 'Inter', var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color var(--transition-base), color var(--transition-base);
+    }
+
+    /* ✅ CONTENEDOR PRINCIPAL */
+    #root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ✅ PANTALLA DE CARGA - Mejorada */
+    #app-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .app-loading-content {
+      text-align: center;
+      color: white;
+      padding: 2rem;
+      max-width: 90%;
+    }
+
+    .app-loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    .app-loading-text {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .app-loading-subtext {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+
+    /* ✅ ANIMACIONES */
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* ✅ MANEJO DE JAVASCRIPT DESHABILITADO */
+    .no-js-message {
+      display: none;
+    }
+
+    .no-js #app-loading {
+      display: none;
+    }
+
+    .no-js .no-js-message {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--color-bg-dark);
+      color: white;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      z-index: 10000;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* ✅ RESPONSIVE DESIGN */
+    @media (max-width: 640px) {
+      .app-loading-spinner {
+        width: 50px;
+        height: 50px;
+      }
+
+      .app-loading-text {
+        font-size: 1.1rem;
+      }
+
+      .app-loading-subtext {
+        font-size: 0.8rem;
+      }
+      
+      html {
+        font-size: 14px;
+      }
+    }
+
+    /* ✅ ACCESIBILIDAD - REDUCIR MOVIMIENTO */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .app-loading-spinner {
+        animation: none;
+        border-top-color: transparent;
+      }
+
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ✅ MODO ALTO CONTRASTE */
+    @media (prefers-contrast: high) {
+      :root {
+        --color-primary: #0056b3;
+        --color-primary-dark: #003d82;
+        --color-success: #006400;
+        --color-danger: #8b0000;
+        --color-warning: #8b5a00;
+      }
+    }
+  </style>
+
+  <!-- Enlace a archivo CSS principal -->
+  <link rel="stylesheet" href="./src/assets/styles/main.css">
+</head>
+<body>
+  <!-- Pantalla de carga con ARIA para accesibilidad -->
+  <div id="app-loading" aria-live="polite" aria-label="Cargando aplicación">
+    <div class="app-loading-content">
+      <div class="app-loading-spinner" aria-hidden="true"></div>
+      <p class="app-loading-text" id="app-loading-text">
+        Cargando Sistema de Inventario QR...
+      </p>
+      <p class="app-loading-subtext" id="app-loading-subtext">
+        Inicializando aplicación
+      </p>
+    </div>
+  </div>
+
+  <!-- Contenedor principal para React/JS -->
+  <main id="root" role="main"></main>
+
+  <!-- Mensaje para usuarios sin JavaScript -->
+  <noscript>
+    <div class="no-js-message" role="alert">
+      <div style="max-width: 600px">
+        <h1 style="font-size: 2rem; margin-bottom: 1rem">
+          JavaScript Requerido
+        </h1>
+        <p style="margin-bottom: 1.5rem">
+          Esta aplicación requiere JavaScript para funcionar correctamente.
+        </p>
+        <p>
+          Por favor, habilita JavaScript en tu navegador y recarga la página.
+        </p>
+      </div>
+    </div>
+  </noscript>
+
+  <!-- Configuración inicial de la aplicación -->
+  <script>
+    // ✅ CONFIGURACIÓN GLOBAL DE LA APLICACIÓN - Optimizada
+    (function() {
+      'use strict';
+      
+      // Configuración global accesible
+      const APP_CONFIG = {
+        // Entorno de ejecución
+        environment: (function() {
+          const hostname = location.hostname;
+          const isLocal = hostname === 'localhost' || 
+                         hostname === '127.0.0.1' || 
+                         hostname === '::1' || 
+                         hostname.startsWith('192.168.');
+          return isLocal ? 'development' : 'production';
+        })(),
+
+        // Configuración de API
+        api: {
+          baseUrl: (function() {
+            if (location.port === '5173' || location.port === '3000') {
+              return 'http://localhost:3000';
+            }
+            return location.origin;
+          })(),
+          
+          endpoints: {
+            auth: '/api/auth',
+            products: '/api/products',
+            inventory: '/api/inventory',
+            categories: '/api/categories',
+            qr: '/api/qr',
+            reports: '/api/reports',
+            notification: '/api/notification'
+          },
+          
+          timeout: 30000,
+          maxRetries: 3,
+          retryDelay: 1000
+        },
+
+        // Configuración de la aplicación
+        app: {
+          name: 'Sistema de Inventario QR',
+          version: '1.0.0',
+          maxFileSize: 10485760, // 10MB
+          storagePrefix: 'inventario_qr_'
+        },
+
+        // Configuración de tema
+        theme: {
+          default: 'auto',
+          storageKey: 'inventario_qr_theme'
+        },
+
+        // Estado de conexión
+        isOnline: navigator.onLine
+      };
+
+      // Hacer config global
+      window.APP_CONFIG = APP_CONFIG;
+
+      // ✅ FUNCIÓN PARA ACTUALIZAR ESTADO DE CARGA
+      function updateLoadingStatus(status, subStatus) {
+        const textElement = document.getElementById('app-loading-text');
+        const subTextElement = document.getElementById('app-loading-subtext');
+
+        if (textElement && status) {
+          textElement.textContent = status;
+        }
+        if (subTextElement && subStatus) {
+          subTextElement.textContent = subStatus;
+        }
+      }
+
+      // ✅ INICIALIZACIÓN DE LA APLICACIÓN
+      function initApplication() {
+        // Función para actualizar estado de conectividad
+        function updateConnectivity() {
+          const isOnline = navigator.onLine;
+          APP_CONFIG.isOnline = isOnline;
+
+          if (isOnline) {
+            updateLoadingStatus(
+              'Cargando Sistema de Inventario QR...',
+              'Conectando con el servidor'
+            );
+          } else {
+            updateLoadingStatus(
+              'Sin conexión a internet',
+              'Esperando conexión para continuar...'
+            );
+          }
+        }
+
+        // Configurar listeners para conectividad
+        updateConnectivity();
+        window.addEventListener('online', updateConnectivity);
+        window.addEventListener('offline', updateConnectivity);
+
+        // Función para marcar app como cargada
+        window.markAppAsLoaded = function() {
+          const loadingElement = document.getElementById('app-loading');
+          if (loadingElement) {
+            loadingElement.style.opacity = '0';
+            loadingElement.style.visibility = 'hidden';
+
+            setTimeout(() => {
+              loadingElement.remove();
+            }, 300);
+          }
+
+          // Log en desarrollo
+          if (APP_CONFIG.environment === 'development') {
+            console.log('✅ Aplicación cargada completamente');
+          }
+        };
+
+        // ✅ TIMEOUT DE SEGURIDAD
+        const safetyTimeout = setTimeout(() => {
+          if (document.getElementById('app-loading')) {
+            console.warn('⚠️ Forzando carga de aplicación por timeout de seguridad');
+            window.markAppAsLoaded();
+          }
+        }, 15000); // 15 segundos
+
+        // ✅ CONFIGURACIÓN DE TEMA INICIAL
+        function initializeTheme() {
+          const themeConfig = APP_CONFIG.theme;
+          const savedTheme = localStorage.getItem(themeConfig.storageKey) || themeConfig.default;
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+          let currentTheme;
+          if (savedTheme === 'auto') {
+            currentTheme = prefersDark ? 'dark' : 'light';
+          } else {
+            currentTheme = savedTheme;
+          }
+
+          const htmlElement = document.documentElement;
+          htmlElement.classList.remove('light', 'dark');
+          htmlElement.classList.add(currentTheme);
+
+          APP_CONFIG.currentTheme = currentTheme;
+
+          if (APP_CONFIG.environment === 'development') {
+            console.log(`🎨 Tema aplicado: ${currentTheme}`);
+          }
+        }
+
+        // Escuchar cambios en preferencia de tema del sistema
+        window.matchMedia('(prefers-color-scheme: dark)')
+          .addEventListener('change', function(e) {
+            const savedTheme = localStorage.getItem(APP_CONFIG.theme.storageKey);
+            if (savedTheme === 'auto') {
+              initializeTheme();
+            }
+          });
+
+        // ✅ FUNCIÓN PARA CAMBIAR TEMA
+        window.changeAppTheme = function(theme) {
+          if (!['light', 'dark', 'auto'].includes(theme)) {
+            console.error('Tema no válido:', theme);
+            return;
+          }
+
+          localStorage.setItem(APP_CONFIG.theme.storageKey, theme);
+          initializeTheme();
+        };
+
+        // ✅ INICIALIZACIONES
+        initializeTheme();
+
+        // Limpiar timeout si la aplicación carga normalmente
+        window.addEventListener('apploaded', () => {
+          clearTimeout(safetyTimeout);
+        });
+
+        // Log de desarrollo
+        if (APP_CONFIG.environment === 'development') {
+          console.log('🚀 Configuración inicializada:', APP_CONFIG);
+        }
+
+        // ✅ POLYFILL PARA CUSTOM EVENT (Compatibilidad IE11)
+        if (typeof window.CustomEvent !== 'function') {
+          window.CustomEvent = function(event, params) {
+            params = params || { bubbles: false, cancelable: false, detail: undefined };
+            var evt = document.createEvent('CustomEvent');
+            evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+            return evt;
+          };
+          window.CustomEvent.prototype = window.Event.prototype;
+        }
+      }
+
+      // Ejecutar inicialización
+      initApplication();
+    })();
+  </script>
+
+  <!-- Punto de entrada principal de la aplicación -->
+  <script type="module" src="./src/main.jsx"></script>
+</body>
+</html>

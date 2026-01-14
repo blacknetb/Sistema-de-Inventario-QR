@@ -1,0 +1,484 @@
+/* ============================================
+   ESTILOS BASE - FUNDACIÓN DEL SISTEMA
+   ============================================ */
+
+/* Importar fuentes de Google */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Aplicar variables CSS */
+@import './variables.css';
+
+/* =============== ELEMENTOS HTML =============== */
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* =============== TIPOGRAFÍA =============== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-sans);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-4);
+}
+
+h1 {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    margin-top: 0;
+}
+
+h2 {
+    font-size: var(--font-size-3xl);
+}
+
+h3 {
+    font-size: var(--font-size-2xl);
+}
+
+h4 {
+    font-size: var(--font-size-xl);
+}
+
+h5 {
+    font-size: var(--font-size-lg);
+}
+
+h6 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+p {
+    margin-bottom: var(--spacing-4);
+    color: var(--color-text-secondary);
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+/* =============== ENLACES =============== */
+
+a {
+    color: var(--color-primary-600);
+    text-decoration: none;
+    transition: color var(--transition-duration) var(--transition-timing-ease);
+    cursor: pointer;
+}
+
+a:hover {
+    color: var(--color-primary-700);
+    text-decoration: underline;
+}
+
+a:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-sm);
+}
+
+/* =============== BOTONES =============== */
+
+button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    cursor: pointer;
+    transition: all var(--transition-duration) var(--transition-timing-ease);
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* =============== FORMULARIOS =============== */
+
+input,
+textarea,
+select {
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+    border: var(--border-width-thin) solid var(--input-border-color);
+    border-radius: var(--input-border-radius);
+    padding: var(--input-padding-y) var(--input-padding-x);
+    transition: all var(--transition-duration) var(--transition-timing-ease);
+    width: 100%;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--input-focus-border-color);
+    box-shadow: var(--input-focus-shadow);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right var(--spacing-2) center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: var(--spacing-10);
+}
+
+/* =============== IMÁGENES =============== */
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+figure {
+    margin: 0;
+}
+
+figcaption {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    text-align: center;
+    margin-top: var(--spacing-2);
+}
+
+/* =============== LISTAS =============== */
+
+ul,
+ol {
+    padding-left: var(--spacing-6);
+    margin-bottom: var(--spacing-4);
+}
+
+li {
+    margin-bottom: var(--spacing-2);
+}
+
+ul ul,
+ol ul,
+ul ol,
+ol ol {
+    margin-top: var(--spacing-2);
+    margin-bottom: 0;
+}
+
+/* =============== TABLAS =============== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-6);
+}
+
+th {
+    font-weight: var(--font-weight-semibold);
+    text-align: left;
+    background-color: var(--table-header-bg);
+    color: var(--color-text-primary);
+}
+
+th,
+td {
+    padding: var(--table-cell-padding);
+    border-bottom: var(--border-width-thin) solid var(--table-border-color);
+    vertical-align: top;
+}
+
+tbody tr:hover {
+    background-color: var(--color-gray-50);
+}
+
+/* =============== CÓDIGO Y PRE =============== */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+}
+
+code {
+    background-color: var(--color-gray-100);
+    color: var(--color-danger-600);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-sm);
+}
+
+pre {
+    background-color: var(--color-gray-50);
+    color: var(--color-text-primary);
+    padding: var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-4);
+}
+
+pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* =============== HORIZONTAL RULE =============== */
+
+hr {
+    border: none;
+    border-top: var(--border-width-thin) solid var(--color-border);
+    margin: var(--spacing-8) 0;
+}
+
+/* =============== BLOQUES DE CITA =============== */
+
+blockquote {
+    margin: var(--spacing-6) 0;
+    padding-left: var(--spacing-6);
+    border-left: var(--border-width) solid var(--color-primary-500);
+    font-style: italic;
+    color: var(--color-text-secondary);
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+cite {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    margin-top: var(--spacing-2);
+    font-style: normal;
+}
+
+/* =============== DETALLES Y RESUMEN =============== */
+
+details {
+    margin-bottom: var(--spacing-4);
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-4);
+}
+
+details[open] {
+    padding-bottom: var(--spacing-6);
+}
+
+summary {
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    outline: none;
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: var(--spacing-2);
+    transition: transform var(--transition-duration) var(--transition-timing-ease);
+}
+
+details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+/* =============== MARCADORES =============== */
+
+mark {
+    background-color: rgba(255, 209, 102, 0.3);
+    color: var(--color-text-primary);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-sm);
+}
+
+/* =============== ABREVIATURAS =============== */
+
+abbr[title] {
+    text-decoration: underline dotted;
+    cursor: help;
+    text-decoration-skip-ink: none;
+}
+
+/* =============== SUBÍNDICE Y SUPERÍNDICE =============== */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+sup {
+    top: -0.5em;
+}
+
+/* =============== ELEMENTOS PEQUEÑOS =============== */
+
+small {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+}
+
+/* =============== MEDIA QUERIES =============== */
+
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+    
+    h1 {
+        font-size: var(--font-size-3xl);
+    }
+    
+    h2 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    h3 {
+        font-size: var(--font-size-xl);
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* =============== MODO OSCURO =============== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg-primary: var(--dark-color-bg-primary);
+        --color-bg-secondary: var(--dark-color-bg-secondary);
+        --color-bg-tertiary: var(--dark-color-bg-tertiary);
+        --color-text-primary: var(--dark-color-text-primary);
+        --color-text-secondary: var(--dark-color-text-secondary);
+        --color-border: var(--dark-color-border);
+    }
+    
+    body {
+        background-color: var(--color-bg-primary);
+        color: var(--color-text-primary);
+    }
+    
+    input,
+    textarea,
+    select {
+        background-color: var(--color-bg-secondary);
+        border-color: var(--color-border);
+        color: var(--color-text-primary);
+    }
+    
+    code {
+        background-color: var(--color-bg-tertiary);
+    }
+    
+    pre {
+        background-color: var(--color-bg-tertiary);
+    }
+    
+    tbody tr:hover {
+        background-color: var(--color-bg-tertiary);
+    }
+}
+
+/* =============== IMPRESIÓN =============== */
+
+@media print {
+    *,
+    *::before,
+    *::after {
+        background: transparent !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+    
+    a[href]::after {
+        content: " (" attr(href) ")";
+    }
+    
+    abbr[title]::after {
+        content: " (" attr(title) ")";
+    }
+    
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+    
+    thead {
+        display: table-header-group;
+    }
+    
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+    
+    img {
+        max-width: 100% !important;
+    }
+    
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+    
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}

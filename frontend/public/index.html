@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    
+    <!-- Favicon y iconos -->
+    <link rel="icon" href="/assets/favicon/favicon.ico" type="image/x-icon" sizes="any">
+    <link rel="icon" href="/assets/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png">
+    
+    <!-- Metadatos de seguridad -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <!-- Configuración PWA -->
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- SEO -->
+    <meta name="description" content="Sistema profesional de gestión de inventario con códigos QR. Controla, organiza y monitorea tu inventario de forma eficiente.">
+    <meta name="keywords" content="inventario, QR, gestión, stock, control, gestión de inventario, códigos QR, sistema de inventario">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Inventario QR">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sistema de Inventario QR">
+    <meta property="og:description" content="Sistema profesional de gestión de inventario con códigos QR">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://inventario-qr.com">
+    <meta property="og:image" content="https://inventario-qr.com/assets/images/og-image.png">
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:site_name" content="Inventario QR">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sistema de Inventario QR">
+    <meta name="twitter:description" content="Sistema profesional de gestión de inventario con códigos QR">
+    <meta name="twitter:image" content="https://inventario-qr.com/assets/images/twitter-image.png">
+    <meta name="twitter:site" content="@inventarioqr">
+    
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Preconexiones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Estilos críticos -->
+    <link rel="stylesheet" href="/src/assets/styles/main.css">
+    
+    <!-- Fuentes optimizadas -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    </noscript>
+    
+    <title>Sistema de Inventario QR | Gestión Profesional de Stock</title>
+</head>
+<body>
+    <!-- Mensaje para navegadores sin JavaScript -->
+    <noscript>
+        <div class="no-js-message">
+            <h2>JavaScript Requerido</h2>
+            <p>⚠️ Esta aplicación requiere JavaScript para funcionar correctamente.</p>
+            <p>🔧 Por favor, habilita JavaScript en tu navegador y recarga la página.</p>
+            <p>📚 Si necesitas ayuda, consulta las instrucciones para habilitar JavaScript en tu navegador.</p>
+            <div class="browser-help">
+                <p><strong>Navegadores comunes:</strong></p>
+                <p>Chrome/Firefox/Edge: Configuración → Privacidad y seguridad → Configuración de sitios → JavaScript → Permitir</p>
+                <p>Safari: Preferencias → Seguridad → Habilitar JavaScript</p>
+            </div>
+            <p class="version-info">Sistema de Inventario QR - Versión 1.0.0</p>
+        </div>
+    </noscript>
+    
+    <!-- Contenedor principal de la aplicación -->
+    <div id="root">
+        <!-- Pantalla de carga inicial -->
+        <div class="app-loading fade-in" id="app-loading">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <h2>Cargando Sistema de Inventario...</h2>
+                <p class="loading-description">Preparando tu entorno de gestión de inventario</p>
+                <div class="version-details">
+                    <div>Versión 1.0.0</div>
+                    <div>© 2024 Inventario QR</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Script principal de configuración -->
+    <script src="/src/assets/js/app-config.js"></script>
+    <script src="/src/assets/js/main.js"></script>
+</body>
+</html>
