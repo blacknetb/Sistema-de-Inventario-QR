@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
-import './assets/styles/index.css';
+import "./assets/styles/main/main.css";
 
 // ✅ Componente GlobalErrorBoundary optimizado
 const GlobalErrorBoundary = ({ children }) => {

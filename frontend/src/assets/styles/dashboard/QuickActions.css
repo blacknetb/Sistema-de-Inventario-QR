@@ -1,0 +1,738 @@
+/**
+ * QuickActions.css
+ * Estilos para el componente de acciones rápidas
+ * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\assets\styles\QuickActions.css
+ */
+
+/* Contenedor principal */
+.quick-actions {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* Header de acciones */
+.actions-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.actions-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.actions-subtitle {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #64748b;
+}
+
+/* Información de atajos */
+.shortcuts-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.shortcuts-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.shortcuts-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #f1f5f9;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Acciones favoritas */
+.favorite-actions {
+    margin-bottom: 1.5rem;
+}
+
+.favorite-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.favorite-icon {
+    font-size: 1.25rem;
+    color: #f59e0b;
+}
+
+.favorite-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.favorite-action {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #3b82f6;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.favorite-action:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.favorite-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.favorite-icon-wrapper .action-icon {
+    font-size: 1.5rem;
+    color: #1e40af;
+}
+
+.favorite-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.action-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+.action-shortcut {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    display: inline-block;
+    align-self: flex-start;
+}
+
+/* Categorías de acciones */
+.actions-categories {
+    margin-bottom: 1.5rem;
+}
+
+.categories-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.categories-list::-webkit-scrollbar {
+    height: 6px;
+}
+
+.categories-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.categories-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.categories-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.category-btn {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid #e2e8f0;
+}
+
+.category-btn:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+}
+
+.category-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.category-btn.active .category-icon {
+    color: white;
+}
+
+.category-icon {
+    font-size: 1.25rem;
+    color: #64748b;
+    transition: color 0.3s ease;
+}
+
+.category-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Grid de acciones */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex: 1;
+    min-height: 300px;
+}
+
+.action-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-top: 3px solid #3b82f6;
+    border-radius: 12px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    border-color: #3b82f6;
+}
+
+.action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: inherit;
+    border-radius: 3px 3px 0 0;
+}
+
+/* Header de tarjeta */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.action-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover .action-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.action-icon {
+    font-size: 1.75rem;
+}
+
+.action-shortcut {
+    font-size: 0.75rem;
+    color: white;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+}
+
+/* Body de tarjeta */
+.card-body {
+    flex: 1;
+    margin-bottom: 1rem;
+}
+
+.action-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.action-description {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Footer de tarjeta */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.action-category {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.action-arrow {
+    font-size: 1.25rem;
+    color: #cbd5e1;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover .action-arrow {
+    color: #3b82f6;
+    transform: translateX(5px);
+}
+
+/* Acciones recientes */
+.recent-actions {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.recent-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.recent-icon {
+    font-size: 1.25rem;
+    color: #64748b;
+}
+
+.recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.recent-item {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.recent-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.recent-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.recent-icon-wrapper .action-icon {
+    font-size: 1.25rem;
+    color: #475569;
+}
+
+.recent-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.recent-title-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.recent-time {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.recent-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.recent-shortcut {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    background: #f8fafc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.recent-indicator {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.status-icon {
+    font-size: 1.25rem;
+    color: #10b981;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Footer de acciones */
+.actions-footer {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.info-text {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.info-text strong {
+    color: #475569;
+}
+
+.footer-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.footer-btn {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.footer-btn.customize {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.footer-btn.customize:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.footer-btn.shortcuts {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.footer-btn.shortcuts:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Efectos de interacción */
+.action-card:active {
+    transform: translateY(-2px);
+}
+
+.category-btn:active {
+    transform: translateY(0);
+}
+
+.favorite-action:active {
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .favorite-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    .favorite-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .categories-list {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+    
+    .category-btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .actions-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .footer-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .footer-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .info-text {
+        text-align: center;
+    }
+    
+    .recent-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .favorite-action {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .favorite-content {
+        align-items: center;
+    }
+    
+    .action-shortcut {
+        align-self: center;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .action-shortcut {
+        align-self: flex-start;
+    }
+}
+
+/* Animación para nuevas acciones */
+@keyframes highlightAction {
+    0% {
+        background-color: rgba(59, 130, 246, 0.1);
+        transform: scale(1);
+    }
+    50% {
+        background-color: rgba(59, 130, 246, 0.2);
+        transform: scale(1.02);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+}
+
+.action-card.highlighted {
+    animation: highlightAction 0.6s ease;
+}
+
+/* Tooltip para acciones */
+.action-tooltip {
+    position: absolute;
+    background: #1e293b;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.action-card:hover .action-tooltip {
+    opacity: 1;
+}
+
+.action-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #1e293b;
+}

@@ -1,0 +1,169 @@
+/*
+ * Tema del Sistema - Sistema de Inventario QR
+ * Versión: 1.0.0
+ * Detecta automáticamente las preferencias del sistema
+ */
+
+@media (prefers-color-scheme: light) {
+    :root {
+        /* Colores primarios */
+        --primary-50: #eff6ff;
+        --primary-100: #dbeafe;
+        --primary-200: #bfdbfe;
+        --primary-300: #93c5fd;
+        --primary-400: #60a5fa;
+        --primary-500: #3b82f6;
+        --primary-600: #2563eb;
+        --primary-700: #1d4ed8;
+        --primary-800: #1e40af;
+        --primary-900: #1e3a8a;
+        
+        /* Fondos */
+        --bg-body: #ffffff;
+        --bg-header: #ffffff;
+        --bg-main: #f8fafc;
+        --bg-footer: #f1f5f9;
+        --bg-card: #ffffff;
+        --bg-modal: #ffffff;
+        --bg-input: #ffffff;
+        --bg-table: #ffffff;
+        
+        /* Textos */
+        --text-primary: #1f2937;
+        --text-secondary: #4b5563;
+        --text-heading: #111827;
+        
+        /* Bordes */
+        --border-color: #e5e7eb;
+        --border-input: #d1d5db;
+        
+        /* Sombras */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        
+        /* Otros */
+        --overlay-bg: rgba(0, 0, 0, 0.5);
+        --blur-bg: rgba(255, 255, 255, 0.8);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Colores primarios invertidos */
+        --primary-50: #1e3a8a;
+        --primary-100: #1e40af;
+        --primary-200: #1d4ed8;
+        --primary-300: #2563eb;
+        --primary-400: #3b82f6;
+        --primary-500: #60a5fa;
+        --primary-600: #93c5fd;
+        --primary-700: #bfdbfe;
+        --primary-800: #dbeafe;
+        --primary-900: #eff6ff;
+        
+        /* Fondos */
+        --bg-body: #0f172a;
+        --bg-header: #1e293b;
+        --bg-main: #0f172a;
+        --bg-footer: #1e293b;
+        --bg-card: #1e293b;
+        --bg-modal: #1e293b;
+        --bg-input: #1e293b;
+        --bg-table: #1e293b;
+        
+        /* Textos */
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-heading: #ffffff;
+        
+        /* Bordes */
+        --border-color: #334155;
+        --border-input: #475569;
+        
+        /* Sombras */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+        
+        /* Otros */
+        --overlay-bg: rgba(0, 0, 0, 0.7);
+        --blur-bg: rgba(30, 41, 59, 0.8);
+    }
+}
+
+/* Transiciones suaves para cambios de tema */
+* {
+    transition: background-color 0.3s ease,
+                border-color 0.3s ease,
+                color 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+/* Variables independientes del tema */
+:root {
+    /* Tipografía */
+    --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    
+    /* Tamaños de fuente */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    
+    /* Pesos de fuente */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* Espaciado */
+    --spacing-1: 0.25rem;
+    --spacing-2: 0.5rem;
+    --spacing-3: 0.75rem;
+    --spacing-4: 1rem;
+    --spacing-5: 1.25rem;
+    --spacing-6: 1.5rem;
+    --spacing-8: 2rem;
+    --spacing-10: 2.5rem;
+    --spacing-12: 3rem;
+    --spacing-16: 4rem;
+    
+    /* Bordes redondeados */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-full: 9999px;
+    
+    /* Z-index */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    
+    /* Contenedores */
+    --container-max-width: 1280px;
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    --container-padding: 1rem;
+    
+    /* Alturas de línea */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    
+    /* Animaciones */
+    --transition-fast: 150ms;
+    --transition-normal: 300ms;
+    --transition-slow: 500ms;
+}

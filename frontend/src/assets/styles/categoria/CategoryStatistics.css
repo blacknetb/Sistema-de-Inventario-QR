@@ -1,0 +1,342 @@
+/**
+ * CategoryStatistics.css
+ * Estilos para el componente CategoryStatistics
+ * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\assets\styles\CategoryStatistics.css
+ */
+
+/* Contenedor de estadísticas */
+.category-statistics {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Encabezado de estadísticas */
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.stats-header h2 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+/* Selector de rango de tiempo */
+.time-range-selector {
+    display: flex;
+    gap: 0.5rem;
+    background-color: #f1f5f9;
+    padding: 0.25rem;
+    border-radius: 8px;
+}
+
+.time-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.time-btn:hover {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+.time-btn.active {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* Grid de estadísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+/* Tarjetas de estadísticas */
+.stat-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.stat-card.total .stat-icon {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.stat-card.active .stat-icon {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.stat-card.inactive .stat-icon {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.stat-card.recent .stat-icon {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-value {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.stat-trend {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.875rem;
+    color: #94a3b8;
+}
+
+/* Barra de progreso */
+.stat-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background-color: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.percentage {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #475569;
+    min-width: 40px;
+}
+
+/* Contenedor de gráfico */
+.chart-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.chart-container h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    height: 200px;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: 8px;
+}
+
+.chart-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.bar-fill {
+    width: 30px;
+    background: linear-gradient(to top, #3b82f6, #60a5fa);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.3s ease;
+    min-height: 2px;
+}
+
+.bar-label {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-align: center;
+}
+
+.bar-value {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Categorías recientes */
+.recent-categories {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.recent-categories h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.recent-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.2s ease;
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+}
+
+.recent-item:hover {
+    background-color: #f8fafc;
+    border-radius: 8px;
+}
+
+.recent-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.recent-name {
+    font-weight: 500;
+    color: #374151;
+}
+
+.recent-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.recent-status.active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.recent-status.inactive {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.recent-date {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .category-statistics {
+        padding: 1rem;
+    }
+    
+    .stats-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .time-range-selector {
+        align-self: stretch;
+        justify-content: center;
+    }
+    
+    .chart {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .chart-bar {
+        flex-direction: row;
+        width: 100%;
+        height: 40px;
+    }
+    
+    .bar-fill {
+        width: 100%;
+        height: 30px;
+        border-radius: 4px;
+    }
+    
+    .recent-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}

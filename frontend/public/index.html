@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     
     <!-- Favicon y iconos -->
-    <link rel="icon" href="/assets/favicon/favicon.ico" type="image/x-icon" sizes="any">
-    <link rel="icon" href="/assets/favicon/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png">
+    <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon" sizes="any">
+    <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
     
     <!-- Metadatos de seguridad -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' http://localhost:5000;">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     
     <!-- Configuración PWA -->
@@ -42,14 +43,14 @@
     <meta name="twitter:site" content="@inventarioqr">
     
     <!-- Manifest PWA -->
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="manifest" href="site.webmanifest">
     
     <!-- Preconexiones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Estilos críticos -->
-    <link rel="stylesheet" href="/src/assets/styles/main.css">
+    <link rel="stylesheet" href="style.css">
     
     <!-- Fuentes optimizadas -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -63,37 +64,101 @@
     <!-- Mensaje para navegadores sin JavaScript -->
     <noscript>
         <div class="no-js-message">
-            <h2>JavaScript Requerido</h2>
-            <p>⚠️ Esta aplicación requiere JavaScript para funcionar correctamente.</p>
-            <p>🔧 Por favor, habilita JavaScript en tu navegador y recarga la página.</p>
-            <p>📚 Si necesitas ayuda, consulta las instrucciones para habilitar JavaScript en tu navegador.</p>
-            <div class="browser-help">
-                <p><strong>Navegadores comunes:</strong></p>
-                <p>Chrome/Firefox/Edge: Configuración → Privacidad y seguridad → Configuración de sitios → JavaScript → Permitir</p>
-                <p>Safari: Preferencias → Seguridad → Habilitar JavaScript</p>
+            <div class="no-js-container">
+                <div class="no-js-content">
+                    <div class="no-js-icon">⚠️</div>
+                    <h1>JavaScript Requerido</h1>
+                    <p class="no-js-description">
+                        Esta aplicación requiere JavaScript para funcionar correctamente.<br>
+                        Por favor, habilita JavaScript en tu navegador y recarga la página.
+                    </p>
+                    
+                    <div class="no-js-instructions">
+                        <h2>¿Cómo habilitar JavaScript?</h2>
+                        <div class="browser-list">
+                            <div class="browser-item">
+                                <h3>Google Chrome</h3>
+                                <ol>
+                                    <li>Abrir Configuración</li>
+                                    <li>Privacidad y seguridad → Configuración de sitios</li>
+                                    <li>JavaScript → Permitir</li>
+                                </ol>
+                            </div>
+                            <div class="browser-item">
+                                <h3>Mozilla Firefox</h3>
+                                <ol>
+                                    <li>Abrir Opciones</li>
+                                    <li>Privacidad y Seguridad</li>
+                                    <li>Permitir JavaScript</li>
+                                </ol>
+                            </div>
+                            <div class="browser-item">
+                                <h3>Microsoft Edge</h3>
+                                <ol>
+                                    <li>Abrir Configuración</li>
+                                    <li>Cookies y permisos del sitio</li>
+                                    <li>JavaScript → Permitir</li>
+                                </ol>
+                            </div>
+                            <div class="browser-item">
+                                <h3>Safari</h3>
+                                <ol>
+                                    <li>Abrir Preferencias</li>
+                                    <li>Seguridad</li>
+                                    <li>Habilitar JavaScript</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="no-js-footer">
+                        <p class="version-info">Sistema de Inventario QR - Versión 1.0.0</p>
+                        <p>© 2024 Todos los derechos reservados</p>
+                    </div>
+                </div>
             </div>
-            <p class="version-info">Sistema de Inventario QR - Versión 1.0.0</p>
         </div>
     </noscript>
     
     <!-- Contenedor principal de la aplicación -->
-    <div id="root">
+    <div id="app">
         <!-- Pantalla de carga inicial -->
-        <div class="app-loading fade-in" id="app-loading">
+        <div class="app-loading" id="app-loading">
             <div class="loading-container">
-                <div class="loading-spinner"></div>
-                <h2>Cargando Sistema de Inventario...</h2>
-                <p class="loading-description">Preparando tu entorno de gestión de inventario</p>
+                <div class="loading-logo">
+                    <div class="logo-icon">📦</div>
+                    <div class="logo-text">Inventario QR</div>
+                </div>
+                
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div class="spinner-ring"></div>
+                </div>
+                
+                <div class="loading-message">
+                    <h2>Inicializando Sistema</h2>
+                    <p>Preparando tu entorno de gestión de inventario...</p>
+                </div>
+                
+                <div class="loading-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="loading-progress"></div>
+                    </div>
+                    <div class="progress-text" id="loading-text">Cargando módulos...</div>
+                </div>
+                
                 <div class="version-details">
-                    <div>Versión 1.0.0</div>
-                    <div>© 2024 Inventario QR</div>
+                    <div class="version">Versión 1.0.0</div>
+                    <div class="copyright">© 2024 Inventario QR</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Script principal de configuración -->
-    <script src="/src/assets/js/app-config.js"></script>
-    <script src="/src/assets/js/main.js"></script>
+    <!-- Script de configuración de la aplicación -->
+    <script src="app-config.js"></script>
+    
+    <!-- Script principal de la aplicación -->
+    <script src="main.js"></script>
 </body>
 </html>

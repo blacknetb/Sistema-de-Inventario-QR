@@ -1,588 +1,365 @@
-import { get, post, put, del, clearCache } from "./api";
-import notificationService from "./notificationService";
+/**
+ * SERVICIO DE CATEGORÍAS
+ * Maneja todas las operaciones CRUD para categorías
+ * Compatible con backend RESTful API
+ */
 
-const createCategoryCache = () => {
-  const cache = new Map();
-  const parentChildMap = new Map();
-  const productCategoryMap = new Map();
+import axios from 'axios';
 
-  return {
-    get: (key) => {
-      const cached = cache.get(key);
-      if (cached && Date.now() - cached.timestamp < cached.ttl) {
-        return cached.data;
-      }
-      cache.delete(key);
-      return null;
-    },
+// Configuración base de axios
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
-    set: (key, data, ttl = 10 * 60 * 1000) => {
-      cache.set(key, {
-        data,
-        timestamp: Date.now(),
-        ttl,
-      });
-    },
+// Instancia de axios con configuración común
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  timeout: 10000 // 10 segundos
+});
 
-    delete: (key) => {
-      cache.delete(key);
-    },
-
-    clear: (pattern = null) => {
-      if (pattern) {
-        for (const key of cache.keys()) {
-          if (key.includes(pattern)) {
-            cache.delete(key);
-          }
-        }
-      } else {
-        cache.clear();
-        parentChildMap.clear();
-        productCategoryMap.clear();
-      }
-    },
-
-    setParentChild: (parentId, childId) => {
-      if (!parentChildMap.has(parentId)) {
-        parentChildMap.set(parentId, new Set());
-      }
-      parentChildMap.get(parentId).add(childId);
-    },
-
-    getChildren: (parentId) => {
-      return parentChildMap.get(parentId) || new Set();
-    },
-
-    clearChildren: (parentId) => {
-      parentChildMap.delete(parentId);
-    },
-
-    addProductToCategory: (productId, categoryId) => {
-      if (!productCategoryMap.has(categoryId)) {
-        productCategoryMap.set(categoryId, new Set());
-      }
-      productCategoryMap.get(categoryId).add(productId);
-    },
-
-    removeProductFromCategory: (productId, categoryId) => {
-      if (productCategoryMap.has(categoryId)) {
-        productCategoryMap.get(categoryId).delete(productId);
-      }
-    },
-
-    getProductsInCategory: (categoryId) => {
-      return productCategoryMap.get(categoryId) || new Set();
-    },
-
-    hasProducts: (categoryId) => {
-      const products = productCategoryMap.get(categoryId);
-      return products && products.size > 0;
-    },
-  };
-};
-
-const categoryCache = createCategoryCache();
-
-const validateCategoryData = (categoryData, isUpdate = false) => {
-  const errors = [];
-  const warnings = [];
-
-  if (!isUpdate || categoryData.name !== undefined) {
-    if (!categoryData.name || categoryData.name.trim().length < 2) {
-      errors.push("El nombre debe tener al menos 2 caracteres");
-    } else if (categoryData.name.length > 255) {
-      errors.push("El nombre no puede exceder 255 caracteres");
+// Interceptor para manejar errores globalmente
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response) {
+      // El servidor respondió con un código de estado fuera del rango 2xx
+      console.error('Error de servidor:', error.response.data);
+      return Promise.reject(error.response.data);
+    } else if (error.request) {
+      // La solicitud fue hecha pero no se recibió respuesta
+      console.error('Error de red:', error.message);
+      return Promise.reject(new Error('Error de conexión con el servidor'));
+    } else {
+      // Algo sucedió al configurar la solicitud
+      console.error('Error:', error.message);
+      return Promise.reject(error);
     }
   }
+);
 
-  if (categoryData.parent_id !== undefined && categoryData.parent_id !== null) {
-    const parentId = parseInt(categoryData.parent_id);
-    if (isNaN(parentId) || parentId < 0) {
-      errors.push("ID de categoría padre inválido");
-    }
-  }
-
-  if (
-    categoryData.description !== undefined &&
-    categoryData.description.length > 1000
-  ) {
-    warnings.push("La descripción es muy larga (máximo 1000 caracteres)");
-  }
-
-  if (categoryData.slug !== undefined && categoryData.slug) {
-    const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-    if (!slugRegex.test(categoryData.slug)) {
-      errors.push(
-        "El slug debe contener solo letras minúsculas, números y guiones"
-      );
-    }
-  }
-
-  if (categoryData.color !== undefined && categoryData.color) {
-    const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-    if (!colorRegex.test(categoryData.color)) {
-      errors.push("El color debe ser un código HEX válido (ej: #FF0000)");
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-    warnings,
-  };
-};
-
-export const categoryService = {
-  getAll: async (params = {}, useCache = true) => {
+/**
+ * Servicio de Categorías
+ */
+const categoryService = {
+  /**
+   * Obtiene todas las categorías con filtros opcionales
+   * @param {Object} params - Parámetros de filtrado
+   * @param {number} params.page - Página actual
+   * @param {number} params.limit - Elementos por página
+   * @param {string} params.search - Término de búsqueda
+   * @param {string} params.sort - Campo para ordenar
+   * @param {string} params.order - Orden (asc/desc)
+   * @param {AbortSignal} signal - Señal para cancelar la solicitud
+   * @returns {Promise} Promesa con las categorías
+   */
+  getAll: async (params = {}, signal) => {
     try {
-      const cacheKey = `categories_all_${JSON.stringify(params)}`;
-
-      if (useCache) {
-        const cached = categoryCache.get(cacheKey);
-        if (cached) {
-          return cached;
+      const config = signal ? { params, signal } : { params };
+      
+      const response = await apiClient.get('/categories', config);
+      
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        pagination: response.data.pagination || {
+          page: params.page || 1,
+          limit: params.limit || 10,
+          total: response.data.length || 0,
+          pages: Math.ceil((response.data.length || 0) / (params.limit || 10))
         }
-      }
-
-      const response = await get("/categories", params);
-
-      if (useCache && response.success && response.data) {
-        categoryCache.set(cacheKey, response);
-
-        if (Array.isArray(response.data)) {
-          response.data.forEach((category) => {
-            if (category.parent_id) {
-              categoryCache.setParentChild(category.parent_id, category.id);
-            }
-          });
-        }
-      }
-
-      return response;
+      };
     } catch (error) {
-      throw error;
+      console.error('Error al obtener categorías:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al cargar las categorías',
+        data: []
+      };
     }
   },
 
-  getById: async (id, useCache = true) => {
+  /**
+   * Obtiene una categoría por su ID
+   * @param {string|number} id - ID de la categoría
+   * @returns {Promise} Promesa con la categoría
+   */
+  getById: async (id) => {
     try {
-      const cacheKey = `category_${id}`;
-
-      if (useCache) {
-        const cached = categoryCache.get(cacheKey);
-        if (cached) {
-          return cached;
-        }
-      }
-
-      const response = await get(`/categories/${id}`);
-
-      if (useCache && response.success) {
-        categoryCache.set(cacheKey, response);
-      }
-
-      return response;
+      const response = await apiClient.get(`/categories/${id}`);
+      
+      return {
+        success: true,
+        data: response.data
+      };
     } catch (error) {
-      throw error;
+      console.error(`Error al obtener categoría ${id}:`, error);
+      return {
+        success: false,
+        message: error.message || 'Error al cargar la categoría'
+      };
     }
   },
 
+  /**
+   * Crea una nueva categoría
+   * @param {Object} categoryData - Datos de la categoría
+   * @param {string} categoryData.name - Nombre de la categoría
+   * @param {string} categoryData.description - Descripción de la categoría
+   * @returns {Promise} Promesa con la categoría creada
+   */
   create: async (categoryData) => {
     try {
-      const validation = validateCategoryData(categoryData, false);
-      if (!validation.isValid) {
-        throw new Error(validation.errors.join(", "));
+      // Validación básica del lado del cliente
+      if (!categoryData.name || categoryData.name.trim().length < 2) {
+        throw new Error('El nombre de la categoría debe tener al menos 2 caracteres');
       }
 
-      if (validation.warnings.length > 0) {
-        validation.warnings.forEach((warning) => {
-          notificationService.warning(warning);
-        });
-      }
-
-      const response = await post("/categories", categoryData);
-
-      if (response.success) {
-        categoryCache.clear();
-        clearCache("categories");
-
-        notificationService.success("Categoría creada exitosamente");
-      }
-
-      return response;
+      const response = await apiClient.post('/categories', categoryData);
+      
+      return {
+        success: true,
+        data: response.data,
+        message: 'Categoría creada exitosamente'
+      };
     } catch (error) {
-      throw error;
+      console.error('Error al crear categoría:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al crear la categoría'
+      };
     }
   },
 
+  /**
+   * Actualiza una categoría existente
+   * @param {string|number} id - ID de la categoría
+   * @param {Object} categoryData - Datos actualizados de la categoría
+   * @returns {Promise} Promesa con la categoría actualizada
+   */
   update: async (id, categoryData) => {
     try {
-      const validation = validateCategoryData(categoryData, true);
-      if (!validation.isValid) {
-        throw new Error(validation.errors.join(", "));
+      // Validación básica del lado del cliente
+      if (categoryData.name && categoryData.name.trim().length < 2) {
+        throw new Error('El nombre de la categoría debe tener al menos 2 caracteres');
       }
 
-      if (validation.warnings.length > 0) {
-        validation.warnings.forEach((warning) => {
-          notificationService.warning(warning);
-        });
-      }
-
-      const response = await put(`/categories/${id}`, categoryData);
-
-      if (response.success) {
-        categoryCache.delete(`category_${id}`);
-        categoryCache.clear();
-        clearCache("categories");
-
-        notificationService.success("Categoría actualizada exitosamente");
-      }
-
-      return response;
+      const response = await apiClient.put(`/categories/${id}`, categoryData);
+      
+      return {
+        success: true,
+        data: response.data,
+        message: 'Categoría actualizada exitosamente'
+      };
     } catch (error) {
-      throw error;
+      console.error(`Error al actualizar categoría ${id}:`, error);
+      return {
+        success: false,
+        message: error.message || 'Error al actualizar la categoría'
+      };
     }
   },
 
-  delete: async (id, force = false) => {
+  /**
+   * Elimina una categoría
+   * @param {string|number} id - ID de la categoría
+   * @returns {Promise} Promesa con el resultado de la eliminación
+   */
+  delete: async (id) => {
     try {
-      const hasProducts = await this.hasProducts(id);
-      if (hasProducts && !force) {
-        throw new Error(
-          "No se puede eliminar la categoría porque tiene productos asociados"
-        );
-      }
-
-      const confirmed = await notificationService.confirm(
-        force
-          ? "⚠️ Advertencia: Esta categoría tiene productos. ¿Eliminar de todos modos?"
-          : "¿Estás seguro de eliminar esta categoría?"
-      );
-
-      if (!confirmed) {
-        return { success: false, message: "Operación cancelada" };
-      }
-
-      const response = await del(`/categories/${id}`);
-
-      if (response.success) {
-        categoryCache.delete(`category_${id}`);
-        categoryCache.clear();
-        clearCache("categories");
-
-        notificationService.success("Categoría eliminada exitosamente");
-      }
-
-      return response;
+      await apiClient.delete(`/categories/${id}`);
+      
+      return {
+        success: true,
+        message: 'Categoría eliminada exitosamente'
+      };
     } catch (error) {
-      throw error;
+      console.error(`Error al eliminar categoría ${id}:`, error);
+      
+      // Manejo específico de errores comunes
+      let message = 'Error al eliminar la categoría';
+      if (error.status === 409) {
+        message = 'No se puede eliminar la categoría porque tiene productos asociados';
+      } else if (error.status === 404) {
+        message = 'La categoría no existe';
+      }
+      
+      return {
+        success: false,
+        message: error.message || message
+      };
     }
   },
 
-  getProducts: async (categoryId, params = {}, useCache = true) => {
+  /**
+   * Elimina múltiples categorías
+   * @param {Array<string|number>} ids - IDs de las categorías a eliminar
+   * @returns {Promise} Promesa con el resultado de la eliminación
+   */
+  deleteMultiple: async (ids) => {
     try {
-      const cacheKey = `category_${categoryId}_products_${JSON.stringify(params)}`;
+      const response = await apiClient.post('/categories/bulk-delete', { ids });
+      
+      return {
+        success: true,
+        data: response.data,
+        message: `${ids.length} categoría(s) eliminada(s) exitosamente`
+      };
+    } catch (error) {
+      console.error('Error al eliminar múltiples categorías:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al eliminar las categorías'
+      };
+    }
+  },
 
-      if (useCache) {
-        const cached = categoryCache.get(cacheKey);
-        if (cached) {
-          return cached;
-        }
-      }
-
-      const response = await get("/products", {
-        ...params,
-        category_id: categoryId,
+  /**
+   * Exporta categorías en formato CSV
+   * @param {Object} params - Parámetros de filtrado
+   * @returns {Promise} Promesa con los datos exportados
+   */
+  exportToCSV: async (params = {}) => {
+    try {
+      const response = await apiClient.get('/categories/export', {
+        params,
+        responseType: 'blob'
       });
-
-      if (useCache && response.success && response.data) {
-        categoryCache.set(cacheKey, response);
-
-        if (Array.isArray(response.data)) {
-          response.data.forEach((product) => {
-            categoryCache.addProductToCategory(product.id, categoryId);
-          });
-        }
-      }
-
-      return response;
+      
+      return {
+        success: true,
+        data: response.data,
+        filename: response.headers['content-disposition']?.split('filename=')[1] || 'categorias.csv'
+      };
     } catch (error) {
-      throw error;
+      console.error('Error al exportar categorías:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al exportar las categorías'
+      };
     }
   },
 
-  hasProducts: async (categoryId, useCache = true) => {
-    try {
-      if (useCache && categoryCache.hasProducts(categoryId)) {
-        return true;
-      }
-
-      const response = await this.getProducts(
-        categoryId,
-        { limit: 1, fields: "id" },
-        true
-      );
-      return response.success && response.data && response.data.length > 0;
-    } catch (error) {
-      console.warn("Error verificando productos de categoría:", error);
-      return true;
-    }
-  },
-
-  search: async (term, params = {}) => {
-    try {
-      const response = await this.getAll(params, false);
-
-      if (response.success && response.data && Array.isArray(response.data)) {
-        const searchTerm = term.toLowerCase();
-        const filtered = response.data.filter((category) => {
-          if (!category) return false;
-
-          const nameMatch =
-            category.name && category.name.toLowerCase().includes(searchTerm);
-          const descMatch =
-            category.description &&
-            category.description.toLowerCase().includes(searchTerm);
-          const slugMatch =
-            category.slug && category.slug.toLowerCase().includes(searchTerm);
-
-          return nameMatch || descMatch || slugMatch;
-        });
-
-        return {
-          ...response,
-          data: filtered,
-          searchTerm: term,
-          totalResults: filtered.length,
-        };
-      }
-
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getByLevel: async (level = 0, params = {}) => {
-    try {
-      const allCategories = await this.getAll(params, true);
-
-      if (
-        allCategories.success &&
-        allCategories.data &&
-        Array.isArray(allCategories.data)
-      ) {
-        const filtered = allCategories.data.filter((category) => {
-          if (level === 0) {
-            return !category.parent_id;
-          }
-          return true;
-        });
-
-        return {
-          ...allCategories,
-          data: filtered,
-          level,
-          total: filtered.length,
-        };
-      }
-
-      return allCategories;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getSubcategories: async (parentId, params = {}) => {
-    try {
-      const allCategories = await this.getAll(params, true);
-
-      if (
-        allCategories.success &&
-        allCategories.data &&
-        Array.isArray(allCategories.data)
-      ) {
-        const parsedParentId = parseInt(parentId);
-        const subcategories = allCategories.data.filter(
-          (category) => category.parent_id === parsedParentId
-        );
-
-        return {
-          ...allCategories,
-          data: subcategories,
-          parentId,
-          total: subcategories.length,
-        };
-      }
-
-      return allCategories;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getTree: async (useCache = true) => {
-    try {
-      const cacheKey = "categories_tree";
-
-      if (useCache) {
-        const cached = categoryCache.get(cacheKey);
-        if (cached) {
-          return cached;
-        }
-      }
-
-      const response = await get("/categories/tree");
-
-      if (response.success) {
-        if (useCache) {
-          categoryCache.set(cacheKey, response);
-        }
-
-        const rebuildRelations = (categories, parentId = null) => {
-          if (!Array.isArray(categories)) return;
-
-          categories.forEach((category) => {
-            if (parentId) {
-              categoryCache.setParentChild(parentId, category.id);
-            }
-
-            if (Array.isArray(category?.children)) {
-              rebuildRelations(category.children, category.id);
-            }
-          });
-        };
-
-        if (response.data) {
-          rebuildRelations(response.data);
-        }
-
-        return response;
-      }
-
-      const allCategories = await this.getAll({}, useCache);
-
-      if (allCategories?.success && Array.isArray(allCategories?.data)) {
-        const buildTree = (categories, parentId = null) => {
-          if (!Array.isArray(categories)) return [];
-
-          return categories
-            .filter((category) => {
-              const categoryParentId = category?.parent_id;
-              return (
-                (parentId === null && !categoryParentId) ||
-                categoryParentId === parentId
-              );
-            })
-            .map((category) => ({
-              ...category,
-              children: buildTree(categories, category.id),
-            }));
-        };
-
-        const tree = buildTree(allCategories.data);
-
-        const treeResponse = {
-          ...allCategories,
-          data: tree,
-        };
-
-        if (useCache) {
-          categoryCache.set(cacheKey, treeResponse);
-        }
-
-        return treeResponse;
-      }
-
-      return allCategories;
-    } catch (error) {
-      console.error("❌ Error al procesar categorías:", error.message);
-      throw error;
-    }
-  },
-
-  validateCategory: (categoryData) => {
-    return validateCategoryData(categoryData, false);
-  },
-
+  /**
+   * Obtiene estadísticas de categorías
+   * @returns {Promise} Promesa con las estadísticas
+   */
   getStats: async () => {
     try {
-      const cacheKey = "categories_stats";
-      const cached = categoryCache.get(cacheKey);
-
-      if (cached) {
-        return cached;
-      }
-
-      const allCategories = await this.getAll({}, true);
-
-      if (allCategories?.success && Array.isArray(allCategories?.data)) {
-        const stats = {
-          total: allCategories.data.length,
-          withProducts: 0,
-          withoutProducts: 0,
-          byLevel: {},
-          treeDepth: 0,
-        };
-
-        const checks = allCategories.data.map(async (category) => {
-          if (!category?.id) return { categoryId: null, hasProducts: false };
-
-          const hasProducts = await this.hasProducts(category.id, true);
-          return { categoryId: category.id, hasProducts };
-        });
-
-        const results = await Promise.all(checks);
-
-        results.forEach((result) => {
-          if (result.hasProducts) {
-            stats.withProducts++;
-          } else {
-            stats.withoutProducts++;
-          }
-        });
-
-        const calculateDepth = (categories, parentId = null, depth = 0) => {
-          if (!Array.isArray(categories)) return depth;
-
-          const children = categories.filter(
-            (cat) => cat?.parent_id === parentId
-          );
-
-          if (children.length === 0) {
-            return depth;
-          }
-
-          const childDepths = children.map((child) =>
-            calculateDepth(categories, child.id, depth + 1)
-          );
-
-          return Math.max(...childDepths);
-        };
-
-        stats.treeDepth = calculateDepth(allCategories.data);
-
-        const response = {
-          success: true,
-          data: stats,
-          timestamp: new Date().toISOString(),
-        };
-
-        categoryCache.set(cacheKey, response, 5 * 60 * 1000);
-        return response;
-      }
-
-      return allCategories;
+      const response = await apiClient.get('/categories/stats');
+      
+      return {
+        success: true,
+        data: response.data
+      };
     } catch (error) {
-      console.error("❌ Error al procesar categorías:", error.message);
-      throw error;
+      console.error('Error al obtener estadísticas:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al cargar estadísticas'
+      };
     }
   },
 
-  clearCache: () => {
-    categoryCache.clear();
-    clearCache("categories");
+  /**
+   * Valida si un nombre de categoría está disponible
+   * @param {string} name - Nombre a validar
+   * @param {string|number} [excludeId] - ID de categoría a excluir (para edición)
+   * @returns {Promise} Promesa con el resultado de la validación
+   */
+  validateName: async (name, excludeId = null) => {
+    try {
+      const params = { name };
+      if (excludeId) params.excludeId = excludeId;
+      
+      const response = await apiClient.get('/categories/validate-name', { params });
+      
+      return {
+        success: true,
+        data: response.data,
+        isValid: response.data.isValid
+      };
+    } catch (error) {
+      console.error('Error al validar nombre:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al validar el nombre'
+      };
+    }
   },
+
+  /**
+   * Obtiene categorías populares (con más productos)
+   * @param {number} limit - Límite de resultados
+   * @returns {Promise} Promesa con las categorías populares
+   */
+  getPopular: async (limit = 10) => {
+    try {
+      const response = await apiClient.get('/categories/popular', {
+        params: { limit }
+      });
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error al obtener categorías populares:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al cargar categorías populares'
+      };
+    }
+  },
+
+  /**
+   * Obtiene categorías sin productos
+   * @returns {Promise} Promesa con las categorías sin productos
+   */
+  getWithoutProducts: async () => {
+    try {
+      const response = await apiClient.get('/categories/without-products');
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error al obtener categorías sin productos:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al cargar categorías sin productos'
+      };
+    }
+  }
+};
+
+// Métodos de utilidad para manejar archivos y exportación
+categoryService.downloadCSV = (data, filename = 'categorias.csv') => {
+  const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+// Configuración global de la API
+categoryService.setAuthToken = (token) => {
+  if (token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete apiClient.defaults.headers.common['Authorization'];
+  }
+};
+
+// Configuración de la URL base
+categoryService.setBaseURL = (url) => {
+  apiClient.defaults.baseURL = url;
 };
 
 export default categoryService;

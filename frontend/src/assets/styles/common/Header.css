@@ -1,0 +1,616 @@
+/**
+ * Header.css
+ * Estilos para el componente Header
+ * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\assets\styles\Header.css
+ */
+
+/* Estilos generales del header */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    transition: all 0.3s ease;
+}
+
+/* Header scroll effect */
+.app-header.scrolled {
+    height: 60px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%);
+}
+
+/* Sección izquierda */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    flex: 1;
+}
+
+/* Logo */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    font-size: 2.5rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.app-name h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.app-tagline {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Navegación principal */
+.main-nav {
+    flex: 1;
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 1.5rem;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.nav-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+    color: white;
+    background: rgba(59, 130, 246, 0.2);
+    border-left: 3px solid #3b82f6;
+}
+
+.nav-icon {
+    font-size: 1.2rem;
+}
+
+/* Sección derecha */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Barra de búsqueda */
+.search-bar {
+    position: relative;
+    min-width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: none;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+.search-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.search-btn {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+}
+
+/* Botón menú móvil */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Acciones del header */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Notificaciones */
+.notification-container {
+    position: relative;
+}
+
+.notification-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.notification-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Dropdown de notificaciones */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    margin-top: 0.5rem;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.mark-all-read {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.mark-all-read:hover {
+    background: #f1f5f9;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+    background: #f8fafc;
+}
+
+.notification-item.unread {
+    background: #f0f9ff;
+}
+
+.notification-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-message {
+    margin: 0 0 0.25rem 0;
+    color: #334155;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.notification-time {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.no-notifications {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.notification-footer {
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.notification-footer a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.notification-footer a:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+/* Toggle de tema */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(30deg);
+}
+
+/* Perfil de usuario */
+.user-profile {
+    position: relative;
+}
+
+.user-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 25px;
+    padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.user-info {
+    text-align: left;
+}
+
+.user-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.user-role {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.dropdown-arrow {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    transition: transform 0.3s ease;
+}
+
+.user-btn:hover .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Menú de usuario */
+.user-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    margin-top: 0.5rem;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+    z-index: 1000;
+}
+
+.user-menu-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.menu-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.menu-user-info h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+}
+
+.menu-user-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.user-menu-items {
+    padding: 0.5rem 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    color: #334155;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background: #f8fafc;
+    color: #1d4ed8;
+}
+
+.menu-item.logout {
+    color: #ef4444;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 0.5rem;
+}
+
+.menu-item.logout:hover {
+    background: #fee2e2;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .search-bar {
+        min-width: 250px;
+    }
+    
+    .nav-list {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .app-header {
+        padding: 0 1rem;
+    }
+    
+    .nav-list {
+        gap: 0.5rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem;
+    }
+    
+    .nav-label {
+        display: none;
+    }
+    
+    .search-bar {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-header {
+        height: 60px;
+    }
+    
+    .header-left {
+        gap: 1rem;
+    }
+    
+    .logo-container {
+        gap: 0.5rem;
+    }
+    
+    .logo {
+        font-size: 2rem;
+    }
+    
+    .app-name h1 {
+        font-size: 1.2rem;
+    }
+    
+    .main-nav {
+        display: none;
+    }
+    
+    .search-bar {
+        display: none;
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .notification-dropdown {
+        width: 300px;
+        right: -50px;
+    }
+    
+    .user-menu {
+        width: 250px;
+        right: -50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-header {
+        padding: 0 0.5rem;
+    }
+    
+    .header-actions {
+        gap: 0.5rem;
+    }
+    
+    .notification-btn,
+    .theme-toggle {
+        padding: 0.25rem;
+    }
+    
+    .notification-dropdown {
+        width: 280px;
+        right: -80px;
+    }
+    
+    .user-menu {
+        width: 220px;
+        right: -80px;
+    }
+}

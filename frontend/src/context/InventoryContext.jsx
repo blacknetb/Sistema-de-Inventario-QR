@@ -1,455 +1,399 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import PropTypes from 'prop-types';
-import api from '../services/api';
-import '../assets/styles/context.css';
+// Contexto de inventario
+import React, { createContext, useState, useContext, useCallback } from 'react';
+import axios from 'axios';
 
-const InventoryContext = createContext({});
+// Crear el contexto de inventario
+export const inventoryContext = createContext();
 
-export const useInventory = () => {
-  const context = useContext(InventoryContext);
-  if (!context) {
-    throw new Error('useInventory debe usarse dentro de InventoryProvider');
-  }
-  return context;
-};
+// URL base del backend
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
+// Proveedor del contexto de inventario
 export const InventoryProvider = ({ children }) => {
-  const [state, setState] = useState({
-    products: [],
-    categories: [],
-    suppliers: [],
-    locations: [],
-    loading: false,
-    error: null,
-    filters: {
-      category: '',
-      location: '',
-      status: '',
-      search: ''
-    },
-    pagination: {
-      page: 1,
-      limit: 20,
-      total: 0,
-      totalPages: 0
-    },
-    stats: {
-      totalItems: 0,
-      lowStock: 0,
-      outOfStock: 0,
-      totalValue: 0,
-      recentActivity: []
-    }
-  });
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
+    const [transactions, setTransactions] = useState([]);
+    const [inventoryLoading, setInventoryLoading] = useState(false);
+    const [inventoryError, setInventoryError] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
+    const [stats, setStats] = useState({
+        totalProducts: 0,
+        totalValue: 0,
+        lowStock: 0,
+        outOfStock: 0,
+        recentTransactions: 0
+    });
 
-  const cacheRef = useRef({
-    products: new Map(),
-    categories: new Map(),
-    lastUpdated: null
-  });
+    // Cargar datos iniciales
+    const loadInitialData = useCallback(async () => {
+        try {
+            setInventoryLoading(true);
+            
+            // Cargar productos, categorías y proveedores en paralelo
+            const [productsRes, categoriesRes, suppliersRes, transactionsRes, statsRes] = await Promise.all([
+                axios.get(`${API_URL}/products`),
+                axios.get(`${API_URL}/categories`),
+                axios.get(`${API_URL}/suppliers`),
+                axios.get(`${API_URL}/transactions?limit=50`),
+                axios.get(`${API_URL}/stats`)
+            ]);
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    const loadInitialData = async () => {
-      if (!isMounted) return;
-      
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      try {
-        const [productsData, categoriesData, statsData] = await Promise.allSettled([
-          api.get('/api/products'),
-          api.get('/api/categories'),
-          api.get('/api/inventory/stats')
-        ]);
+            setProducts(productsRes.data);
+            setCategories(categoriesRes.data);
+            setSuppliers(suppliersRes.data);
+            setTransactions(transactionsRes.data);
+            setStats(statsRes.data);
+            
+        } catch (error) {
+            setInventoryError('Error al cargar los datos del inventario');
+            console.error('Error loading initial data:', error);
+        } finally {
+            setInventoryLoading(false);
+        }
+    }, []);
 
-        const products = productsData.status === 'fulfilled' ? productsData.value.data : [];
-        const categories = categoriesData.status === 'fulfilled' ? categoriesData.value.data : [];
-        const stats = statsData.status === 'fulfilled' ? statsData.value.data : {};
+    // PRODUCTOS
+    const getProducts = async () => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.get(`${API_URL}/products`);
+            setProducts(response.data);
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al obtener productos');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
 
-        const newCache = {
-          products: new Map(),
-          categories: new Map(),
-          lastUpdated: new Date()
-        };
-        
-        products.forEach(product => {
-          newCache.products.set(`product_${product.id}`, product);
-        });
-        
-        categories.forEach(category => {
-          newCache.categories.set(`category_${category.id}`, category);
-        });
-        
-        cacheRef.current = newCache;
+    const getProductById = async (id) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.get(`${API_URL}/products/${id}`);
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al obtener el producto');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
 
-        if (isMounted) {
-          setState(prev => ({
-            ...prev,
-            products,
-            categories,
-            stats: {
-              ...prev.stats,
-              ...stats
-            },
-            loading: false,
-            pagination: {
-              ...prev.pagination,
-              total: products.length
+    const createProduct = async (productData) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.post(`${API_URL}/products`, productData);
+            setProducts(prev => [...prev, response.data]);
+            return { success: true, product: response.data };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al crear producto';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const updateProduct = async (id, productData) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.put(`${API_URL}/products/${id}`, productData);
+            setProducts(prev => prev.map(p => p._id === id ? response.data : p));
+            return { success: true, product: response.data };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al actualizar producto';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const deleteProduct = async (id) => {
+        try {
+            setInventoryLoading(true);
+            await axios.delete(`${API_URL}/products/${id}`);
+            setProducts(prev => prev.filter(p => p._id !== id));
+            return { success: true };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al eliminar producto';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const searchProducts = async (searchTerm) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.get(`${API_URL}/products/search?q=${searchTerm}`);
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al buscar productos');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    // CATEGORÍAS
+    const getCategories = async () => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.get(`${API_URL}/categories`);
+            setCategories(response.data);
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al obtener categorías');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const createCategory = async (categoryData) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.post(`${API_URL}/categories`, categoryData);
+            setCategories(prev => [...prev, response.data]);
+            return { success: true, category: response.data };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al crear categoría';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const updateCategory = async (id, categoryData) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.put(`${API_URL}/categories/${id}`, categoryData);
+            setCategories(prev => prev.map(c => c._id === id ? response.data : c));
+            return { success: true, category: response.data };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al actualizar categoría';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const deleteCategory = async (id) => {
+        try {
+            setInventoryLoading(true);
+            await axios.delete(`${API_URL}/categories/${id}`);
+            setCategories(prev => prev.filter(c => c._id !== id));
+            return { success: true };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al eliminar categoría';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    // PROVEEDORES
+    const getSuppliers = async () => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.get(`${API_URL}/suppliers`);
+            setSuppliers(response.data);
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al obtener proveedores');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const createSupplier = async (supplierData) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.post(`${API_URL}/suppliers`, supplierData);
+            setSuppliers(prev => [...prev, response.data]);
+            return { success: true, supplier: response.data };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al crear proveedor';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const updateSupplier = async (id, supplierData) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.put(`${API_URL}/suppliers/${id}`, supplierData);
+            setSuppliers(prev => prev.map(s => s._id === id ? response.data : s));
+            return { success: true, supplier: response.data };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al actualizar proveedor';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const deleteSupplier = async (id) => {
+        try {
+            setInventoryLoading(true);
+            await axios.delete(`${API_URL}/suppliers/${id}`);
+            setSuppliers(prev => prev.filter(s => s._id !== id));
+            return { success: true };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al eliminar proveedor';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    // TRANSACCIONES
+    const getTransactions = async (filters = {}) => {
+        try {
+            setInventoryLoading(true);
+            const queryParams = new URLSearchParams(filters).toString();
+            const response = await axios.get(`${API_URL}/transactions?${queryParams}`);
+            setTransactions(response.data);
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al obtener transacciones');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const createTransaction = async (transactionData) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.post(`${API_URL}/transactions`, transactionData);
+            
+            // Actualizar producto relacionado
+            if (response.data.product) {
+                setProducts(prev => prev.map(p => 
+                    p._id === response.data.product._id ? response.data.product : p
+                ));
             }
-          }));
+            
+            // Agregar transacción a la lista
+            setTransactions(prev => [response.data, ...prev]);
+            
+            return { success: true, transaction: response.data };
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error al crear transacción';
+            setInventoryError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setInventoryLoading(false);
         }
-
-      } catch (error) {
-        console.error('❌ Error cargando datos iniciales:', error);
-        
-        if (isMounted) {
-          setState(prev => ({
-            ...prev,
-            loading: false,
-            error: error.response?.data?.message || error.message || 'Error cargando inventario'
-          }));
-        }
-      }
     };
-    
-    loadInitialData();
-    
-    return () => {
-      isMounted = false;
+
+    // ESTADÍSTICAS
+    const getStats = async () => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.get(`${API_URL}/stats`);
+            setStats(response.data);
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al obtener estadísticas');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
+        }
     };
-  }, []);
 
-  const getProductById = useCallback(async (id) => {
-    const cacheKey = `product_${id}`;
-    
-    if (cacheRef.current.products.has(cacheKey)) {
-      return cacheRef.current.products.get(cacheKey);
-    }
-
-    try {
-      const response = await api.get(`/api/products/${id}`);
-      const product = response.data;
-      
-      const newProductsCache = new Map(cacheRef.current.products);
-      newProductsCache.set(cacheKey, product);
-      cacheRef.current.products = newProductsCache;
-      
-      return product;
-    } catch (error) {
-      console.error(`❌ Error obteniendo producto ${id}:`, error);
-      throw error;
-    }
-  }, []);
-
-  const addProduct = useCallback(async (productData) => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const response = await api.post('/api/products', productData);
-      const newProduct = response.data;
-      
-      const newProductsCache = new Map(cacheRef.current.products);
-      newProductsCache.set(`product_${newProduct.id}`, newProduct);
-      cacheRef.current.products = newProductsCache;
-      
-      setState(prev => ({
-        ...prev,
-        products: [newProduct, ...prev.products],
-        stats: {
-          ...prev.stats,
-          totalItems: prev.stats.totalItems + 1
-        },
-        loading: false
-      }));
-      
-      return newProduct;
-    } catch (error) {
-      console.error('❌ Error agregando producto:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Error agregando producto'
-      }));
-      throw error;
-    }
-  }, []);
-
-  const updateProduct = useCallback(async (id, productData) => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const response = await api.put(`/api/products/${id}`, productData);
-      const updatedProduct = response.data;
-      
-      const newProductsCache = new Map(cacheRef.current.products);
-      newProductsCache.set(`product_${id}`, updatedProduct);
-      cacheRef.current.products = newProductsCache;
-      
-      setState(prev => ({
-        ...prev,
-        products: prev.products.map(p => 
-          p.id === id ? updatedProduct : p
-        ),
-        loading: false
-      }));
-      
-      return updatedProduct;
-    } catch (error) {
-      console.error(`❌ Error actualizando producto ${id}:`, error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Error actualizando producto'
-      }));
-      throw error;
-    }
-  }, []);
-
-  const deleteProduct = useCallback(async (id) => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      await api.delete(`/api/products/${id}`);
-      
-      const newProductsCache = new Map(cacheRef.current.products);
-      newProductsCache.delete(`product_${id}`);
-      cacheRef.current.products = newProductsCache;
-      
-      setState(prev => ({
-        ...prev,
-        products: prev.products.filter(p => p.id !== id),
-        stats: {
-          ...prev.stats,
-          totalItems: Math.max(0, prev.stats.totalItems - 1)
-        },
-        loading: false
-      }));
-      
-      return true;
-    } catch (error) {
-      console.error(`❌ Error eliminando producto ${id}:`, error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Error eliminando producto'
-      }));
-      throw error;
-    }
-  }, []);
-
-  const updateStock = useCallback(async (productId, quantity, operation = 'add', reason = '') => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const response = await api.post('/api/inventory/update-stock', {
-        productId,
-        quantity,
-        operation,
-        reason
-      });
-      
-      const updatedProduct = response.data;
-      
-      const newProductsCache = new Map(cacheRef.current.products);
-      newProductsCache.set(`product_${productId}`, updatedProduct);
-      cacheRef.current.products = newProductsCache;
-      
-      setState(prev => ({
-        ...prev,
-        products: prev.products.map(p => 
-          p.id === productId ? updatedProduct : p
-        ),
-        loading: false
-      }));
-      
-      await updateInventoryStats();
-      
-      return updatedProduct;
-    } catch (error) {
-      console.error(`❌ Error actualizando stock de ${productId}:`, error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Error actualizando stock'
-      }));
-      throw error;
-    }
-  }, []);
-
-  const updateInventoryStats = useCallback(async () => {
-    try {
-      const response = await api.get('/api/inventory/stats');
-      const stats = response.data;
-      
-      setState(prev => ({
-        ...prev,
-        stats: {
-          ...prev.stats,
-          ...stats
+    // REPORTES
+    const generateReport = async (reportType, params = {}) => {
+        try {
+            setInventoryLoading(true);
+            const response = await axios.post(`${API_URL}/reports/${reportType}`, params, {
+                responseType: 'blob'
+            });
+            return response.data;
+        } catch (error) {
+            setInventoryError('Error al generar reporte');
+            throw error;
+        } finally {
+            setInventoryLoading(false);
         }
-      }));
-    } catch (error) {
-      console.error('❌ Error actualizando estadísticas:', error);
-    }
-  }, []);
+    };
 
-  const filterProducts = useCallback((filters) => {
-    setState(prev => ({
-      ...prev,
-      filters: { ...prev.filters, ...filters },
-      loading: true
-    }));
-    
-    const timer = setTimeout(() => {
-      setState(prev => ({
-        ...prev,
-        loading: false
-      }));
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    // Limpiar errores
+    const clearInventoryError = () => {
+        setInventoryError(null);
+    };
 
-  const searchProducts = useCallback(async (searchTerm) => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const response = await api.get('/api/products/search', {
-        params: { q: searchTerm }
-      });
-      
-      setState(prev => ({
-        ...prev,
-        products: response.data,
-        loading: false,
-        filters: {
-          ...prev.filters,
-          search: searchTerm
-        }
-      }));
-    } catch (error) {
-      console.error('❌ Error buscando productos:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Error buscando productos'
-      }));
-    }
-  }, []);
-
-  const generateReport = useCallback(async (type = 'stock', format = 'pdf') => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const response = await api.get(`/api/reports/${type}`, {
-        params: { format },
-        responseType: 'blob'
-      });
-      
-      const url = globalThis.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `reporte_inventario_${type}_${new Date().toISOString().split('T')[0]}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      
-      setState(prev => ({ ...prev, loading: false }));
-      
-      return true;
-    } catch (error) {
-      console.error('❌ Error generando reporte:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Error generando reporte'
-      }));
-      throw error;
-    }
-  }, []);
-
-  const syncInventory = useCallback(async () => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const response = await api.get('/api/inventory/sync');
-      const { products, stats, lastSync } = response.data;
-      
-      const newCache = {
-        products: new Map(),
-        categories: new Map(cacheRef.current.categories),
-        lastUpdated: new Date()
-      };
-      
-      products.forEach(product => {
-        newCache.products.set(`product_${product.id}`, product);
-      });
-      
-      cacheRef.current = newCache;
-      
-      setState(prev => ({
-        ...prev,
+    // Valor del contexto
+    const value = {
         products,
-        stats: {
-          ...prev.stats,
-          ...stats
-        },
-        loading: false
-      }));
-      
-      return { success: true, lastSync };
-    } catch (error) {
-      console.error('❌ Error sincronizando inventario:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.message || 'Error sincronizando con el servidor'
-      }));
-      return { success: false, error: error.message };
+        categories,
+        suppliers,
+        transactions,
+        inventoryLoading,
+        inventoryError,
+        selectedProduct,
+        selectedCategory,
+        selectedSupplier,
+        stats,
+        loadInitialData,
+        // Productos
+        getProducts,
+        getProductById,
+        createProduct,
+        updateProduct,
+        deleteProduct,
+        searchProducts,
+        setSelectedProduct,
+        // Categorías
+        getCategories,
+        createCategory,
+        updateCategory,
+        deleteCategory,
+        setSelectedCategory,
+        // Proveedores
+        getSuppliers,
+        createSupplier,
+        updateSupplier,
+        deleteSupplier,
+        setSelectedSupplier,
+        // Transacciones
+        getTransactions,
+        createTransaction,
+        // Estadísticas
+        getStats,
+        // Reportes
+        generateReport,
+        // Utilidades
+        clearInventoryError
+    };
+
+    return (
+        <inventoryContext.Provider value={value}>
+            {children}
+        </inventoryContext.Provider>
+    );
+};
+
+// Hook personalizado para usar el contexto de inventario
+export const useInventory = () => {
+    const context = useContext(inventoryContext);
+    if (!context) {
+        throw new Error('useInventory debe ser usado dentro de InventoryProvider');
     }
-  }, []);
-
-  const value = useMemo(() => ({
-    inventory: state,
-    cache: cacheRef.current,
-    getProductById,
-    addProduct,
-    updateProduct,
-    deleteProduct,
-    updateStock,
-    filterProducts,
-    searchProducts,
-    generateReport,
-    syncInventory,
-    updateInventoryStats,
-    loading: state.loading,
-    error: state.error
-  }), [
-    state,
-    getProductById,
-    addProduct,
-    updateProduct,
-    deleteProduct,
-    updateStock,
-    filterProducts,
-    searchProducts,
-    generateReport,
-    syncInventory,
-    updateInventoryStats
-  ]);
-
-  return (
-    <InventoryContext.Provider value={value}>
-      {children}
-    </InventoryContext.Provider>
-  );
+    return context;
 };
-
-InventoryProvider.propTypes = {
-  children: PropTypes.node.isRequired
-};
-
-InventoryProvider.displayName = 'InventoryProvider';
-
-export default InventoryContext;

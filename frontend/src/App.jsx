@@ -9,7 +9,7 @@ import { OfflineIndicator } from './components/common/OfflineIndicator';
 import { ApiStatusIndicator } from './components/common/ApiStatusIndicator';
 import logger from './utils/logger';
 import PropTypes from "prop-types";
-import "./assets/styles/index.css";
+import "./assets/styles/main/main.css";
 
 // ✅ CONFIGURACIÓN ÚNICA (evitar duplicación)
 const APP_CONFIG = {

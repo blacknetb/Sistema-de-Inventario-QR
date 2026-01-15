@@ -1,0 +1,414 @@
+/*
+ * Estilos de Impresión - Sistema de Inventario QR
+ * Versión: 1.0.0
+ */
+
+@media print {
+    /* Reset para impresión */
+    * {
+        background: transparent !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    /* Ocultar elementos no necesarios */
+    .no-print,
+    .navbar,
+    .sidebar,
+    .footer,
+    .btn,
+    .form-control,
+    .modal,
+    .tooltip,
+    .dropdown,
+    .scanner-container,
+    .reports-filters,
+    .report-actions,
+    .action-buttons,
+    .config-section,
+    .scan-results-actions,
+    .scanner-controls {
+        display: none !important;
+    }
+    
+    /* Estilos base para impresión */
+    body {
+        font-size: 12pt !important;
+        line-height: 1.5 !important;
+        font-family: "Times New Roman", Times, serif !important;
+        color: #000 !important;
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Contenedores */
+    .container,
+    .container-fluid {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Encabezados */
+    h1, h2, h3, h4, h5, h6 {
+        color: #000 !important;
+        margin-top: 1em !important;
+        margin-bottom: 0.5em !important;
+        page-break-after: avoid !important;
+    }
+    
+    h1 {
+        font-size: 18pt !important;
+        border-bottom: 2px solid #000 !important;
+        padding-bottom: 0.3em !important;
+    }
+    
+    h2 {
+        font-size: 16pt !important;
+    }
+    
+    h3 {
+        font-size: 14pt !important;
+    }
+    
+    /* Enlaces */
+    a {
+        color: #000 !important;
+        text-decoration: underline !important;
+    }
+    
+    a[href^="http"]:after {
+        content: " (" attr(href) ")";
+        font-size: 90%;
+        color: #666 !important;
+    }
+    
+    /* Párrafos y listas */
+    p {
+        margin: 0 0 1em !important;
+        orphans: 3 !important;
+        widows: 3 !important;
+    }
+    
+    ul, ol {
+        margin: 0 0 1em 1.5em !important;
+        padding: 0 !important;
+    }
+    
+    li {
+        page-break-inside: avoid !important;
+    }
+    
+    /* Tablas */
+    table {
+        border-collapse: collapse !important;
+        border: 1px solid #000 !important;
+        width: 100% !important;
+        margin: 1em 0 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    th, td {
+        border: 1px solid #000 !important;
+        padding: 0.5em !important;
+        text-align: left !important;
+        vertical-align: top !important;
+    }
+    
+    th {
+        background-color: #f0f0f0 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+    
+    /* Imágenes */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+        page-break-inside: avoid !important;
+    }
+    
+    /* Tarjetas */
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        margin: 1em 0 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    
+    .card-header {
+        background-color: #f0f0f0 !important;
+        border-bottom: 1px solid #000 !important;
+        padding: 0.5em !important;
+    }
+    
+    .card-body {
+        padding: 1em !important;
+    }
+    
+    /* Encabezado de reporte impreso */
+    .print-header {
+        display: block !important;
+        text-align: center !important;
+        border-bottom: 2px solid #000 !important;
+        padding-bottom: 1em !important;
+        margin-bottom: 2em !important;
+    }
+    
+    .print-logo {
+        max-width: 200px !important;
+        margin: 0 auto 1em !important;
+        display: block !important;
+    }
+    
+    .print-title {
+        font-size: 20pt !important;
+        font-weight: bold !important;
+        margin: 0.5em 0 !important;
+    }
+    
+    .print-subtitle {
+        font-size: 14pt !important;
+        color: #666 !important;
+        margin-bottom: 1em !important;
+    }
+    
+    /* Metadatos del reporte */
+    .print-meta {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+        gap: 1em !important;
+        margin-bottom: 2em !important;
+        padding: 1em !important;
+        border: 1px solid #000 !important;
+        background-color: #f9f9f9 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .print-meta-item {
+        margin-bottom: 0.5em !important;
+    }
+    
+    .print-meta-label {
+        font-weight: bold !important;
+        display: inline-block !important;
+        min-width: 120px !important;
+    }
+    
+    /* Tablas de reportes */
+    .report-table {
+        font-size: 10pt !important;
+        page-break-inside: auto !important;
+    }
+    
+    .report-table th {
+        background-color: #e0e0e0 !important;
+    }
+    
+    .report-table tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+    
+    /* Resumen estadístico impreso */
+    .print-stats {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+        gap: 1em !important;
+        margin: 2em 0 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .print-stat {
+        text-align: center !important;
+        padding: 1em !important;
+        border: 1px solid #000 !important;
+        background-color: #f9f9f9 !important;
+    }
+    
+    .print-stat-value {
+        font-size: 16pt !important;
+        font-weight: bold !important;
+        display: block !important;
+        margin-bottom: 0.3em !important;
+    }
+    
+    .print-stat-label {
+        font-size: 10pt !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+    }
+    
+    /* Gráficos impresos */
+    .print-chart {
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 2em auto !important;
+        display: block !important;
+        page-break-inside: avoid !important;
+        border: 1px solid #ddd !important;
+        padding: 1em !important;
+    }
+    
+    /* Encabezados de página */
+    @page {
+        margin: 2cm !important;
+        @top-center {
+            content: element(page-header) !important;
+        }
+        @bottom-center {
+            content: "Página " counter(page) " de " counter(pages) !important;
+            font-size: 10pt !important;
+            color: #666 !important;
+        }
+    }
+    
+    /* Saltos de página */
+    .page-break {
+        page-break-before: always !important;
+    }
+    
+    .avoid-break {
+        page-break-inside: avoid !important;
+    }
+    
+    /* Pie de página */
+    .print-footer {
+        margin-top: 3em !important;
+        padding-top: 1em !important;
+        border-top: 1px solid #000 !important;
+        font-size: 9pt !important;
+        color: #666 !important;
+    }
+    
+    /* Códigos QR impresos */
+    .print-qr-code {
+        max-width: 100px !important;
+        height: auto !important;
+        margin: 0.5em !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+    }
+    
+    /* Etiquetas de inventario */
+    .inventory-label {
+        width: 3.5in !important;
+        height: 2in !important;
+        border: 1px solid #000 !important;
+        padding: 0.2in !important;
+        margin: 0.1in !important;
+        display: inline-block !important;
+        page-break-inside: avoid !important;
+        font-size: 10pt !important;
+    }
+    
+    .label-qr {
+        float: left !important;
+        width: 0.8in !important;
+        height: 0.8in !important;
+        margin-right: 0.1in !important;
+    }
+    
+    .label-info {
+        overflow: hidden !important;
+    }
+    
+    .label-title {
+        font-weight: bold !important;
+        font-size: 11pt !important;
+        margin-bottom: 0.1in !important;
+    }
+    
+    .label-details {
+        font-size: 9pt !important;
+        line-height: 1.3 !important;
+    }
+    
+    /* Notas al pie */
+    .print-notes {
+        margin-top: 2em !important;
+        padding-top: 1em !important;
+        border-top: 1px dashed #000 !important;
+        font-size: 9pt !important;
+        color: #666 !important;
+    }
+    
+    /* Firma */
+    .print-signature {
+        margin-top: 3em !important;
+        text-align: right !important;
+    }
+    
+    .signature-line {
+        width: 300px !important;
+        border-top: 1px solid #000 !important;
+        margin: 2em 0 0.5em auto !important;
+    }
+    
+    .signature-label {
+        text-align: center !important;
+        font-size: 10pt !important;
+    }
+    
+    /* Orden de impresión */
+    .print-order-1 { order: 1 !important; }
+    .print-order-2 { order: 2 !important; }
+    .print-order-3 { order: 3 !important; }
+    .print-order-4 { order: 4 !important; }
+    .print-order-5 { order: 5 !important; }
+    
+    /* Utilidades de impresión */
+    .print-only {
+        display: block !important;
+    }
+    
+    .screen-only {
+        display: none !important;
+    }
+    
+    /* Ajustes específicos para reportes */
+    .report-print-view {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .report-print-view .section {
+        padding: 0 !important;
+        margin-bottom: 2em !important;
+    }
+    
+    /* Impresión a color */
+    @media print and (color) {
+        .print-color {
+            color: #2563eb !important;
+        }
+        
+        .print-highlight {
+            background-color: #eff6ff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+    
+    /* Orientación horizontal */
+    @page landscape {
+        size: landscape !important;
+    }
+    
+    .landscape-page {
+        page: landscape !important;
+    }
+    
+    /* Tamaños de página específicos */
+    @page a4 {
+        size: A4 !important;
+    }
+    
+    @page letter {
+        size: letter !important;
+    }
+}
