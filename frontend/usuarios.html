@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios - Sistema de Inventario QR</title>
+    <link rel="stylesheet" href="./css/usuarios.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/table.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="./css/modals.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="navbar-container"></div>
+        
+        <main class="content">
+            <div class="page-header">
+                <h1>Gestión de Usuarios</h1>
+                <p>Administra los usuarios del sistema</p>
+                <div class="header-actions">
+                    <button id="newUserBtn" class="btn btn-primary">
+                        <span>+ Nuevo Usuario</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tabla de usuarios -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Lista de Usuarios</h3>
+                    <div class="table-actions">
+                        <span id="userCount">Cargando...</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Último Acceso</th>
+                                    <th>Registrado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center">
+                                        <div class="loading">Cargando usuarios...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    <div class="pagination" id="userPaginationContainer">
+                        <button id="prevUserPage" class="btn btn-secondary" disabled>Anterior</button>
+                        <span id="userPageInfo">Página 1 de 1</span>
+                        <button id="nextUserPage" class="btn btn-secondary" disabled>Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <!-- Modal para nuevo/editar usuario -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">Nuevo Usuario</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userName">Nombre Completo *</label>
+                            <input type="text" id="userName" name="name" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="userEmail">Email *</label>
+                            <input type="email" id="userEmail" name="email" required class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userPassword">Contraseña *</label>
+                            <input type="password" id="userPassword" name="password" required class="form-control" minlength="6">
+                            <small class="form-text">Mínimo 6 caracteres</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="userConfirmPassword">Confirmar Contraseña *</label>
+                            <input type="password" id="userConfirmPassword" name="confirm_password" required class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userRole">Rol *</label>
+                            <select id="userRole" name="role" required class="form-control">
+                                <option value="">Selecciona un rol</option>
+                                <option value="admin">Administrador</option>
+                                <option value="manager">Gerente</option>
+                                <option value="operator">Operador</option>
+                                <option value="viewer">Visualizador</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="userStatus">Estado</label>
+                            <select id="userStatus" name="status" class="form-control">
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                                <option value="suspended">Suspendido</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userPhone">Teléfono</label>
+                        <input type="tel" id="userPhone" name="phone" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userDepartment">Departamento</label>
+                        <input type="text" id="userDepartment" name="department" class="form-control">
+                    </div>
+                    
+                    <input type="hidden" id="userId" name="id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Cancelar</button>
+                <button type="submit" form="userForm" class="btn btn-primary">Guardar Usuario</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmación de eliminación -->
+    <div id="deleteUserModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3>Confirmar Eliminación</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+                <p class="text-warning"><strong>Advertencia:</strong> Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Cancelar</button>
+                <button id="confirmDeleteUser" class="btn btn-danger">Eliminar Usuario</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para resetear contraseña -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Resetear Contraseña</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="resetPasswordForm">
+                    <div class="form-group">
+                        <label for="resetPassword">Nueva Contraseña *</label>
+                        <input type="password" id="resetPassword" name="password" required class="form-control" minlength="6">
+                        <small class="form-text">Mínimo 6 caracteres</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="resetConfirmPassword">Confirmar Contraseña *</label>
+                        <input type="password" id="resetConfirmPassword" name="confirm_password" required class="form-control">
+                    </div>
+                    
+                    <input type="hidden" id="resetUserId" name="user_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Cancelar</button>
+                <button type="submit" form="resetPasswordForm" class="btn btn-primary">Actualizar Contraseña</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notificationContainer" class="notification-container"></div>
+    
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/usuarios.js"></script>
+    <script src="js/notifications.js"></script>
+</body>
+</html>

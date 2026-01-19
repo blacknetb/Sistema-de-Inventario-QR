@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Sistema de Inventario QR</title>
+    <link rel="stylesheet" href="./css/perfil.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="./css/modals.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="navbar-container"></div>
+        
+        <main class="content">
+            <div class="page-header">
+                <h1>Mi Perfil</h1>
+                <p>Administra tu información personal y configuración</p>
+            </div>
+            
+            <div class="profile-grid">
+                <!-- Información del perfil -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Información Personal</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <div id="profileAvatar" class="avatar">
+                                    <span id="avatarInitials">US</span>
+                                </div>
+                                <button id="changeAvatarBtn" class="btn btn-sm btn-secondary">Cambiar</button>
+                            </div>
+                            <div class="profile-info">
+                                <h2 id="profileName">Cargando...</h2>
+                                <p id="profileEmail" class="text-muted">Cargando...</p>
+                                <span class="badge badge-primary" id="profileRole">Cargando...</span>
+                            </div>
+                        </div>
+                        
+                        <form id="profileForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profileFullName">Nombre Completo *</label>
+                                    <input type="text" id="profileFullName" name="name" required class="form-control">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="profileEmailInput">Email *</label>
+                                    <input type="email" id="profileEmailInput" name="email" required class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profilePhone">Teléfono</label>
+                                    <input type="tel" id="profilePhone" name="phone" class="form-control">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="profileDepartment">Departamento</label>
+                                    <input type="text" id="profileDepartment" name="department" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="profileBio">Biografía</label>
+                                <textarea id="profileBio" name="bio" rows="3" class="form-control" placeholder="Breve descripción sobre ti..."></textarea>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Configuración de seguridad -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Seguridad</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="passwordForm">
+                            <div class="form-group">
+                                <label for="currentPassword">Contraseña Actual *</label>
+                                <input type="password" id="currentPassword" name="current_password" required class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="newPassword">Nueva Contraseña *</label>
+                                <input type="password" id="newPassword" name="new_password" required class="form-control" minlength="6">
+                                <small class="form-text">Mínimo 6 caracteres</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirmNewPassword">Confirmar Nueva Contraseña *</label>
+                                <input type="password" id="confirmNewPassword" name="confirm_new_password" required class="form-control">
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                            </div>
+                        </form>
+                        
+                        <div class="security-settings mt-4">
+                            <h4>Sesión Actual</h4>
+                            <div class="session-info">
+                                <p><strong>Inicio de sesión:</strong> <span id="currentLoginTime">Cargando...</span></p>
+                                <p><strong>IP:</strong> <span id="currentLoginIp">Cargando...</span></p>
+                                <p><strong>Dispositivo:</strong> <span id="currentLoginDevice">Cargando...</span></p>
+                            </div>
+                            
+                            <button id="logoutOtherSessionsBtn" class="btn btn-secondary btn-block mt-3">
+                                Cerrar otras sesiones
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preferencias -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Preferencias</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="preferencesForm">
+                            <div class="form-group">
+                                <label for="language">Idioma</label>
+                                <select id="language" name="language" class="form-control">
+                                    <option value="es">Español</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="theme">Tema</label>
+                                <select id="theme" name="theme" class="form-control">
+                                    <option value="light">Claro</option>
+                                    <option value="dark">Oscuro</option>
+                                    <option value="auto">Automático</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="timezone">Zona Horaria</label>
+                                <select id="timezone" name="timezone" class="form-control">
+                                    <option value="America/Mexico_City">Ciudad de México</option>
+                                    <option value="America/New_York">Nueva York</option>
+                                    <option value="Europe/Madrid">Madrid</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="itemsPerPage">Elementos por página</label>
+                                <select id="itemsPerPage" name="items_per_page" class="form-control">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <input type="checkbox" id="emailNotifications" name="email_notifications" checked>
+                                    <label for="emailNotifications">Notificaciones por email</label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <input type="checkbox" id="lowStockAlerts" name="low_stock_alerts" checked>
+                                    <label for="lowStockAlerts">Alertas de bajo stock</label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Guardar Preferencias</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Actividad reciente -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Actividad Reciente</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentActivity">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <span>📦</span>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">Registraste un nuevo producto</p>
+                                    <p class="activity-time">Hace 2 horas</p>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <span>🔄</span>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">Realizaste un ajuste de inventario</p>
+                                    <p class="activity-time">Hace 1 día</p>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <span>📊</span>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">Generaste un reporte de inventario</p>
+                                    <p class="activity-time">Hace 2 días</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="viewAllActivityBtn" class="btn btn-secondary btn-block mt-3">
+                            Ver toda la actividad
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <!-- Modal para cambiar avatar -->
+    <div id="avatarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cambiar Foto de Perfil</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="avatar-options">
+                    <div class="avatar-option">
+                        <div class="avatar-initials">
+                            <span>US</span>
+                        </div>
+                        <p>Iniciales</p>
+                    </div>
+                    
+                    <div class="avatar-option">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user1" alt="Avatar 1">
+                        <p>Avatar 1</p>
+                    </div>
+                    
+                    <div class="avatar-option">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user2" alt="Avatar 2">
+                        <p>Avatar 2</p>
+                    </div>
+                    
+                    <div class="avatar-option">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user3" alt="Avatar 3">
+                        <p>Avatar 3</p>
+                    </div>
+                </div>
+                
+                <div class="upload-avatar mt-4">
+                    <h4>Subir imagen</h4>
+                    <input type="file" id="avatarUpload" accept="image/*" class="form-control">
+                    <small class="form-text">Formatos: JPG, PNG, GIF. Máx. 2MB</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Cancelar</button>
+                <button id="saveAvatarBtn" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notificationContainer" class="notification-container"></div>
+    
+    <!-- Scripts -->
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/perfil.js"></script>
+    <script src="./js/notifications.js"></script>
+</body>
+</html>

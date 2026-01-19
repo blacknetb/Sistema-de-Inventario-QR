@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos - Sistema de Inventario QR</title>
+    <link rel="stylesheet" href="./css/movimientos.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/table.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="./css/modals.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="navbar-container"></div>
+        
+        <main class="content">
+            <div class="page-header">
+                <h1>Historial de Movimientos</h1>
+                <p>Registro de todos los movimientos de inventario</p>
+                <div class="header-actions">
+                    <button id="newMovementBtn" class="btn btn-primary">
+                        <span>+ Nuevo Movimiento</span>
+                    </button>
+                    <button id="scanMovementBtn" class="btn btn-secondary">
+                        <span>Escanear QR</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="filters-card">
+                <h3>Filtros</h3>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <input type="text" id="searchMovement" placeholder="Buscar movimiento..." class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="filterMovementType" class="form-control">
+                            <option value="">Todos los tipos</option>
+                            <option value="entrada">Entrada</option>
+                            <option value="salida">Salida</option>
+                            <option value="ajuste">Ajuste</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="filterProduct" class="form-control">
+                            <option value="">Todos los productos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="date" id="filterDateFrom" class="form-control" placeholder="Desde">
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="date" id="filterDateTo" class="form-control" placeholder="Hasta">
+                    </div>
+                    
+                    <button id="applyMovementFilters" class="btn btn-primary">Aplicar</button>
+                    <button id="clearMovementFilters" class="btn btn-secondary">Limpiar</button>
+                </div>
+            </div>
+            
+            <!-- Estadísticas de movimientos -->
+            <div class="stats-grid mb-4">
+                <div class="stat-card small">
+                    <div class="stat-icon" style="background-color: #4CAF50;">
+                        <span>↑</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalEntradas">0</h3>
+                        <p>Entradas</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card small">
+                    <div class="stat-icon" style="background-color: #F44336;">
+                        <span>↓</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalSalidas">0</h3>
+                        <p>Salidas</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card small">
+                    <div class="stat-icon" style="background-color: #FF9800;">
+                        <span>↔</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalTransferencias">0</h3>
+                        <p>Transferencias</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card small">
+                    <div class="stat-icon" style="background-color: #2196F3;">
+                        <span>🔄</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalAjustes">0</h3>
+                        <p>Ajustes</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de movimientos -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Historial de Movimientos</h3>
+                    <div class="table-actions">
+                        <span id="movementCount">Cargando...</span>
+                        <select id="movementItemsPerPage" class="form-control-sm">
+                            <option value="10">10 por página</option>
+                            <option value="25">25 por página</option>
+                            <option value="50">50 por página</option>
+                            <option value="100">100 por página</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Stock Anterior</th>
+                                    <th>Stock Nuevo</th>
+                                    <th>Ubicación</th>
+                                    <th>Usuario</th>
+                                    <th>Motivo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movementsTableBody">
+                                <tr>
+                                    <td colspan="11" class="text-center">
+                                        <div class="loading">Cargando movimientos...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    <div class="pagination" id="movementPaginationContainer">
+                        <button id="prevMovementPage" class="btn btn-secondary" disabled>Anterior</button>
+                        <span id="movementPageInfo">Página 1 de 1</span>
+                        <button id="nextMovementPage" class="btn btn-secondary" disabled>Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <!-- Modal para nuevo movimiento -->
+    <div id="movementModal" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 id="movementModalTitle">Nuevo Movimiento</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="movementForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="movementType">Tipo de Movimiento *</label>
+                            <select id="movementType" name="type" required class="form-control">
+                                <option value="">Selecciona un tipo</option>
+                                <option value="entrada">Entrada</option>
+                                <option value="salida">Salida</option>
+                                <option value="transferencia">Transferencia</option>
+                                <option value="ajuste">Ajuste</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="movementDate">Fecha *</label>
+                            <input type="datetime-local" id="movementDate" name="date" required class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="movementProduct">Producto *</label>
+                            <select id="movementProduct" name="product_id" required class="form-control">
+                                <option value="">Selecciona un producto</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="movementQuantity">Cantidad *</label>
+                            <input type="number" id="movementQuantity" name="quantity" required min="1" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="fromLocationRow">
+                        <div class="form-group">
+                            <label for="movementFromLocation">Ubicación Origen</label>
+                            <select id="movementFromLocation" name="from_location_id" class="form-control">
+                                <option value="">Selecciona ubicación</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="toLocationRow">
+                        <div class="form-group">
+                            <label for="movementToLocation">Ubicación Destino *</label>
+                            <select id="movementToLocation" name="to_location_id" required class="form-control">
+                                <option value="">Selecciona ubicación</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="movementReason">Motivo *</label>
+                        <textarea id="movementReason" name="reason" required rows="3" class="form-control" placeholder="Describe el motivo del movimiento"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="movementNotes">Notas Adicionales</label>
+                        <textarea id="movementNotes" name="notes" rows="2" class="form-control" placeholder="Notas adicionales (opcional)"></textarea>
+                    </div>
+                    
+                    <input type="hidden" id="movementId" name="id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Cancelar</button>
+                <button type="submit" form="movementForm" class="btn btn-primary">Registrar Movimiento</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de escaneo QR -->
+    <div id="scanModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Escanear Código QR</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="qrScanner" class="qr-scanner">
+                    <div class="scanner-container">
+                        <div id="reader"></div>
+                        <div class="scanner-overlay">
+                            <div class="scanner-line"></div>
+                        </div>
+                    </div>
+                    <p class="text-center mt-3">Escanea el código QR del producto</p>
+                </div>
+                
+                <div id="scannedProductInfo" style="display: none;">
+                    <h4>Producto Escaneado</h4>
+                    <div id="productDetails"></div>
+                    <button id="continueMovementBtn" class="btn btn-primary btn-block mt-3">Continuar con Movimiento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notificationContainer" class="notification-container"></div>
+    
+    <!-- Scripts -->
+    <script src="./libs/html5-qrcode.min.js"></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/movimientos.js"></script>
+    <script src="./js/notifications.js"></script>
+</body>
+</html>

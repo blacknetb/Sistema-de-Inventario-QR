@@ -1,0 +1,413 @@
+/* Estilos específicos para movimientos */
+
+/* Filtros de movimientos */
+.filters-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--box-shadow);
+}
+
+.filters-card h3 {
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-lg);
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    align-items: flex-end;
+}
+
+.filter-row .form-group {
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 0;
+}
+
+.filter-row .btn {
+    height: fit-content;
+}
+
+/* Estadísticas de movimientos */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card.small {
+    padding: var(--spacing-md);
+}
+
+.stat-card.small .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: var(--font-size-lg);
+}
+
+.stat-card.small .stat-info h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: 0.125rem;
+}
+
+.stat-card.small .stat-info p {
+    font-size: var(--font-size-xs);
+}
+
+/* Tipo de movimiento en tabla */
+.movement-type {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.movement-type.entrada {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.movement-type.salida {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+.movement-type.transferencia {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: var(--warning-color);
+}
+
+.movement-type.ajuste {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: var(--info-color);
+}
+
+/* Cantidad en tabla */
+.quantity-change {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.quantity-change.positive {
+    color: var(--success-color);
+}
+
+.quantity-change.positive::before {
+    content: '+';
+}
+
+.quantity-change.negative {
+    color: var(--danger-color);
+}
+
+.quantity-change.negative::before {
+    content: '-';
+}
+
+.quantity-change.neutral {
+    color: var(--text-muted);
+}
+
+/* Stock en tabla */
+.stock-before,
+.stock-after {
+    font-family: monospace;
+    font-size: var(--font-size-sm);
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--bg-secondary);
+}
+
+.stock-after.higher {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.stock-after.lower {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+/* Modal de movimiento */
+#movementModal .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Scanner en modal */
+.qr-scanner {
+    text-align: center;
+}
+
+.scanner-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#reader {
+    width: 100%;
+    height: 300px;
+    background-color: #000;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scanner-line {
+    width: 80%;
+    height: 2px;
+    background-color: var(--primary-color);
+    animation: scan 2s linear infinite;
+    box-shadow: 0 0 10px rgba(67, 97, 238, 0.5);
+}
+
+@keyframes scan {
+    0%, 100% { transform: translateY(-100px); }
+    50% { transform: translateY(100px); }
+}
+
+/* Producto escaneado */
+#scannedProductInfo {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+}
+
+#productDetails {
+    text-align: left;
+}
+
+#productDetails h5 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+#productDetails .product-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#productDetails .product-info-item:last-child {
+    border-bottom: none;
+}
+
+#productDetails .info-label {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+#productDetails .info-value {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Timeline de movimientos */
+.movement-timeline {
+    position: relative;
+    padding-left: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: var(--spacing-lg);
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: 2px solid var(--bg-primary);
+    z-index: 2;
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 20px;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+    z-index: 1;
+}
+
+.timeline-item:last-child::after {
+    display: none;
+}
+
+.timeline-date {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-xs);
+}
+
+.timeline-content {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    box-shadow: var(--box-shadow);
+}
+
+/* Filtros avanzados */
+.advanced-filters {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    display: none;
+}
+
+.advanced-filters.show {
+    display: block;
+}
+
+.advanced-filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.advanced-filters-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+/* Exportar movimientos */
+.export-options {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.export-format-selector {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.format-option {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.format-option:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.format-option.active {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+}
+
+/* Responsive para movimientos */
+@media (max-width: 992px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-row .form-group {
+        min-width: 100%;
+    }
+    
+    .filter-row .btn {
+        width: 100%;
+    }
+    
+    .advanced-filters-body {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .table-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+    }
+    
+    .table-actions select {
+        width: 100%;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .header-actions .btn {
+        width: 100%;
+    }
+    
+    .movement-timeline {
+        padding-left: var(--spacing-lg);
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-card.small {
+        padding: var(--spacing-sm);
+    }
+    
+    .stat-card.small .stat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: var(--font-size-base);
+    }
+    
+    .stat-card.small .stat-info h3 {
+        font-size: var(--font-size-base);
+    }
+    
+    .export-options {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .export-format-selector {
+        justify-content: center;
+    }
+}

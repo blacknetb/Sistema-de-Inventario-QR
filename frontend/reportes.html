@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Sistema de Inventario QR</title>
+    <link rel="stylesheet" href="./css/reportes.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/table.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="./css/modals.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="navbar-container"></div>
+        
+        <main class="content">
+            <div class="page-header">
+                <h1>Reportes y Estadísticas</h1>
+                <p>Genera reportes detallados del inventario</p>
+                <div class="header-actions">
+                    <button id="generateReportBtn" class="btn btn-primary">
+                        <span>Generar Reporte</span>
+                    </button>
+                    <button id="exportReportBtn" class="btn btn-secondary">
+                        <span>Exportar Datos</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filtros para reportes -->
+            <div class="filters-card">
+                <h3>Configurar Reporte</h3>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label for="reportType">Tipo de Reporte</label>
+                        <select id="reportType" class="form-control">
+                            <option value="inventory">Inventario Actual</option>
+                            <option value="movements">Movimientos</option>
+                            <option value="low_stock">Bajo Stock</option>
+                            <option value="categories">Por Categorías</option>
+                            <option value="locations">Por Ubicaciones</option>
+                            <option value="valuation">Valuación de Inventario</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reportPeriod">Período</label>
+                        <select id="reportPeriod" class="form-control">
+                            <option value="today">Hoy</option>
+                            <option value="yesterday">Ayer</option>
+                            <option value="week">Esta Semana</option>
+                            <option value="month">Este Mes</option>
+                            <option value="quarter">Este Trimestre</option>
+                            <option value="year">Este Año</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row" id="customPeriod" style="display: none;">
+                        <div class="form-group">
+                            <input type="date" id="reportDateFrom" class="form-control" placeholder="Desde">
+                        </div>
+                        <div class="form-group">
+                            <input type="date" id="reportDateTo" class="form-control" placeholder="Hasta">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reportFormat">Formato</label>
+                        <select id="reportFormat" class="form-control">
+                            <option value="html">Vista HTML</option>
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                    
+                    <button id="runReportBtn" class="btn btn-primary">Generar</button>
+                </div>
+            </div>
+            
+            <!-- Estadísticas -->
+            <div class="stats-grid mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #4CAF50;">
+                        <span>📦</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportTotalProducts">0</h3>
+                        <p>Productos Totales</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #F44336;">
+                        <span>⚠️</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportLowStock">0</h3>
+                        <p>Productos con Bajo Stock</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #2196F3;">
+                        <span>💰</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportTotalValue">$0</h3>
+                        <p>Valor Total Inventario</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #FF9800;">
+                        <span>📊</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="reportMovementsToday">0</h3>
+                        <p>Movimientos Hoy</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráficos -->
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Distribución por Categorías</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Movimientos Mensuales</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="movementChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card full-width">
+                    <div class="card-header">
+                        <h3>Top 10 Productos más Movidos</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topProductsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Estadísticas de Stock</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="stockStats">
+                            <div class="stat-item">
+                                <span class="stat-label">Stock Óptimo:</span>
+                                <span class="stat-value" id="optimalStock">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Stock Bajo:</span>
+                                <span class="stat-value" id="lowStockCount">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Agotados:</span>
+                                <span class="stat-value" id="outOfStock">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Stock Promedio:</span>
+                                <span class="stat-value" id="avgStock">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de reporte -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="reportTableTitle">Reporte de Inventario</h3>
+                    <div class="table-actions">
+                        <span id="reportItemCount">- elementos</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead id="reportTableHeader">
+                                <tr>
+                                    <th colspan="10" class="text-center">
+                                        Selecciona un tipo de reporte y haz clic en "Generar"
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <tr>
+                                    <td colspan="10" class="text-center">
+                                        <p class="text-muted">Los datos del reporte aparecerán aquí</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <!-- Modal de exportación -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Exportar Datos</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="exportForm">
+                    <div class="form-group">
+                        <label for="exportType">Tipo de Exportación</label>
+                        <select id="exportType" class="form-control">
+                            <option value="products">Productos</option>
+                            <option value="movements">Movimientos</option>
+                            <option value="categories">Categorías</option>
+                            <option value="locations">Ubicaciones</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exportFormat">Formato</label>
+                        <select id="exportFormat" class="form-control">
+                            <option value="excel">Excel (.xlsx)</option>
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exportDateRange">Rango de Fechas (opcional)</label>
+                        <div class="form-row">
+                            <input type="date" id="exportDateFrom" class="form-control" placeholder="Desde">
+                            <input type="date" id="exportDateTo" class="form-control" placeholder="Hasta">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <input type="checkbox" id="exportAllData" checked>
+                            <label for="exportAllData">Exportar todos los datos</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Cancelar</button>
+                <button id="confirmExportBtn" class="btn btn-primary">Exportar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notificationContainer" class="notification-container"></div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/reportes.js"></script>
+    <script src="./js/notifications.js"></script>
+</body>
+</html>

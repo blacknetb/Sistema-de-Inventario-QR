@@ -1,0 +1,561 @@
+/* Estilos específicos para scanner */
+
+/* Contenedor principal del scanner */
+.scanner-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.scanner-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.scanner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.scanner-header h3 {
+    margin-bottom: 0;
+    font-size: var(--font-size-lg);
+}
+
+.scanner-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.scanner-body {
+    padding: var(--spacing-lg);
+}
+
+/* Vista del scanner */
+.scanner-view {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto var(--spacing-lg);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background-color: #000;
+}
+
+#reader {
+    width: 100%;
+    height: 400px;
+}
+
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+}
+
+.scanner-frame {
+    width: 70%;
+    height: 70%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius);
+    position: relative;
+}
+
+.scanner-frame::before,
+.scanner-frame::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--primary-color);
+}
+
+.scanner-frame::before {
+    top: -4px;
+    left: -4px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+}
+
+.scanner-frame::after {
+    bottom: -4px;
+    right: -4px;
+    border-left: none;
+    border-top: none;
+    border-bottom-right-radius: 8px;
+}
+
+.scanner-line {
+    position: absolute;
+    width: 70%;
+    height: 2px;
+    background-color: var(--primary-color);
+    animation: scan 2s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(67, 97, 238, 0.5);
+    top: 15%;
+}
+
+.scanner-instruction {
+    color: var(--text-light);
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+}
+
+@keyframes scan {
+    0%, 100% { 
+        top: 15%;
+        opacity: 1;
+    }
+    50% { 
+        top: 85%;
+        opacity: 0.8;
+    }
+}
+
+/* Resultado del escaneo */
+.scan-result {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.product-info {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.product-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-xs);
+}
+
+.detail-value {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+}
+
+.detail-value.stock-low {
+    color: var(--warning-color);
+}
+
+.detail-value.stock-out {
+    color: var(--danger-color);
+}
+
+.detail-value.stock-ok {
+    color: var(--success-color);
+}
+
+.quick-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+}
+
+/* Historial de escaneos */
+.scan-history {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.scan-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-fast);
+}
+
+.scan-history-item:hover {
+    background-color: var(--bg-light);
+}
+
+.scan-history-item:last-child {
+    border-bottom: none;
+}
+
+.scan-time {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    min-width: 100px;
+}
+
+.scan-product {
+    flex: 1;
+    padding: 0 var(--spacing-md);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.scan-result {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+}
+
+.scan-result.success {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.scan-result.error {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+.empty-history {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-muted);
+}
+
+/* Acciones rápidas del scanner */
+.quick-scanner-actions {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    box-shadow: var(--box-shadow);
+}
+
+.quick-scanner-actions h3 {
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    background-color: var(--bg-secondary);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: center;
+}
+
+.action-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    transform: translateY(-2px);
+}
+
+.action-btn:hover .action-icon {
+    background-color: var(--text-light);
+    color: var(--primary-color);
+}
+
+.action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-md);
+    transition: all var(--transition-fast);
+}
+
+.action-btn span {
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+}
+
+/* Modal de entrada manual */
+#manualEntryModal .modal-body {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+/* Modal de inventario físico */
+.inventory-instructions {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.inventory-instructions h4 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+}
+
+.inventory-instructions p {
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.inventory-instructions p:last-child {
+    margin-bottom: 0;
+}
+
+.inventory-progress {
+    margin-bottom: var(--spacing-lg);
+}
+
+.progress-bar {
+    height: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-sm);
+}
+
+.progress {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width var(--transition-normal);
+    border-radius: 10px;
+}
+
+.progress-text {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.inventory-items {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+}
+
+.inventory-items h4 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+}
+
+.inventory-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.inventory-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-sm);
+}
+
+.inventory-item:last-child {
+    margin-bottom: 0;
+}
+
+.inventory-product {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.inventory-count {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Indicador de cámara */
+.camera-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.camera-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--danger-color);
+    animation: pulse 2s infinite;
+}
+
+.camera-status.active {
+    background-color: var(--success-color);
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Mensaje de ayuda del scanner */
+.scanner-help {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.scanner-help h4 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+}
+
+.scanner-help ol,
+.scanner-help ul {
+    margin-bottom: var(--spacing-md);
+}
+
+.scanner-help li {
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-secondary);
+}
+
+.scanner-help li:last-child {
+    margin-bottom: 0;
+}
+
+.scanner-tips {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.scanner-tips p {
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+/* Responsive para scanner */
+@media (max-width: 768px) {
+    .scanner-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+    }
+    
+    .scanner-controls {
+        flex-direction: column;
+    }
+    
+    .scanner-controls .btn {
+        width: 100%;
+    }
+    
+    .result-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+    }
+    
+    .result-header .btn {
+        width: 100%;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+    
+    .quick-actions .btn {
+        width: 100%;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .scanner-body {
+        padding: var(--spacing-md);
+    }
+    
+    #reader {
+        height: 300px;
+    }
+    
+    .scanner-frame {
+        width: 80%;
+        height: 60%;
+    }
+    
+    .product-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .scan-history-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+        text-align: center;
+    }
+    
+    .scan-time {
+        min-width: auto;
+    }
+}

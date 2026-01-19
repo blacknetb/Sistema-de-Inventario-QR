@@ -1,0 +1,402 @@
+/* Estilos específicos para reportes */
+
+/* Filtros de reportes */
+.filters-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--box-shadow);
+}
+
+.filters-card h3 {
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-lg);
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    align-items: flex-end;
+}
+
+.filter-row .form-group {
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 0;
+}
+
+#customPeriod {
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+#customPeriod .form-row {
+    width: 100%;
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+#customPeriod .form-group {
+    flex: 1;
+}
+
+.filter-row .btn {
+    height: fit-content;
+}
+
+/* Estadísticas de reportes */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card .stat-icon {
+    width: 60px;
+    height: 60px;
+    font-size: var(--font-size-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Gráficos */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.dashboard-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-card .card-header h3 {
+    margin-bottom: 0;
+    font-size: var(--font-size-lg);
+}
+
+.dashboard-card .card-body {
+    padding: var(--spacing-lg);
+    min-height: 300px;
+}
+
+.dashboard-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.dashboard-card canvas {
+    width: 100% !important;
+    height: 300px !important;
+}
+
+/* Estadísticas de stock */
+#stockStats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+}
+
+.stat-item {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+    display: block;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Encabezado de tabla de reportes */
+#reportTableTitle {
+    margin-bottom: 0;
+}
+
+/* Títulos de columnas dinámicas */
+.report-column-header {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.5px;
+}
+
+/* Resaltado en tablas */
+.data-table tbody tr.highlight {
+    background-color: rgba(255, 152, 0, 0.1) !important;
+}
+
+.data-table tbody tr.critical {
+    background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+.data-table tbody tr.success {
+    background-color: rgba(76, 175, 80, 0.1) !important;
+}
+
+/* Totales y subtotales */
+.table-total {
+    font-weight: 700;
+    background-color: var(--bg-dark) !important;
+    color: var(--text-light) !important;
+}
+
+.table-subtotal {
+    font-weight: 600;
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Indicadores visuales */
+.indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: var(--spacing-xs);
+}
+
+.indicator.green { background-color: var(--success-color); }
+.indicator.yellow { background-color: var(--warning-color); }
+.indicator.red { background-color: var(--danger-color); }
+.indicator.blue { background-color: var(--info-color); }
+.indicator.gray { background-color: var(--text-muted); }
+
+/* Leyenda de reportes */
+.report-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+}
+
+/* Configuración de reportes */
+.report-config {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.config-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.config-section:last-child {
+    margin-bottom: 0;
+}
+
+.config-section h4 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+}
+
+.config-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.config-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.config-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+/* Previsualización de reporte */
+.report-preview {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    margin-bottom: var(--spacing-lg);
+}
+
+.preview-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-header h3 {
+    margin-bottom: 0;
+    color: var(--text-light);
+}
+
+.preview-body {
+    padding: var(--spacing-lg);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Modal de exportación */
+#exportModal .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.export-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.export-option:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(67, 97, 238, 0.05);
+}
+
+.export-option.active {
+    border-color: var(--primary-color);
+    background-color: rgba(67, 97, 238, 0.1);
+}
+
+.export-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--border-radius);
+    background-color: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    flex-shrink: 0;
+}
+
+.export-info h4 {
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-primary);
+}
+
+.export-info p {
+    margin-bottom: 0;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+/* Responsive para reportes */
+@media (max-width: 992px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-row .form-group {
+        min-width: 100%;
+    }
+    
+    #customPeriod .form-row {
+        flex-direction: column;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .config-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    #stockStats {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+    }
+    
+    .table-actions select {
+        width: 100%;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .header-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-card {
+        padding: var(--spacing-md);
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .dashboard-card .card-body {
+        padding: var(--spacing-md);
+    }
+    
+    .dashboard-card canvas {
+        height: 200px !important;
+    }
+    
+    .report-legend {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+}
