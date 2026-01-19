@@ -1,281 +1,372 @@
-/**
- * Header.js
- * Componente de encabezado para la aplicación
- * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\components\common\Header.js
- */
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import '../../assets/styles/common/Header.css';
+import { useAuth } from '../auth/AuthContext';
+import '../../assets/styles/Common/common.css';
 
 const Header = () => {
-    const [user, setUser] = useState(null);
-    const [notifications, setNotifications] = useState([]);
-    const [showNotifications, setShowNotifications] = useState(false);
-    const [showUserMenu, setShowUserMenu] = useState(false);
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    // Cargar información del usuario
     useEffect(() => {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            setUser(JSON.parse(userData));
-        }
-    }, []);
-
-    // Cargar notificaciones
-    useEffect(() => {
-        fetchNotifications();
-    }, []);
-
-    const fetchNotifications = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/notifications', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setNotifications(data);
+        // Simular notificaciones
+        const mockNotifications = [
+            {
+                id: 1,
+                title: 'Inventario Bajo',
+                message: 'El producto "Mouse Logitech" está por debajo del mínimo',
+                time: 'Hace 2 horas',
+                read: false,
+                type: 'warning'
+            },
+            {
+                id: 2,
+                title: 'Producto Agregado',
+                message: 'Se agregó "Monitor Samsung 24" al inventario',
+                time: 'Hace 4 horas',
+                read: false,
+                type: 'success'
+            },
+            {
+                id: 3,
+                title: 'Reporte Generado',
+                message: 'El reporte mensual de inventario está listo',
+                time: 'Ayer',
+                read: true,
+                type: 'info'
             }
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-        }
-    };
+        ];
+        setNotifications(mockNotifications);
+        setUnreadCount(mockNotifications.filter(n => !n.read).length);
+    }, []);
 
-    // Manejar cierre de sesión
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+    const handleLogout = async () => {
+        await logout();
         navigate('/login');
     };
 
-    // Marcar notificación como leída
-    const markNotificationAsRead = async (notificationId) => {
-        try {
-            const token = localStorage.getItem('token');
-            await fetch(`http://localhost:5000/api/notifications/${notificationId}/read`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            // Actualizar notificaciones localmente
-            setNotifications(prev => 
-                prev.map(notif => 
-                    notif.id === notificationId 
-                        ? { ...notif, read: true }
-                        : notif
-                )
-            );
-        } catch (error) {
-            console.error('Error marking notification as read:', error);
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+            setSearchQuery('');
         }
     };
 
-    // Marcar todas como leídas
-    const markAllAsRead = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            await fetch('http://localhost:5000/api/notifications/read-all', {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            setNotifications(prev => 
-                prev.map(notif => ({ ...notif, read: true }))
-            );
-        } catch (error) {
-            console.error('Error marking all notifications as read:', error);
+    const markNotificationAsRead = (id) => {
+        setNotifications(notifications.map(notif =>
+            notif.id === id ? { ...notif, read: true } : notif
+        ));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+    };
+
+    const markAllAsRead = () => {
+        setNotifications(notifications.map(notif => ({ ...notif, read: true })));
+        setUnreadCount(0);
+    };
+
+    const getNotificationIcon = (type) => {
+        switch (type) {
+            case 'warning': return 'fas fa-exclamation-triangle';
+            case 'success': return 'fas fa-check-circle';
+            case 'info': return 'fas fa-info-circle';
+            case 'error': return 'fas fa-times-circle';
+            default: return 'fas fa-bell';
         }
     };
 
-    // Contar notificaciones no leídas
-    const unreadCount = notifications.filter(n => !n.read).length;
-
-    // Navegación principal
-    const mainNavItems = [
-        { path: '/', label: 'Dashboard', icon: '📊' },
-        { path: '/products', label: 'Productos', icon: '📦' },
-        { path: '/categories', label: 'Categorías', icon: '📁' },
-        { path: '/suppliers', label: 'Proveedores', icon: '🏢' },
-        { path: '/inventory', label: 'Inventario', icon: '📋' },
-        { path: '/reports', label: 'Reportes', icon: '📈' },
-    ];
+    const getNotificationColor = (type) => {
+        switch (type) {
+            case 'warning': return 'warning';
+            case 'success': return 'success';
+            case 'info': return 'info';
+            case 'error': return 'error';
+            default: return 'primary';
+        }
+    };
 
     return (
-        <header className="app-header">
-            {/* Logo y nombre de la aplicación */}
-            <div className="header-left">
-                <div className="logo-container">
-                    <div className="logo">📦</div>
-                    <div className="app-name">
-                        <h1>InventarioPro</h1>
-                        <span className="app-tagline">Gestión Inteligente</span>
-                    </div>
-                </div>
-
-                {/* Navegación principal */}
-                <nav className="main-nav">
-                    <ul className="nav-list">
-                        {mainNavItems.map(item => (
-                            <li key={item.path} className="nav-item">
-                                <Link 
-                                    to={item.path}
-                                    className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
-                                >
-                                    <span className="nav-icon">{item.icon}</span>
-                                    <span className="nav-label">{item.label}</span>
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            </div>
-
-            {/* Controles del usuario */}
-            <div className="header-right">
-                {/* Barra de búsqueda global */}
-                <div className="search-bar">
-                    <input
-                        type="text"
-                        placeholder="Buscar productos, categorías, proveedores..."
-                        className="search-input"
-                    />
-                    <button className="search-btn">
-                        🔍
+        <header className="header">
+            <div className="header-container">
+                {/* Logo y toggle del menú móvil */}
+                <div className="header-left">
+                    <button
+                        className="menu-toggle"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <i className="fas fa-bars"></i>
                     </button>
+                    
+                    <Link to="/dashboard" className="logo">
+                        <div className="logo-icon">
+                            <i className="fas fa-boxes"></i>
+                        </div>
+                        <div className="logo-text">
+                            <span className="logo-primary">Inventario</span>
+                            <span className="logo-secondary">Básico</span>
+                        </div>
+                    </Link>
                 </div>
 
-                {/* Botón de menú móvil */}
-                <button className="mobile-menu-btn">
-                    ☰
-                </button>
+                {/* Barra de búsqueda */}
+                <div className="header-center">
+                    <form onSubmit={handleSearch} className="search-form">
+                        <div className="search-box">
+                            <i className="fas fa-search"></i>
+                            <input
+                                type="text"
+                                placeholder="Buscar productos, categorías, proveedores..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            {searchQuery && (
+                                <button
+                                    type="button"
+                                    className="clear-search"
+                                    onClick={() => setSearchQuery('')}
+                                >
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            )}
+                        </div>
+                        <button type="submit" className="btn btn-search">
+                            Buscar
+                        </button>
+                    </form>
+                </div>
 
-                {/* Iconos de acción */}
-                <div className="header-actions">
+                {/* Iconos de usuario */}
+                <div className="header-right">
+                    {/* Botón de escaneo QR */}
+                    <button
+                        className="header-action"
+                        onClick={() => navigate('/scan')}
+                        title="Escanear código QR"
+                    >
+                        <i className="fas fa-qrcode"></i>
+                    </button>
+
                     {/* Notificaciones */}
-                    <div className="notification-container">
-                        <button 
-                            className="notification-btn"
-                            onClick={() => setShowNotifications(!showNotifications)}
+                    <div className="notification-wrapper">
+                        <button
+                            className="header-action"
+                            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                            title="Notificaciones"
                         >
-                            🔔
+                            <i className="fas fa-bell"></i>
                             {unreadCount > 0 && (
                                 <span className="notification-badge">{unreadCount}</span>
                             )}
                         </button>
 
-                        {showNotifications && (
-                            <div className="notification-dropdown">
-                                <div className="notification-header">
-                                    <h3>Notificaciones</h3>
-                                    {unreadCount > 0 && (
-                                        <button 
-                                            className="mark-all-read"
-                                            onClick={markAllAsRead}
-                                        >
-                                            Marcar todas como leídas
-                                        </button>
-                                    )}
-                                </div>
-                                
-                                <div className="notification-list">
-                                    {notifications.length > 0 ? (
-                                        notifications.map(notification => (
-                                            <div 
-                                                key={notification.id}
-                                                className={`notification-item ${notification.read ? 'read' : 'unread'}`}
-                                                onClick={() => markNotificationAsRead(notification.id)}
+                        {isNotificationsOpen && (
+                            <>
+                                <div
+                                    className="notification-backdrop"
+                                    onClick={() => setIsNotificationsOpen(false)}
+                                />
+                                <div className="notification-dropdown">
+                                    <div className="notification-header">
+                                        <h4>Notificaciones</h4>
+                                        {unreadCount > 0 && (
+                                            <button
+                                                className="btn-mark-all"
+                                                onClick={markAllAsRead}
                                             >
-                                                <div className="notification-icon">
-                                                    {notification.type === 'warning' ? '⚠️' : 
-                                                     notification.type === 'success' ? '✅' : 'ℹ️'}
+                                                Marcar todas como leídas
+                                            </button>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="notification-list">
+                                        {notifications.length > 0 ? (
+                                            notifications.map(notification => (
+                                                <div
+                                                    key={notification.id}
+                                                    className={`notification-item ${notification.read ? 'read' : 'unread'} ${getNotificationColor(notification.type)}`}
+                                                    onClick={() => markNotificationAsRead(notification.id)}
+                                                >
+                                                    <div className="notification-icon">
+                                                        <i className={getNotificationIcon(notification.type)}></i>
+                                                    </div>
+                                                    <div className="notification-content">
+                                                        <h5>{notification.title}</h5>
+                                                        <p>{notification.message}</p>
+                                                        <span className="notification-time">
+                                                            {notification.time}
+                                                        </span>
+                                                    </div>
+                                                    {!notification.read && (
+                                                        <div className="notification-indicator"></div>
+                                                    )}
                                                 </div>
-                                                <div className="notification-content">
-                                                    <p className="notification-message">{notification.message}</p>
-                                                    <span className="notification-time">
-                                                        {new Date(notification.createdAt).toLocaleTimeString([], { 
-                                                            hour: '2-digit', 
-                                                            minute: '2-digit' 
-                                                        })}
-                                                    </span>
-                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="notification-empty">
+                                                <i className="fas fa-bell-slash"></i>
+                                                <p>No hay notificaciones</p>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="no-notifications">
-                                            No hay notificaciones nuevas
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
+                                    
+                                    <div className="notification-footer">
+                                        <Link to="/notifications">
+                                            Ver todas las notificaciones
+                                        </Link>
+                                    </div>
                                 </div>
-
-                                <div className="notification-footer">
-                                    <Link to="/notifications">Ver todas las notificaciones</Link>
-                                </div>
-                            </div>
+                            </>
                         )}
                     </div>
 
-                    {/* Modo oscuro/claro */}
-                    <button className="theme-toggle">
-                        🌙
-                    </button>
-
-                    {/* Perfil del usuario */}
-                    <div className="user-profile">
-                        <button 
-                            className="user-btn"
-                            onClick={() => setShowUserMenu(!showUserMenu)}
+                    {/* Menú de usuario */}
+                    <div className="user-menu-wrapper">
+                        <button
+                            className="user-profile"
+                            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                         >
                             <div className="user-avatar">
-                                {user?.name?.charAt(0) || 'U'}
+                                {user?.nombre?.charAt(0) || 'U'}
                             </div>
                             <div className="user-info">
-                                <span className="user-name">{user?.name || 'Usuario'}</span>
-                                <span className="user-role">{user?.role || 'Administrador'}</span>
+                                <span className="user-name">
+                                    {user?.nombre || 'Usuario'}
+                                </span>
+                                <span className="user-role">
+                                    {user?.rol || 'Usuario'}
+                                </span>
                             </div>
-                            <span className="dropdown-arrow">▼</span>
+                            <i className={`fas fa-chevron-${isProfileMenuOpen ? 'up' : 'down'}`}></i>
                         </button>
 
-                        {showUserMenu && (
-                            <div className="user-menu">
-                                <div className="user-menu-header">
-                                    <div className="menu-avatar">
-                                        {user?.name?.charAt(0) || 'U'}
+                        {isProfileMenuOpen && (
+                            <>
+                                <div
+                                    className="user-menu-backdrop"
+                                    onClick={() => setIsProfileMenuOpen(false)}
+                                />
+                                <div className="user-menu-dropdown">
+                                    <div className="user-menu-header">
+                                        <div className="menu-user-avatar">
+                                            {user?.nombre?.charAt(0) || 'U'}
+                                        </div>
+                                        <div>
+                                            <h4>{user?.nombre || 'Usuario'}</h4>
+                                            <p>{user?.email || 'usuario@ejemplo.com'}</p>
+                                            <span className="user-role-badge">
+                                                {user?.rol || 'Usuario'}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="menu-user-info">
-                                        <h4>{user?.name || 'Usuario'}</h4>
-                                        <p>{user?.email || 'usuario@ejemplo.com'}</p>
+                                    
+                                    <div className="user-menu-items">
+                                        <Link
+                                            to="/profile"
+                                            className="menu-item"
+                                            onClick={() => setIsProfileMenuOpen(false)}
+                                        >
+                                            <i className="fas fa-user"></i>
+                                            <span>Mi Perfil</span>
+                                        </Link>
+                                        
+                                        <Link
+                                            to="/settings"
+                                            className="menu-item"
+                                            onClick={() => setIsProfileMenuOpen(false)}
+                                        >
+                                            <i className="fas fa-cog"></i>
+                                            <span>Configuración</span>
+                                        </Link>
+                                        
+                                        <Link
+                                            to="/help"
+                                            className="menu-item"
+                                            onClick={() => setIsProfileMenuOpen(false)}
+                                        >
+                                            <i className="fas fa-question-circle"></i>
+                                            <span>Ayuda</span>
+                                        </Link>
+                                        
+                                        <div className="menu-divider"></div>
+                                        
+                                        <button
+                                            className="menu-item logout"
+                                            onClick={handleLogout}
+                                        >
+                                            <i className="fas fa-sign-out-alt"></i>
+                                            <span>Cerrar Sesión</span>
+                                        </button>
                                     </div>
                                 </div>
-
-                                <div className="user-menu-items">
-                                    <Link to="/profile" className="menu-item">
-                                        👤 Mi Perfil
-                                    </Link>
-                                    <Link to="/settings" className="menu-item">
-                                        ⚙️ Configuración
-                                    </Link>
-                                    <Link to="/help" className="menu-item">
-                                        ❓ Ayuda
-                                    </Link>
-                                    <button className="menu-item logout" onClick={handleLogout}>
-                                        🚪 Cerrar Sesión
-                                    </button>
-                                </div>
-                            </div>
+                            </>
                         )}
                     </div>
+
+                    {/* Toggle de tema */}
+                    <button
+                        className="theme-toggle"
+                        onClick={() => {
+                            document.body.classList.toggle('dark-theme');
+                            localStorage.setItem('theme', 
+                                document.body.classList.contains('dark-theme') ? 'dark' : 'light'
+                            );
+                        }}
+                        title="Cambiar tema"
+                    >
+                        <i className="fas fa-moon"></i>
+                        <i className="fas fa-sun"></i>
+                    </button>
                 </div>
             </div>
+
+            {/* Menú móvil */}
+            {isMenuOpen && (
+                <div className="mobile-menu">
+                    <div className="mobile-menu-header">
+                        <h3>Menú</h3>
+                        <button
+                            className="close-menu"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            <i className="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <nav className="mobile-nav">
+                        <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                            <i className="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </Link>
+                        <Link to="/products" onClick={() => setIsMenuOpen(false)}>
+                            <i className="fas fa-box"></i>
+                            <span>Productos</span>
+                        </Link>
+                        <Link to="/categories" onClick={() => setIsMenuOpen(false)}>
+                            <i className="fas fa-folder"></i>
+                            <span>Categorías</span>
+                        </Link>
+                        <Link to="/suppliers" onClick={() => setIsMenuOpen(false)}>
+                            <i className="fas fa-truck"></i>
+                            <span>Proveedores</span>
+                        </Link>
+                        <Link to="/reports" onClick={() => setIsMenuOpen(false)}>
+                            <i className="fas fa-chart-bar"></i>
+                            <span>Reportes</span>
+                        </Link>
+                        <Link to="/settings" onClick={() => setIsMenuOpen(false)}>
+                            <i className="fas fa-cog"></i>
+                            <span>Configuración</span>
+                        </Link>
+                    </nav>
+                </div>
+            )}
         </header>
     );
 };

@@ -1,1087 +1,783 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  QrCode, Camera, RotateCw,
-  AlertCircle, CheckCircle, Search,
-  Package, ArrowLeft, Download,
-  History, Info
-} from 'lucide-react';
+import { useNotification } from '../context/NotificationContext';
+import { useInventory } from '../context/InventoryContext';
+import '../assets/styles/pages/pages.css';
 
-// ✅ Configuración de API
-const API_CONFIG = {
-  BASE_URL: window.APP_CONFIG?.apiUrl || 'http://localhost:3000/api',
-  getAuthHeader: () => ({
-    'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
-    'Content-Type': 'application/json'
-  })
-};
+const Scanner = () => {
+  const navigate = useNavigate();
+  const { showNotification } = useNotification();
+  const { products, loading, scanProduct } = useInventory();
+  
+  const [scanning, setScanning] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [scannedData, setScannedData] = useState(null);
+  const [scanHistory, setScanHistory] = useState([]);
+  const [manualInput, setManualInput] = useState('');
+  const [selectedCamera, setSelectedCamera] = useState('environment');
+  const [scanMode, setScanMode] = useState('product'); // 'product', 'inventory', 'custom'
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const scannerRef = useRef(null);
 
-// ✅ Componente de historial de escaneos
-const ScanHistoryItem = React.memo(({ scan, onClick }) => {
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
+  // Cargar historial desde localStorage
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('scanHistory');
+    if (savedHistory) {
+      try {
+        setScanHistory(JSON.parse(savedHistory).slice(0, 10));
+      } catch (error) {
+        console.error('Error loading scan history:', error);
+      }
+    }
+  }, []);
 
-    if (diffMins < 1) return 'Ahora';
-    if (diffMins < 60) return `Hace ${diffMins} min`;
-    if (diffHours < 24) return `Hace ${diffHours} h`;
+  // Guardar historial en localStorage
+  useEffect(() => {
+    if (scanHistory.length > 0) {
+      localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+    }
+  }, [scanHistory]);
 
-    return date.toLocaleDateString('es-MX', {
-      day: 'numeric',
-      month: 'short'
-    });
-  };
+  // Inicializar escáner
+  const initializeScanner = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('La cámara no es compatible con este navegador');
+      }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200 cursor-pointer group"
-      onClick={() => onClick(scan.productId)}
-      whileHover={{ scale: 1.01 }}
-    >
-      <div className="flex items-center min-w-0">
-        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 shrink-0">
-          <Package className="w-5 h-5 text-blue-600" />
-        </div>
-        <div className="min-w-0">
-          <div className="font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
-            {scan.productName}
-          </div>
-          <div className="text-xs text-gray-500 flex items-center mt-1">
-            <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded mr-2">{scan.code}</span>
-            <span>{formatTime(scan.timestamp)}</span>
-          </div>
-        </div>
-      </div>
-      <div className="text-xs text-gray-500 shrink-0">
-        {scan.user}
-      </div>
-    </motion.div>
-  );
-});
+      const constraints = {
+        video: {
+          facingMode: selectedCamera,
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      };
 
-ScanHistoryItem.propTypes = {
-  scan: PropTypes.shape({
-    productId: PropTypes.string.isRequired,
-    productName: PropTypes.string.isRequired,
-    code: PropTypes.string.isRequired,
-    timestamp: PropTypes.string.isRequired,
-    user: PropTypes.string.isRequired
-  }).isRequired,
-  onClick: PropTypes.func.isRequired
-};
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        setCameraActive(true);
+        setScanning(true);
+      }
 
-ScanHistoryItem.displayName = 'ScanHistoryItem';
-
-// ✅ Función para obtener estado de stock
-const getStockStatus = (stock, minStock) => {
-  if (stock <= 0) return { text: 'Agotado', color: 'bg-red-100 text-red-800' };
-  if (stock <= (minStock || 10) * 0.3) return { text: 'Crítico', color: 'bg-red-100 text-red-800' };
-  if (stock <= (minStock || 10) * 0.5) return { text: 'Bajo', color: 'bg-yellow-100 text-yellow-800' };
-  return { text: 'Disponible', color: 'bg-green-100 text-green-800' };
-};
-
-// ✅ Componente de detalles de producto escaneado
-const ScannedProductDetails = React.memo(({ product, onUpdateStock, onViewDetails, isLoading }) => {
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      minimumFractionDigits: 2
-    }).format(amount || 0);
-  };
-
-  if (!product) return null;
-
-  const stockStatus = getStockStatus(product.stock, product.minStock);
-  const handleCustomAdjustment = () => {
-    const quantity = prompt('Ingresa la cantidad a ajustar (use + para añadir, - para restar):', '+1');
-    if (quantity && !isNaN(parseInt(quantity, 10))) {
-      onUpdateStock(product.id, parseInt(quantity, 10));
+      // Iniciar detección de códigos
+      startCodeDetection();
+      
+      showNotification('success', 'Cámara activada', 'Escáner listo para usar');
+    } catch (error) {
+      console.error('Error al acceder a la cámara:', error);
+      showNotification('error', 'Error de cámara', error.message);
+      setCameraActive(false);
+      setScanning(false);
     }
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="bg-white rounded-xl shadow-sm p-6"
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm text-gray-600 font-mono bg-gray-100 px-2 py-0.5 rounded">
-              {product.sku}
-            </span>
-            <span className={`text-xs px-2 py-1 rounded-full ${stockStatus.color}`}>
-              {stockStatus.text}
-            </span>
-          </div>
-        </div>
-        <button
-          onClick={onViewDetails}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          aria-label="Ver detalles completos"
-        >
-          <Info className="w-5 h-5 text-gray-600" />
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="text-sm text-gray-500">Stock actual</div>
-            <div className="text-xl font-bold text-gray-900">{product.stock} unidades</div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-500">Precio</div>
-            <div className="text-xl font-bold text-gray-900">{formatCurrency(product.price)}</div>
-          </div>
-        </div>
-
-        {product.location && (
-          <div>
-            <div className="text-sm text-gray-500">Ubicación</div>
-            <div className="font-medium text-gray-900">{product.location}</div>
-          </div>
-        )}
-
-        <div className="pt-4 border-t border-gray-200">
-          <div className="text-sm font-medium text-gray-900 mb-3">Ajustar stock</div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => onUpdateStock(product.id, 1)}
-              disabled={isLoading}
-              className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors font-medium"
-            >
-              +1
-            </button>
-            <button
-              onClick={() => onUpdateStock(product.id, -1)}
-              disabled={isLoading || product.stock <= 0}
-              className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-medium"
-            >
-              -1
-            </button>
-            <button
-              onClick={handleCustomAdjustment}
-              disabled={isLoading}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
-            >
-              Personalizar
-            </button>
-          </div>
-        </div>
-
-        <div className="text-xs text-gray-500 text-center pt-2">
-          Última actualización: {new Date(product.lastUpdated || product.createdAt).toLocaleDateString('es-MX')}
-        </div>
-      </div>
-    </motion.div>
-  );
-});
-
-ScannedProductDetails.propTypes = {
-  product: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    sku: PropTypes.string.isRequired,
-    stock: PropTypes.number.isRequired,
-    minStock: PropTypes.number,
-    price: PropTypes.number,
-    location: PropTypes.string,
-    lastUpdated: PropTypes.string,
-    createdAt: PropTypes.string
-  }).isRequired,
-  onUpdateStock: PropTypes.func.isRequired,
-  onViewDetails: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool.isRequired
-};
-
-ScannedProductDetails.displayName = 'ScannedProductDetails';
-
-// ✅ COMPONENTE PRINCIPAL MEJORADO
-const Scanner = () => {
-  const navigate = useNavigate();
-
-  // ✅ ESTADOS DEL ESCÁNER
-  const [scanning, setScanning] = useState(true);
-  const [scanResult, setScanResult] = useState(null);
-  const [currentProduct, setCurrentProduct] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [cameraPermission, setCameraPermission] = useState(null);
-  const [activeCamera, setActiveCamera] = useState('environment');
-  const [cameraDevices, setCameraDevices] = useState([]);
-  const [scanHistory, setScanHistory] = useState([]);
-  const [scanCount, setScanCount] = useState(0);
-  const [successCount, setSuccessCount] = useState(0);
-
-  // ✅ REFERENCIAS
-  const videoRef = useRef(null);
-  const scanTimeoutRef = useRef(null);
-  const beepAudioRef = useRef(null);
-
-  // ✅ EFECTO PARA CARGAR PERMISOS Y DISPOSITIVOS
-  useEffect(() => {
-    checkCameraPermission();
-    loadCameraDevices();
-    loadScanHistory();
-
-    // ✅ MEJORA: Cargar audio de escaneo
-    beepAudioRef.current = new Audio('/sounds/beep.mp3');
-    beepAudioRef.current.volume = 0.3;
-
-    // ✅ MEJORA: Cleanup function
-    return () => {
-      if (scanTimeoutRef.current) {
-        clearTimeout(scanTimeoutRef.current);
-      }
-      stopCamera();
-    };
-  }, []);
-
-  // ✅ MEJORA: Función para detener la cámara
-  const stopCamera = useCallback(() => {
-    const stream = videoRef.current?.srcObject;
-    if (stream) {
+  // Detener escáner
+  const stopScanner = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
       const tracks = stream.getTracks();
       tracks.forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
-  }, []);
-
-  // ✅ MEJORA: Función para reproducir sonido de escaneo
-  const playScanSound = useCallback(() => {
-    if (beepAudioRef.current) {
-      beepAudioRef.current.currentTime = 0;
-      beepAudioRef.current.play().catch(() => {
-        console.log('Audio playback failed');
-      });
+    
+    if (scannerRef.current) {
+      clearInterval(scannerRef.current);
+      scannerRef.current = null;
     }
-  }, []);
+    
+    setCameraActive(false);
+    setScanning(false);
+  };
 
-  // ✅ MEJORA: Función para verificar permisos de cámara
-  const checkCameraPermission = async () => {
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error('API de cámara no disponible en este navegador');
+  // Iniciar detección de códigos
+  const startCodeDetection = () => {
+    scannerRef.current = setInterval(() => {
+      if (videoRef.current && canvasRef.current && videoRef.current.readyState === 4) {
+        detectQRCode();
       }
+    }, 100); // Revisar cada 100ms
+  };
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: activeCamera,
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
+  // Detectar código QR
+  const detectQRCode = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
 
-      // Detener stream después de verificar permisos
-      stream.getTracks().forEach(track => track.stop());
+    if (video.videoWidth && video.videoHeight) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      setCameraPermission('granted');
-      setError(null);
-    } catch (err) {
-      console.error('Error al acceder a la cámara:', err);
-      setCameraPermission('denied');
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-      if (err.name === 'NotAllowedError') {
-        setError('Permiso de cámara denegado. Por favor, habilita la cámara en los ajustes de tu navegador.');
-      } else if (err.name === 'NotFoundError') {
-        setError('No se encontró ninguna cámara disponible en este dispositivo.');
-      } else if (err.name === 'NotReadableError') {
-        setError('La cámara está en uso por otra aplicación. Por favor, ciérrala e intenta de nuevo.');
-      } else {
-        setError(`Error de cámara: ${err.message}`);
+      if (code) {
+        handleScannedCode(code.data);
       }
     }
   };
 
-  // ✅ MEJORA: Función para cargar dispositivos de cámara
-  const loadCameraDevices = async () => {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      setCameraDevices(videoDevices);
-
-      // ✅ MEJORA: Si hay múltiples cámaras, seleccionar la trasera por defecto
-      if (videoDevices.length > 1) {
-        const rearCamera = videoDevices.find(device =>
-          device.label.toLowerCase().includes('back') ||
-          device.label.toLowerCase().includes('rear') ||
-          device.label.toLowerCase().includes('environment')
-        );
-        if (rearCamera) {
-          setActiveCamera('environment');
-        }
-      }
-    } catch (err) {
-      console.error('Error al listar dispositivos de cámara:', err);
-    }
-  };
-
-  // ✅ MEJORA: Función para cargar historial de escaneos
-  const loadScanHistory = () => {
-    try {
-      const history = JSON.parse(localStorage.getItem('scanHistory')) || [];
-      const validHistory = history.filter(item =>
-        item &&
-        typeof item === 'object' &&
-        item.productId &&
-        item.productName &&
-        item.timestamp
-      ).slice(0, 10);
-
-      setScanHistory(validHistory);
-      setSuccessCount(validHistory.filter(h => h.success).length);
-      setScanCount(validHistory.length);
-    } catch (error) {
-      console.error('Error cargando historial de escaneos:', error);
-      setScanHistory([]);
-    }
-  };
-
-  // ✅ MEJORA: Función para añadir al historial
-  const addToScanHistory = useCallback((product, success = true) => {
-    if (!product?.id || !product?.name) return;
-
-    const historyItem = {
-      productId: product.id,
-      productName: product.name,
-      code: product.sku || product.barcode || 'N/A',
+  // Procesar código escaneado
+  const handleScannedCode = async (data) => {
+    if (processing || scannedData === data) return;
+    
+    setProcessing(true);
+    setScannedData(data);
+    
+    // Agregar sonido de escaneo
+    playScanSound();
+    
+    // Agregar al historial
+    const scanEntry = {
+      id: Date.now(),
+      data,
       timestamp: new Date().toISOString(),
-      user: localStorage.getItem('username') || 'Usuario',
-      success
+      mode: scanMode,
+      success: false
     };
-
-    const newHistory = [historyItem, ...scanHistory].slice(0, 20);
-    setScanHistory(newHistory);
-
-    // ✅ MEJORA: Actualizar contadores
-    if (success) {
-      setSuccessCount(prev => prev + 1);
-    }
-    setScanCount(prev => prev + 1);
-
+    
+    setScanHistory(prev => [scanEntry, ...prev.slice(0, 9)]);
+    
     try {
-      localStorage.setItem('scanHistory', JSON.stringify(newHistory));
-    } catch (error) {
-      console.error('Error guardando historial:', error);
-    }
-  }, [scanHistory]);
-
-  // ✅ MEJORA: Función para buscar producto por código QR
-  const searchProductByCode = async (code) => {
-    if (!code || typeof code !== 'string' || code.trim().length < 3) {
-      throw new Error('Código QR inválido o muy corto');
-    }
-
-    try {
-      // ✅ MEJORA: Intentar diferentes formatos de búsqueda
-      const searchPromises = [
-        fetch(`${API_CONFIG.BASE_URL}/products/sku/${encodeURIComponent(code.trim())}`, {
-          headers: API_CONFIG.getAuthHeader()
-        }),
-        fetch(`${API_CONFIG.BASE_URL}/products/barcode/${encodeURIComponent(code.trim())}`, {
-          headers: API_CONFIG.getAuthHeader()
-        }),
-        fetch(`${API_CONFIG.BASE_URL}/products/search?q=${encodeURIComponent(code.trim())}`, {
-          headers: API_CONFIG.getAuthHeader()
-        })
-      ];
-
-      let product = null;
-      for (const promise of searchPromises) {
-        try {
-          const response = await promise;
-          if (response.ok) {
-            const data = await response.json();
-            if (data?.id) {
-              product = data;
-              break;
-            }
-          }
-        } catch (error) {
-          console.log('Búsqueda fallida, intentando siguiente método...');
-          // No propagamos el error aquí, continuamos con el siguiente método
-        }
+      // Procesar según el modo
+      let result;
+      switch (scanMode) {
+        case 'product':
+          result = await processProductScan(data);
+          break;
+        case 'inventory':
+          result = await processInventoryScan(data);
+          break;
+        case 'custom':
+          result = { data, type: 'custom', message: 'Código personalizado escaneado' };
+          break;
+        default:
+          result = { data, type: 'unknown', message: 'Código escaneado' };
       }
+      
+      scanEntry.success = true;
+      scanEntry.result = result;
+      
+      setScanResult(result);
+      setShowResultModal(true);
+      
+      showNotification('success', 'Escaneo exitoso', `Código: ${data.substring(0, 30)}...`);
+      
+      // Detener escáner momentáneamente
+      stopScanner();
+      setTimeout(() => {
+        if (scanning) {
+          initializeScanner();
+        }
+      }, 2000);
+      
+    } catch (error) {
+      scanEntry.error = error.message;
+      showNotification('error', 'Error al procesar', error.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // Procesar escaneo de producto
+  const processProductScan = async (data) => {
+    try {
+      // Intentar analizar como JSON
+      let productInfo;
+      try {
+        productInfo = JSON.parse(data);
+      } catch {
+        // Si no es JSON, buscar por SKU o ID
+        productInfo = { sku: data };
+      }
+
+      // Buscar producto
+      const product = products.find(p => 
+        p.id === productInfo.id || 
+        p.sku === productInfo.sku ||
+        p.barcode === data
+      );
 
       if (!product) {
-        throw new Error('Producto no encontrado en el inventario');
+        throw new Error('Producto no encontrado');
       }
 
-      return product;
+      return {
+        type: 'product',
+        product,
+        message: `Producto encontrado: ${product.name}`,
+        actions: [
+          { label: 'Ver detalles', action: () => navigate(`/products/${product.id}`) },
+          { label: 'Ajustar inventario', action: () => navigate(`/inventory?product=${product.id}`) }
+        ]
+      };
     } catch (error) {
-      console.error('Error buscando producto:', error);
-      throw error;
+      throw new Error('No se pudo procesar el producto: ' + error.message);
     }
   };
 
-  // ✅ MEJORA: Función para obtener clase CSS de notificación
-  const getNotificationClass = (type) => {
-    if (type === 'success') return 'bg-green-500 text-white';
-    if (type === 'error') return 'bg-red-500 text-white';
-    return 'bg-blue-500 text-white';
-  };
-
-  // ✅ MEJORA: Función para mostrar notificaciones
-  const showNotification = (message, type = 'info') => {
-    // ✅ MEJORA: Implementar sistema de notificaciones visuales
-    const notification = document.createElement('div');
-    const notificationClass = getNotificationClass(type);
-
-    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transform transition-all duration-300 ${notificationClass}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.style.transform = 'translateX(100%)';
-      notification.style.opacity = '0';
-      setTimeout(() => {
-        notification.remove();
-      }, 300);
-    }, 3000);
-  };
-
-  // ✅ MEJORA: Manejador de escaneo exitoso
-  const handleScanSuccess = useCallback(async (code) => {
-    if (!code || scanResult === code) return;
-
-    setScanResult(code);
-    setScanning(false);
-    setLoading(true);
-    setError(null);
-    playScanSound();
-
+  // Procesar escaneo de inventario
+  const processInventoryScan = async (data) => {
     try {
-      console.log('🔍 Escaneando código:', code);
-      const product = await searchProductByCode(code);
-
-      if (product) {
-        setCurrentProduct(product);
-        addToScanHistory(product, true);
-
-        // ✅ MEJORA: Mostrar notificación de éxito
-        showNotification(`✅ Producto encontrado: ${product.name}`, 'success');
-      }
-    } catch (err) {
-      console.error('Error al procesar escaneo:', err);
-      setError(err.message || 'Error al procesar el código QR');
-      addToScanHistory({ id: 'error', name: code }, false);
-      showNotification(`❌ ${err.message || 'Producto no encontrado'}`, 'error');
-    } finally {
-      setLoading(false);
-
-      // ✅ MEJORA: Reanudar escaneo después de 2 segundos
-      if (scanTimeoutRef.current) {
-        clearTimeout(scanTimeoutRef.current);
-      }
-      scanTimeoutRef.current = setTimeout(() => {
-        setScanning(true);
-        setScanResult(null);
-      }, 2000);
-    }
-  }, [scanResult, playScanSound, addToScanHistory]);
-
-  // ✅ MEJORA: Función para cambiar de cámara
-  const switchCamera = useCallback(() => {
-    stopCamera();
-    setActiveCamera(prev => prev === 'environment' ? 'user' : 'environment');
-    setScanning(false);
-
-    setTimeout(() => {
-      setScanning(true);
-      setError(null);
-    }, 500);
-  }, [stopCamera]);
-
-  // ✅ MEJORA: Función para actualizar stock
-  const handleUpdateStock = useCallback(async (productId, adjustment) => {
-    if (!productId || typeof adjustment !== 'number' || isNaN(adjustment)) {
-      showNotification('❌ Datos de actualización inválidos', 'error');
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const response = await fetch(`${API_CONFIG.BASE_URL}/products/${productId}/stock`, {
-        method: 'PATCH',
-        headers: API_CONFIG.getAuthHeader(),
-        body: JSON.stringify({
-          quantity: adjustment,
-          reason: 'Ajuste manual desde escáner',
-          notes: `Escaneado el ${new Date().toISOString()}`,
-          user: localStorage.getItem('username') || 'Sistema'
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al actualizar stock');
-      }
-
-      const updatedData = await response.json();
-
-      // ✅ MEJORA: Actualizar producto localmente
-      setCurrentProduct(prev => ({
-        ...prev,
-        stock: updatedData.stock,
-        lastUpdated: new Date().toISOString()
-      }));
-
-      showNotification(
-        `✅ Stock actualizado: ${adjustment > 0 ? '+' : ''}${adjustment} unidades`,
-        'success'
+      // Buscar producto para ajuste de inventario
+      const product = products.find(p => 
+        p.id === data || 
+        p.sku === data ||
+        p.barcode === data
       );
-    } catch (err) {
-      console.error('Error actualizando stock:', err);
-      showNotification(`❌ ${err.message || 'Error al actualizar stock'}`, 'error');
-    } finally {
-      setLoading(false);
+
+      if (!product) {
+        throw new Error('Producto no encontrado en inventario');
+      }
+
+      // Aquí se implementaría la lógica de ajuste de inventario
+      const adjustment = {
+        productId: product.id,
+        productName: product.name,
+        currentQuantity: product.quantity,
+        adjustment: 0,
+        type: 'scan',
+        timestamp: new Date().toISOString()
+      };
+
+      return {
+        type: 'inventory',
+        product,
+        adjustment,
+        message: `Inventario escaneado: ${product.name}`,
+        actions: [
+          { label: 'Agregar stock', action: () => handleInventoryAdjustment(product.id, 1) },
+          { label: 'Reducir stock', action: () => handleInventoryAdjustment(product.id, -1) },
+          { label: 'Ver historial', action: () => navigate(`/products/${product.id}?tab=inventory`) }
+        ]
+      };
+    } catch (error) {
+      throw new Error('Error en escaneo de inventario: ' + error.message);
     }
+  };
+
+  // Ajustar inventario
+  const handleInventoryAdjustment = async (productId, adjustment) => {
+    try {
+      await scanProduct(productId, adjustment);
+      showNotification('success', 'Inventario actualizado', 'El stock ha sido ajustado');
+      setShowResultModal(false);
+    } catch (error) {
+      showNotification('error', 'Error', 'No se pudo ajustar el inventario');
+    }
+  };
+
+  // Reproducir sonido de escaneo
+  const playScanSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(500, audioContext.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (error) {
+      console.warn('No se pudo reproducir sonido:', error);
+    }
+  };
+
+  // Manejar entrada manual
+  const handleManualSubmit = (e) => {
+    e.preventDefault();
+    if (manualInput.trim()) {
+      handleScannedCode(manualInput.trim());
+      setManualInput('');
+      setShowManualInput(false);
+    }
+  };
+
+  // Limpiar historial
+  const clearHistory = () => {
+    setScanHistory([]);
+    localStorage.removeItem('scanHistory');
+    showNotification('info', 'Historial limpiado', 'El historial de escaneos ha sido eliminado');
+  };
+
+  // Copiar al portapapeles
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      showNotification('success', 'Copiado', 'Texto copiado al portapapeles');
+    }).catch(err => {
+      showNotification('error', 'Error', 'No se pudo copiar al portapapeles');
+    });
+  };
+
+  // Alternar cámara
+  const toggleCamera = () => {
+    stopScanner();
+    setSelectedCamera(prev => prev === 'environment' ? 'user' : 'environment');
+    setTimeout(() => {
+      if (scanning) {
+        initializeScanner();
+      }
+    }, 100);
+  };
+
+  // Efecto de limpieza
+  useEffect(() => {
+    return () => {
+      stopScanner();
+    };
   }, []);
 
-  // ✅ MEJORA: Función para navegar a producto
-  const navigateToProduct = useCallback((productId) => {
-    if (!productId) return;
-    navigate(`/products/${productId}`);
-  }, [navigate]);
-
-  // ✅ MEJORA: Función para reiniciar escáner
-  const resetScanner = useCallback(() => {
-    stopCamera();
-    setScanning(true);
-    setScanResult(null);
-    setCurrentProduct(null);
-    setError(null);
-
-    if (scanTimeoutRef.current) {
-      clearTimeout(scanTimeoutRef.current);
+  // Simulación de jsQR para desarrollo
+  const jsQR = (data, width, height) => {
+    // En un entorno real, usarías la biblioteca jsQR
+    // Esta es una simulación para desarrollo
+    if (window.GLOBAL_CONFIG?.app?.debug) {
+      const mockCodes = [
+        '{"id": "1", "sku": "PROD001", "name": "Laptop Dell XPS 13"}',
+        'PROD002',
+        'INV-2024-001',
+        'custom-scan-data'
+      ];
+      
+      // Simular detección aleatoria en desarrollo
+      if (Math.random() < 0.01) { // 1% de probabilidad
+        const randomCode = mockCodes[Math.floor(Math.random() * mockCodes.length)];
+        return { data: randomCode };
+      }
     }
-  }, [stopCamera]);
-
-  // ✅ MEJORA: Función para simular escaneo (para desarrollo)
-  const simulateScan = useCallback(() => {
-    const testCodes = [
-      'PROD-001-2024',
-      'SKU-12345',
-      'BC-67890',
-      'ITEM-555'
-    ];
-    const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
-    handleScanSuccess(randomCode);
-  }, [handleScanSuccess]);
-
-  // ✅ MEJORA: Renderizado de permisos de cámara
-  if (cameraPermission === 'denied') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl shadow-lg p-8 text-center"
-          >
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Camera className="w-10 h-10 text-red-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Cámara no disponible</h2>
-            <p className="text-gray-600 mb-6">{error}</p>
-
-            <div className="space-y-4">
-              <button
-                onClick={checkCameraPermission}
-                className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
-              >
-                Reintentar conexión
-              </button>
-
-              <button
-                onClick={() => navigate('/products')}
-                className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium"
-              >
-                Ir al inventario
-              </button>
-
-              <button
-                onClick={simulateScan}
-                className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
-              >
-                Simular escaneo (desarrollo)
-              </button>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <h4 className="font-medium text-gray-900 mb-3">Para habilitar la cámara:</h4>
-              <ol className="text-sm text-gray-600 text-left space-y-2">
-                <li className="flex items-start">
-                  <span className="inline-block w-6 h-6 bg-gray-100 rounded-full text-center mr-2 shrink-0">
-                    1
-                  </span>
-                  <span>Haz clic en el ícono de candado en la barra de direcciones</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="inline-block w-6 h-6 bg-gray-100 rounded-full text-center mr-2 shrink-0">
-                    2
-                  </span>
-                  <span>Selecciona "Configuración de sitios" o "Permisos"</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="inline-block w-6 h-6 bg-gray-100 rounded-full text-center mr-2 shrink-0">
-                    3
-                  </span>
-                  <span>Habilita el acceso a la cámara para este sitio</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="inline-block w-6 h-6 bg-gray-100 rounded-full text-center mr-2 shrink-0">
-                    4
-                  </span>
-                  <span>Recarga la página</span>
-                </li>
-              </ol>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
+    return null;
+  };
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
-        {/* ✅ HEADER DEL ESCÁNER */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex items-start gap-4">
-              <button
-                onClick={() => navigate('/products')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 shrink-0 mt-1"
-                aria-label="Volver al inventario"
-              >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </button>
-
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <QrCode className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                    Escáner QR de Inventario
-                  </h1>
-                </div>
-                <p className="text-gray-600">
-                  Escanea códigos QR para buscar y gestionar productos en tiempo real
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={switchCamera}
-                disabled={loading || cameraDevices.length < 2}
-                className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 flex items-center font-medium disabled:opacity-50"
-                title={cameraDevices.length < 2 ? 'Solo hay una cámara disponible' : 'Cambiar cámara'}
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                {activeCamera === 'environment' ? 'Frontal' : 'Trasera'}
-              </button>
-
-              <button
-                onClick={() => navigate('/qr-management')}
-                className="px-4 py-2.5 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center font-medium shadow-sm"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Generar QR
-              </button>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ✅ CONTENIDO PRINCIPAL */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* ✅ PANEL DEL ESCÁNER */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* ESCÁNER PRINCIPAL */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden"
-            >
-              {/* ENCABEZADO */}
-              <div className="bg-linear-to-r from-blue-600 to-indigo-600 p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-white/20 rounded-lg mr-3">
-                      <QrCode className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">Escáner QR en tiempo real</h2>
-                      <p className="text-blue-100 text-sm mt-1">
-                        {scanning ? 'Listo para escanear' : 'Escaneo pausado'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${scanning ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-                    <span className="text-sm">{scanning ? 'Activo' : 'Inactivo'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* CONTENIDO DEL ESCÁNER */}
-              <div className="p-6">
-                {/* ESTADOS */}
-                {loading && (
-                  <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-2xl">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                      <p className="text-gray-700 font-medium">Buscando producto...</p>
-                      <p className="text-sm text-gray-500 mt-1">Por favor espera</p>
-                    </div>
-                  </div>
-                )}
-
-                {error && !loading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
-                  >
-                    <div className="flex items-center">
-                      <AlertCircle className="w-5 h-5 text-red-600 mr-3 shrink-0" />
-                      <div>
-                        <p className="text-red-800 font-medium">Error de escaneo</p>
-                        <p className="text-red-700 text-sm mt-1">{error}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* ÁREA DEL ESCÁNER */}
-                <div className="relative bg-gray-900 rounded-xl overflow-hidden aspect-square">
-                  {scanning ? (
-                    <>
-                      {/* VIDEO DE LA CÁMARA */}
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="w-full h-full object-cover"
-                      />
-
-                      {/* GUIAS DEL ESCÁNER */}
-                      <div className="absolute inset-0 pointer-events-none">
-                        {/* MARCO DEL ESCÁNER */}
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64">
-                          {/* ESQUINAS */}
-                          <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-blue-500 rounded-tl-lg" />
-                          <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-blue-500 rounded-tr-lg" />
-                          <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-blue-500 rounded-bl-lg" />
-                          <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-blue-500 rounded-br-lg" />
-
-                          {/* LÍNEA DE ESCANEO */}
-                          <div className="absolute left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent animate-pulse rounded-full" />
-                        </div>
-
-                        {/* OVERLAY */}
-                        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/60" />
-                      </div>
-
-                      {/* INSTRUCCIONES */}
-                      <div className="absolute bottom-8 left-0 right-0 text-center">
-                        <p className="text-white bg-black/50 backdrop-blur-sm inline-block px-6 py-3 rounded-full text-sm font-medium">
-                          📱 Coloca el código QR dentro del marco
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-900 to-purple-900">
-                      <div className="text-center p-8">
-                        <div className="w-24 h-24 bg-linear-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                          <CheckCircle className="w-12 h-12 text-white" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-white mb-3">¡Escaneo completado!</h3>
-                        <p className="text-blue-200 mb-6 max-w-sm">
-                          {currentProduct
-                            ? `Producto encontrado: ${currentProduct.name}`
-                            : 'Procesando código QR...'
-                          }
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                          <button
-                            onClick={resetScanner}
-                            className="px-6 py-3 bg-white text-blue-700 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-semibold shadow-sm"
-                          >
-                            Escanear otro código
-                          </button>
-                          {currentProduct && (
-                            <button
-                              onClick={() => navigateToProduct(currentProduct.id)}
-                              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 font-semibold"
-                            >
-                              Ver detalles completos
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* CONTROLES */}
-                <div className="mt-8 flex flex-wrap gap-3 justify-center">
-                  <button
-                    onClick={() => setScanning(!scanning)}
-                    disabled={loading}
-                    className={`px-6 py-3 rounded-lg flex items-center font-medium transition-colors duration-200 ${scanning
-                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                      : 'bg-green-100 text-green-700 hover:bg-green-200'
-                      }`}
-                  >
-                    {scanning ? (
-                      <>
-                        <div className="w-2 h-2 bg-red-600 rounded-full mr-2" />
-                        Pausar Escaneo
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-2 h-2 bg-green-600 rounded-full mr-2" />
-                        Reanudar Escaneo
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={resetScanner}
-                    disabled={loading}
-                    className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center font-medium transition-colors duration-200"
-                  >
-                    <RotateCw className="w-4 h-4 mr-2" />
-                    Reiniciar
-                  </button>
-
-                  <button
-                    onClick={simulateScan}
-                    className="px-6 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg flex items-center font-medium transition-colors duration-200"
-                  >
-                    <Search className="w-4 h-4 mr-2" />
-                    Simular Escaneo
-                  </button>
-
-                  {scanResult && (
-                    <div className="px-6 py-3 bg-blue-50 rounded-lg">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full mr-2" />
-                        <div>
-                          <p className="text-xs text-blue-800 font-medium">Código escaneado:</p>
-                          <p className="font-mono text-blue-900 text-sm truncate max-w-xs">
-                            {scanResult}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* ✅ HISTORIAL DE ESCANEOS */}
-            {scanHistory.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg p-6"
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-gray-100 rounded-lg mr-3">
-                      <History className="w-5 h-5 text-gray-700" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Historial de Escaneos Recientes
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        {scanCount} escaneos totales • {successCount} exitosos
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (window.confirm('¿Limpiar todo el historial de escaneos?')) {
-                        localStorage.removeItem('scanHistory');
-                        setScanHistory([]);
-                        setScanCount(0);
-                        setSuccessCount(0);
-                      }
-                    }}
-                    className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    Limpiar
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {scanHistory.map((scan, index) => (
-                    <ScanHistoryItem
-                      key={`${scan.productId}-${index}-${scan.timestamp}`}
-                      scan={scan}
-                      onClick={navigateToProduct}
-                    />
-                  ))}
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-                  <button
-                    onClick={() => navigate('/reports')}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
-                  >
-                    Ver reportes completos de escaneos →
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </div>
-
-          {/* ✅ PANEL DE DETALLES */}
-          <div className="lg:col-span-1 space-y-8">
-            {/* DETALLES DEL PRODUCTO */}
-            {currentProduct ? (
-              <ScannedProductDetails
-                product={currentProduct}
-                onUpdateStock={handleUpdateStock}
-                onViewDetails={() => navigateToProduct(currentProduct.id)}
-                isLoading={loading}
-              />
+    <div className="scanner-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-left">
+          <h1 className="page-title">Escáner QR</h1>
+          <p className="page-subtitle">
+            Escanea códigos QR de productos para gestionar tu inventario
+          </p>
+        </div>
+        
+        <div className="header-right">
+          <button 
+            className={`scan-button ${scanning ? 'stop' : 'start'}`}
+            onClick={() => {
+              if (scanning) {
+                stopScanner();
+              } else {
+                initializeScanner();
+              }
+            }}
+            disabled={processing}
+          >
+            {scanning ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <rect x="6" y="6" width="12" height="12" rx="1" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+                Detener escaneo
+              </>
             ) : (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-2xl shadow-lg p-8 text-center"
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 7V5C3 3.89543 3.89543 3 5 3H7M17 3H19C20.1046 3 21 3.89543 21 5V7M21 17V19C21 20.1046 20.1046 21 19 21H17M7 21H5C3.89543 21 3 20.1046 3 19V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Iniciar escaneo
+              </>
+            )}
+          </button>
+          
+          <button 
+            className="manual-input-button"
+            onClick={() => setShowManualInput(!showManualInput)}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Entrada manual
+          </button>
+        </div>
+      </div>
+
+      {/* Contenedor principal */}
+      <div className="scanner-container">
+        {/* Panel izquierdo: Vista de cámara */}
+        <div className="camera-panel">
+          <div className="camera-container">
+            {cameraActive ? (
+              <>
+                <video
+                  ref={videoRef}
+                  className="camera-feed"
+                  playsInline
+                  muted
+                />
+                <canvas ref={canvasRef} className="scanner-canvas" />
+                
+                {/* Overlay de escaneo */}
+                <div className="scanner-overlay">
+                  <div className="scan-frame">
+                    <div className="frame-corner top-left"></div>
+                    <div className="frame-corner top-right"></div>
+                    <div className="frame-corner bottom-left"></div>
+                    <div className="frame-corner bottom-right"></div>
+                    <div className="scan-line"></div>
+                  </div>
+                  <div className="scan-instructions">
+                    <p>Enfoca el código QR dentro del marco</p>
+                    <p className="scan-hint">El escaneo es automático</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="camera-placeholder">
+                <div className="placeholder-icon">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                    <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h3>Cámara inactiva</h3>
+                <p>Haz clic en "Iniciar escaneo" para activar la cámara</p>
+                <button 
+                  className="primary-button"
+                  onClick={initializeScanner}
+                  disabled={processing}
+                >
+                  Activar cámara
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Controles de cámara */}
+          <div className="camera-controls">
+            <div className="control-group">
+              <label>Modo de escaneo:</label>
+              <div className="mode-selector">
+                <button
+                  className={`mode-button ${scanMode === 'product' ? 'active' : ''}`}
+                  onClick={() => setScanMode('product')}
+                >
+                  <span className="mode-icon">📦</span>
+                  <span>Productos</span>
+                </button>
+                <button
+                  className={`mode-button ${scanMode === 'inventory' ? 'active' : ''}`}
+                  onClick={() => setScanMode('inventory')}
+                >
+                  <span className="mode-icon">📋</span>
+                  <span>Inventario</span>
+                </button>
+                <button
+                  className={`mode-button ${scanMode === 'custom' ? 'active' : ''}`}
+                  onClick={() => setScanMode('custom')}
+                >
+                  <span className="mode-icon">🔲</span>
+                  <span>Personalizado</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="control-buttons">
+              <button
+                className="control-button"
+                onClick={toggleCamera}
+                disabled={!cameraActive}
+                title="Cambiar cámara"
               >
-                <div className="w-20 h-20 bg-linear-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Package className="w-10 h-10 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  Información del Producto
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Escanea un código QR para ver los detalles del producto aquí
-                </p>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {selectedCamera === 'environment' ? 'Frontal' : 'Trasera'}
+              </button>
+              
+              <button
+                className="control-button"
+                onClick={() => {
+                  if (scannedData) {
+                    copyToClipboard(scannedData);
+                  }
+                }}
+                disabled={!scannedData}
+                title="Copiar último escaneo"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Copiar
+              </button>
+              
+              <button
+                className="control-button danger"
+                onClick={clearHistory}
+                disabled={scanHistory.length === 0}
+                title="Limpiar historial"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 6V4C8 3.46957 8.21071 3 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 3 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M10 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M14 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Limpiar
+              </button>
+            </div>
+          </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-start text-left">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-900">Busca códigos QR</p>
-                      <p className="text-sm text-gray-500">Escanea códigos QR de productos en tu inventario</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start text-left">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-900">Actualiza stock</p>
-                      <p className="text-sm text-gray-500">Ajusta el inventario directamente desde aquí</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start text-left">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-900">Acceso rápido</p>
-                      <p className="text-sm text-gray-500">Ve a los detalles completos con un clic</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <button
-                    onClick={simulateScan}
-                    className="w-full px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-sm"
-                  >
-                    Probar con producto de ejemplo
+          {/* Entrada manual */}
+          {showManualInput && (
+            <div className="manual-input-container">
+              <form onSubmit={handleManualSubmit}>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    value={manualInput}
+                    onChange={(e) => setManualInput(e.target.value)}
+                    placeholder="Ingresa código manualmente..."
+                    className="manual-input"
+                    autoFocus
+                  />
+                  <button type="submit" className="submit-button" disabled={!manualInput.trim()}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </button>
                 </div>
-              </motion.div>
+                <div className="input-hint">
+                  Presiona Enter o haz clic en la flecha para escanear
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+
+        {/* Panel derecho: Historial y resultados */}
+        <div className="results-panel">
+          <div className="results-header">
+            <h3>Historial de escaneos</h3>
+            <span className="history-count">{scanHistory.length} registros</span>
+          </div>
+          
+          <div className="history-list">
+            {scanHistory.length > 0 ? (
+              scanHistory.map((scan, index) => (
+                <div key={scan.id} className={`history-item ${scan.success ? 'success' : 'error'}`}>
+                  <div className="history-item-header">
+                    <div className="history-icon">
+                      {scan.success ? '✅' : '❌'}
+                    </div>
+                    <div className="history-info">
+                      <div className="history-mode">
+                        Modo: {scan.mode === 'product' ? 'Producto' : scan.mode === 'inventory' ? 'Inventario' : 'Personalizado'}
+                      </div>
+                      <div className="history-time">
+                        {new Date(scan.timestamp).toLocaleTimeString('es-ES', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                    <button
+                      className="history-action"
+                      onClick={() => copyToClipboard(scan.data)}
+                      title="Copiar código"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  
+                  <div className="history-data">
+                    <div className="data-preview" title={scan.data}>
+                      {scan.data.length > 50 ? scan.data.substring(0, 50) + '...' : scan.data}
+                    </div>
+                    
+                    {scan.error && (
+                      <div className="history-error">{scan.error}</div>
+                    )}
+                    
+                    {scan.result && (
+                      <div className="history-result">
+                        <div className="result-type">{scan.result.type}</div>
+                        <div className="result-message">{scan.result.message}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-history">
+                <div className="empty-icon">📋</div>
+                <p>No hay escaneos recientes</p>
+                <p className="empty-hint">Los escaneos aparecerán aquí</p>
+              </div>
             )}
-
-            {/* ✅ ESTADÍSTICAS */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-2xl shadow-lg p-6"
-            >
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Estadísticas del Escáner
-              </h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-700">{scanCount}</div>
-                  <div className="text-sm text-blue-600 font-medium">Total escaneos</div>
-                </div>
-
-                <div className="bg-green-50 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-green-700">{successCount}</div>
-                  <div className="text-sm text-green-600 font-medium">Éxitos</div>
-                </div>
-
-                <div className="bg-purple-50 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-700">
-                    {scanCount > 0 ? Math.round((successCount / scanCount) * 100) : 0}%
-                  </div>
-                  <div className="text-sm text-purple-600 font-medium">Tasa de éxito</div>
-                </div>
-
-                <div className="bg-orange-50 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-orange-700">
-                    {scanning ? 'Activo' : 'Pausado'}
-                  </div>
-                  <div className="text-sm text-orange-600 font-medium">Estado</div>
-                </div>
+          </div>
+          
+          {/* Estadísticas rápidas */}
+          <div className="quick-stats">
+            <div className="stat-item">
+              <div className="stat-value">{scanHistory.filter(s => s.success).length}</div>
+              <div className="stat-label">Exitosos</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-value">{scanHistory.filter(s => !s.success).length}</div>
+              <div className="stat-label">Fallidos</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-value">
+                {scanHistory.length > 0 
+                  ? Math.round((scanHistory.filter(s => s.success).length / scanHistory.length) * 100)
+                  : 0
+                }%
               </div>
-
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <h4 className="font-medium text-gray-900 mb-4">Consejos para escanear:</h4>
-                <ul className="space-y-3 text-sm text-gray-600">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0" />
-                    <span>Mantén el código QR dentro del marco de escaneo</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0" />
-                    <span>Asegura buena iluminación en el área</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0" />
-                    <span>Limpia la lente de la cámara si es necesario</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0" />
-                    <span>Evita reflejos en el código QR</span>
-                  </li>
-                </ul>
-              </div>
-            </motion.div>
+              <div className="stat-label">Tasa éxito</div>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Modal de resultados */}
+      {showResultModal && scanResult && (
+        <div className="modal-overlay">
+          <div className="modal result-modal">
+            <div className="modal-header">
+              <h3>Resultado del escaneo</h3>
+              <button className="modal-close" onClick={() => setShowResultModal(false)}>
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="result-header">
+                <div className="result-icon">
+                  {scanResult.type === 'product' ? '📦' : 
+                   scanResult.type === 'inventory' ? '📋' : '🔲'}
+                </div>
+                <div className="result-title">
+                  <h4>{scanResult.message}</h4>
+                  <div className="result-subtitle">
+                    Tipo: {scanResult.type} • {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="result-details">
+                {scanResult.product && (
+                  <div className="product-info">
+                    <div className="product-row">
+                      <span className="label">Producto:</span>
+                      <span className="value">{scanResult.product.name}</span>
+                    </div>
+                    <div className="product-row">
+                      <span className="label">SKU:</span>
+                      <span className="value">{scanResult.product.sku || 'N/A'}</span>
+                    </div>
+                    <div className="product-row">
+                      <span className="label">Cantidad:</span>
+                      <span className={`value ${scanResult.product.quantity <= scanResult.product.minStock ? 'warning' : ''}`}>
+                        {scanResult.product.quantity} unidades
+                      </span>
+                    </div>
+                    <div className="product-row">
+                      <span className="label">Precio:</span>
+                      <span className="value">${scanResult.product.price.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="scan-data">
+                  <div className="data-label">Datos escaneados:</div>
+                  <div className="data-content">
+                    <pre>{JSON.stringify(scannedData, null, 2)}</pre>
+                  </div>
+                  <button
+                    className="copy-data-button"
+                    onClick={() => copyToClipboard(scannedData)}
+                  >
+                    📋 Copiar datos
+                  </button>
+                </div>
+              </div>
+              
+              {scanResult.actions && scanResult.actions.length > 0 && (
+                <div className="result-actions">
+                  <h4>Acciones disponibles</h4>
+                  <div className="action-buttons">
+                    {scanResult.actions.map((action, index) => (
+                      <button
+                        key={index}
+                        className="action-button"
+                        onClick={() => {
+                          action.action();
+                          setShowResultModal(false);
+                        }}
+                      >
+                        {action.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="modal-footer">
+              <button className="secondary-button" onClick={() => setShowResultModal(false)}>
+                Cerrar
+              </button>
+              <button className="primary-button" onClick={() => {
+                setShowResultModal(false);
+                if (!scanning) {
+                  initializeScanner();
+                }
+              }}>
+                Continuar escaneo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Estado de carga */}
+      {processing && (
+        <div className="processing-overlay">
+          <div className="processing-spinner"></div>
+          <p>Procesando escaneo...</p>
+        </div>
+      )}
+
+      {/* Instrucciones */}
+      <div className="instructions">
+        <h4>📋 Instrucciones de uso</h4>
+        <ul>
+          <li>Asegúrate de tener buena iluminación</li>
+          <li>Enfoca el código QR dentro del marco azul</li>
+          <li>Mantén el dispositivo estable durante el escaneo</li>
+          <li>Usa la entrada manual si la cámara no funciona</li>
+          <li>Revisa el historial para ver escaneos anteriores</li>
+        </ul>
       </div>
     </div>
   );

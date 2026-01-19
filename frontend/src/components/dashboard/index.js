@@ -1,16 +1,7 @@
-/**
- * index.js
- * Archivo de exportación principal para el dashboard
- * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\components\dashboard\index.js
- */
-
-// Exportar todos los componentes del dashboard
-export { default as DashboardMain } from './DashboardMain';
+export { default as Dashboard } from './Dashboard';
+export { default as DashboardHeader } from './DashboardHeader';
 export { default as StatsCards } from './StatsCards';
-export { default as InventoryChart } from './InventoryChart';
-export { default as SalesChart } from './SalesChart';
-export { default as RecentActivity } from './RecentActivity';
-export { default as LowStockProducts } from './LowStockProducts';
-export { default as TopProducts } from './TopProducts';
+export { default as InventoryTable } from './InventoryTable';
+export { default as AddItemModal } from './AddItemModal';
 export { default as QuickActions } from './QuickActions';
-export { default as PerformanceMetrics } from './PerformanceMetrics';
+export { default as RecentActivity } from './RecentActivity';

@@ -1,399 +1,401 @@
-// Contexto de inventario
-import React, { createContext, useState, useContext, useCallback } from 'react';
-import axios from 'axios';
+import React, { createContext, useContext, useReducer } from 'react';
+import inventoryReducer from './inventoryReducer';
+import { inventoryConstants } from './inventoryConstants';
+import { sampleInventory, updateItemStatus } from './inventoryUtils';
 
-// Crear el contexto de inventario
-export const inventoryContext = createContext();
+// Crear contexto
+const InventoryContext = createContext();
 
-// URL base del backend
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-
-// Proveedor del contexto de inventario
-export const InventoryProvider = ({ children }) => {
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [suppliers, setSuppliers] = useState([]);
-    const [transactions, setTransactions] = useState([]);
-    const [inventoryLoading, setInventoryLoading] = useState(false);
-    const [inventoryError, setInventoryError] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedSupplier, setSelectedSupplier] = useState(null);
-    const [stats, setStats] = useState({
-        totalProducts: 0,
-        totalValue: 0,
-        lowStock: 0,
-        outOfStock: 0,
-        recentTransactions: 0
-    });
-
-    // Cargar datos iniciales
-    const loadInitialData = useCallback(async () => {
-        try {
-            setInventoryLoading(true);
-            
-            // Cargar productos, categorías y proveedores en paralelo
-            const [productsRes, categoriesRes, suppliersRes, transactionsRes, statsRes] = await Promise.all([
-                axios.get(`${API_URL}/products`),
-                axios.get(`${API_URL}/categories`),
-                axios.get(`${API_URL}/suppliers`),
-                axios.get(`${API_URL}/transactions?limit=50`),
-                axios.get(`${API_URL}/stats`)
-            ]);
-
-            setProducts(productsRes.data);
-            setCategories(categoriesRes.data);
-            setSuppliers(suppliersRes.data);
-            setTransactions(transactionsRes.data);
-            setStats(statsRes.data);
-            
-        } catch (error) {
-            setInventoryError('Error al cargar los datos del inventario');
-            console.error('Error loading initial data:', error);
-        } finally {
-            setInventoryLoading(false);
-        }
-    }, []);
-
-    // PRODUCTOS
-    const getProducts = async () => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.get(`${API_URL}/products`);
-            setProducts(response.data);
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al obtener productos');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const getProductById = async (id) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.get(`${API_URL}/products/${id}`);
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al obtener el producto');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const createProduct = async (productData) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.post(`${API_URL}/products`, productData);
-            setProducts(prev => [...prev, response.data]);
-            return { success: true, product: response.data };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al crear producto';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const updateProduct = async (id, productData) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.put(`${API_URL}/products/${id}`, productData);
-            setProducts(prev => prev.map(p => p._id === id ? response.data : p));
-            return { success: true, product: response.data };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al actualizar producto';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const deleteProduct = async (id) => {
-        try {
-            setInventoryLoading(true);
-            await axios.delete(`${API_URL}/products/${id}`);
-            setProducts(prev => prev.filter(p => p._id !== id));
-            return { success: true };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al eliminar producto';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const searchProducts = async (searchTerm) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.get(`${API_URL}/products/search?q=${searchTerm}`);
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al buscar productos');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    // CATEGORÍAS
-    const getCategories = async () => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.get(`${API_URL}/categories`);
-            setCategories(response.data);
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al obtener categorías');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const createCategory = async (categoryData) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.post(`${API_URL}/categories`, categoryData);
-            setCategories(prev => [...prev, response.data]);
-            return { success: true, category: response.data };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al crear categoría';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const updateCategory = async (id, categoryData) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.put(`${API_URL}/categories/${id}`, categoryData);
-            setCategories(prev => prev.map(c => c._id === id ? response.data : c));
-            return { success: true, category: response.data };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al actualizar categoría';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const deleteCategory = async (id) => {
-        try {
-            setInventoryLoading(true);
-            await axios.delete(`${API_URL}/categories/${id}`);
-            setCategories(prev => prev.filter(c => c._id !== id));
-            return { success: true };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al eliminar categoría';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    // PROVEEDORES
-    const getSuppliers = async () => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.get(`${API_URL}/suppliers`);
-            setSuppliers(response.data);
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al obtener proveedores');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const createSupplier = async (supplierData) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.post(`${API_URL}/suppliers`, supplierData);
-            setSuppliers(prev => [...prev, response.data]);
-            return { success: true, supplier: response.data };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al crear proveedor';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const updateSupplier = async (id, supplierData) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.put(`${API_URL}/suppliers/${id}`, supplierData);
-            setSuppliers(prev => prev.map(s => s._id === id ? response.data : s));
-            return { success: true, supplier: response.data };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al actualizar proveedor';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const deleteSupplier = async (id) => {
-        try {
-            setInventoryLoading(true);
-            await axios.delete(`${API_URL}/suppliers/${id}`);
-            setSuppliers(prev => prev.filter(s => s._id !== id));
-            return { success: true };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al eliminar proveedor';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    // TRANSACCIONES
-    const getTransactions = async (filters = {}) => {
-        try {
-            setInventoryLoading(true);
-            const queryParams = new URLSearchParams(filters).toString();
-            const response = await axios.get(`${API_URL}/transactions?${queryParams}`);
-            setTransactions(response.data);
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al obtener transacciones');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    const createTransaction = async (transactionData) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.post(`${API_URL}/transactions`, transactionData);
-            
-            // Actualizar producto relacionado
-            if (response.data.product) {
-                setProducts(prev => prev.map(p => 
-                    p._id === response.data.product._id ? response.data.product : p
-                ));
-            }
-            
-            // Agregar transacción a la lista
-            setTransactions(prev => [response.data, ...prev]);
-            
-            return { success: true, transaction: response.data };
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al crear transacción';
-            setInventoryError(errorMessage);
-            return { success: false, error: errorMessage };
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    // ESTADÍSTICAS
-    const getStats = async () => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.get(`${API_URL}/stats`);
-            setStats(response.data);
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al obtener estadísticas');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    // REPORTES
-    const generateReport = async (reportType, params = {}) => {
-        try {
-            setInventoryLoading(true);
-            const response = await axios.post(`${API_URL}/reports/${reportType}`, params, {
-                responseType: 'blob'
-            });
-            return response.data;
-        } catch (error) {
-            setInventoryError('Error al generar reporte');
-            throw error;
-        } finally {
-            setInventoryLoading(false);
-        }
-    };
-
-    // Limpiar errores
-    const clearInventoryError = () => {
-        setInventoryError(null);
-    };
-
-    // Valor del contexto
-    const value = {
-        products,
-        categories,
-        suppliers,
-        transactions,
-        inventoryLoading,
-        inventoryError,
-        selectedProduct,
-        selectedCategory,
-        selectedSupplier,
-        stats,
-        loadInitialData,
-        // Productos
-        getProducts,
-        getProductById,
-        createProduct,
-        updateProduct,
-        deleteProduct,
-        searchProducts,
-        setSelectedProduct,
-        // Categorías
-        getCategories,
-        createCategory,
-        updateCategory,
-        deleteCategory,
-        setSelectedCategory,
-        // Proveedores
-        getSuppliers,
-        createSupplier,
-        updateSupplier,
-        deleteSupplier,
-        setSelectedSupplier,
-        // Transacciones
-        getTransactions,
-        createTransaction,
-        // Estadísticas
-        getStats,
-        // Reportes
-        generateReport,
-        // Utilidades
-        clearInventoryError
-    };
-
-    return (
-        <inventoryContext.Provider value={value}>
-            {children}
-        </inventoryContext.Provider>
-    );
+// Hook personalizado para usar el contexto
+export const useInventoryContext = () => {
+  const context = useContext(InventoryContext);
+  if (!context) {
+    throw new Error('useInventoryContext debe ser usado dentro de un InventoryProvider');
+  }
+  return context;
 };
 
-// Hook personalizado para usar el contexto de inventario
-export const useInventory = () => {
-    const context = useContext(inventoryContext);
-    if (!context) {
-        throw new Error('useInventory debe ser usado dentro de InventoryProvider');
+// Proveedor del contexto con estado inicial extendido
+const InventoryContextProvider = ({ children }) => {
+  // Estado inicial extendido
+  const initialState = {
+    items: [],
+    filteredItems: [],
+    loading: false,
+    error: null,
+    filter: inventoryConstants.FILTER_OPTIONS.ALL,
+    sort: inventoryConstants.SORT_OPTIONS.DATE_DESC,
+    searchTerm: '',
+    
+    // Estadísticas
+    stats: {
+      totalItems: 0,
+      totalValue: 0,
+      totalCost: 0,
+      totalProfit: 0,
+      profitMargin: 0,
+      lowStockCount: 0,
+      outOfStockCount: 0,
+      reorderCount: 0,
+      categorySummary: {}
+    },
+    
+    // Historial
+    activityLog: [],
+    
+    // Configuración
+    settings: {
+      currency: 'USD',
+      lowStockThreshold: 5,
+      enableNotifications: true,
+      autoUpdateStatus: true,
+      theme: 'light',
+      language: 'es',
+      dateFormat: 'DD/MM/YYYY'
     }
-    return context;
+  };
+
+  const [state, dispatch] = useReducer(inventoryReducer, initialState);
+
+  // Acciones
+  const fetchItems = async () => {
+    dispatch({ type: inventoryConstants.FETCH_ITEMS_REQUEST });
+    
+    try {
+      // Simular llamada a API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Usar datos de ejemplo
+      const items = sampleInventory.map(item => ({
+        ...item,
+        lastUpdated: new Date(item.lastUpdated),
+        created: new Date(item.created)
+      }));
+      
+      dispatch({
+        type: inventoryConstants.FETCH_ITEMS_SUCCESS,
+        payload: items
+      });
+    } catch (error) {
+      dispatch({
+        type: inventoryConstants.FETCH_ITEMS_FAILURE,
+        payload: error.message
+      });
+    }
+  };
+
+  const addItem = async (itemData) => {
+    dispatch({ type: inventoryConstants.ADD_ITEM_REQUEST });
+    
+    try {
+      // Validación básica
+      if (!itemData.name || !itemData.category) {
+        throw new Error('Nombre y categoría son requeridos');
+      }
+      
+      const newItem = {
+        ...itemData,
+        id: Date.now(),
+        sku: itemData.sku || `SKU-${Date.now()}`,
+        status: itemData.status || 'Disponible',
+        lastUpdated: new Date(),
+        created: new Date(),
+        cost: itemData.cost || 0,
+        minStock: itemData.minStock || 5,
+        maxStock: itemData.maxStock || 50,
+        supplier: itemData.supplier || 'Proveedor General',
+        location: itemData.location || 'Almacén Principal'
+      };
+      
+      // Actualizar estado según cantidad
+      const itemWithStatus = updateItemStatus(newItem);
+      
+      dispatch({
+        type: inventoryConstants.ADD_ITEM_SUCCESS,
+        payload: itemWithStatus
+      });
+      
+      return { success: true, item: itemWithStatus };
+    } catch (error) {
+      dispatch({
+        type: inventoryConstants.ADD_ITEM_FAILURE,
+        payload: error.message
+      });
+      
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateItem = async (itemData) => {
+    dispatch({ type: inventoryConstants.UPDATE_ITEM_REQUEST });
+    
+    try {
+      // Validación básica
+      if (!itemData.id) {
+        throw new Error('ID del item es requerido');
+      }
+      
+      const updatedItem = {
+        ...itemData,
+        lastUpdated: new Date()
+      };
+      
+      // Actualizar estado según cantidad si está habilitado
+      if (state.settings.autoUpdateStatus) {
+        const itemWithStatus = updateItemStatus(updatedItem);
+        Object.assign(updatedItem, itemWithStatus);
+      }
+      
+      dispatch({
+        type: inventoryConstants.UPDATE_ITEM_SUCCESS,
+        payload: updatedItem
+      });
+      
+      return { success: true, item: updatedItem };
+    } catch (error) {
+      dispatch({
+        type: inventoryConstants.UPDATE_ITEM_FAILURE,
+        payload: error.message
+      });
+      
+      return { success: false, error: error.message };
+    }
+  };
+
+  const deleteItem = async (itemId) => {
+    dispatch({ type: inventoryConstants.DELETE_ITEM_REQUEST });
+    
+    try {
+      if (!itemId) {
+        throw new Error('ID del item es requerido');
+      }
+      
+      dispatch({
+        type: inventoryConstants.DELETE_ITEM_SUCCESS,
+        payload: itemId
+      });
+      
+      return { success: true };
+    } catch (error) {
+      dispatch({
+        type: inventoryConstants.DELETE_ITEM_FAILURE,
+        payload: error.message
+      });
+      
+      return { success: false, error: error.message };
+    }
+  };
+
+  const setFilter = (filter) => {
+    dispatch({
+      type: inventoryConstants.SET_FILTER,
+      payload: filter
+    });
+  };
+
+  const setSort = (sortOption) => {
+    dispatch({
+      type: inventoryConstants.SET_SORT,
+      payload: sortOption
+    });
+  };
+
+  const setSearchTerm = (searchTerm) => {
+    dispatch({
+      type: inventoryConstants.SET_SEARCH_TERM,
+      payload: searchTerm
+    });
+  };
+
+  const updateSettings = (settings) => {
+    dispatch({
+      type: 'UPDATE_SETTINGS',
+      payload: settings
+    });
+  };
+
+  const clearError = () => {
+    dispatch({ type: 'CLEAR_ERROR' });
+  };
+
+  const resetInventory = () => {
+    dispatch({ type: 'RESET_INVENTORY' });
+  };
+
+  const importItems = async (items) => {
+    dispatch({ type: inventoryConstants.FETCH_ITEMS_REQUEST });
+    
+    try {
+      // Procesar items importados
+      const processedItems = items.map((item, index) => ({
+        ...item,
+        id: Date.now() + index,
+        status: item.status || 'Disponible',
+        lastUpdated: new Date(),
+        created: new Date(),
+        sku: item.sku || `IMP-${Date.now()}-${index}`,
+        cost: item.cost || 0,
+        minStock: item.minStock || 5,
+        maxStock: item.maxStock || 50
+      }));
+      
+      dispatch({
+        type: inventoryConstants.FETCH_ITEMS_SUCCESS,
+        payload: processedItems
+      });
+      
+      return { success: true, count: processedItems.length };
+    } catch (error) {
+      dispatch({
+        type: inventoryConstants.FETCH_ITEMS_FAILURE,
+        payload: error.message
+      });
+      
+      return { success: false, error: error.message };
+    }
+  };
+
+  const exportItems = (format = 'json') => {
+    try {
+      let data;
+      let filename;
+      
+      switch(format) {
+        case 'json':
+          data = JSON.stringify(state.items, null, 2);
+          filename = `inventario_${new Date().toISOString().split('T')[0]}.json`;
+          break;
+          
+        case 'csv':
+          const headers = ['ID', 'Nombre', 'Categoría', 'Cantidad', 'Precio', 'Estado', 'SKU', 'Última Actualización'];
+          const csvRows = [
+            headers.join(','),
+            ...state.items.map(item => [
+              item.id,
+              `"${item.name}"`,
+              item.category,
+              item.quantity,
+              item.price,
+              item.status,
+              item.sku || '',
+              new Date(item.lastUpdated).toLocaleDateString()
+            ].join(','))
+          ];
+          data = csvRows.join('\n');
+          filename = `inventario_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+          
+        default:
+          throw new Error('Formato no soportado');
+      }
+      
+      // Crear blob y descargar
+      const blob = new Blob([data], { type: format === 'json' ? 'application/json' : 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      return { success: true, filename };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const adjustStock = (itemId, adjustment, reason = 'Ajuste manual') => {
+    try {
+      const item = state.items.find(i => i.id === itemId);
+      
+      if (!item) {
+        throw new Error('Item no encontrado');
+      }
+      
+      const newQuantity = item.quantity + adjustment;
+      
+      if (newQuantity < 0) {
+        throw new Error('La cantidad resultante no puede ser negativa');
+      }
+      
+      const updatedItem = {
+        ...item,
+        quantity: newQuantity,
+        lastUpdated: new Date()
+      };
+      
+      // Actualizar estado según nueva cantidad
+      const itemWithStatus = updateItemStatus(updatedItem);
+      
+      dispatch({
+        type: inventoryConstants.UPDATE_ITEM_SUCCESS,
+        payload: itemWithStatus
+      });
+      
+      return { 
+        success: true, 
+        item: itemWithStatus,
+        adjustment,
+        reason 
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Valor del contexto
+  const contextValue = {
+    // Estado
+    state,
+    
+    // Acciones
+    fetchItems,
+    addItem,
+    updateItem,
+    deleteItem,
+    setFilter,
+    setSort,
+    setSearchTerm,
+    updateSettings,
+    clearError,
+    resetInventory,
+    importItems,
+    exportItems,
+    adjustStock,
+    
+    // Métodos de conveniencia
+    getItemById: (id) => state.items.find(item => item.id === id),
+    getItemsByCategory: (category) => state.items.filter(item => item.category === category),
+    getLowStockItems: () => state.items.filter(item => item.status === 'Bajo Stock'),
+    getOutOfStockItems: () => state.items.filter(item => item.status === 'Agotado'),
+    
+    // Estadísticas actualizadas
+    getStatistics: () => {
+      const totalValue = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalCost = state.items.reduce((sum, item) => sum + (item.cost * item.quantity), 0);
+      const totalProfit = totalValue - totalCost;
+      const profitMargin = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+      
+      return {
+        totalItems: state.items.length,
+        totalValue,
+        totalCost,
+        totalProfit,
+        profitMargin,
+        lowStockCount: state.items.filter(item => item.status === 'Bajo Stock').length,
+        outOfStockCount: state.items.filter(item => item.status === 'Agotado').length,
+        reorderCount: state.items.filter(item => item.quantity <= item.minStock && item.quantity > 0).length
+      };
+    }
+  };
+
+  return (
+    <InventoryContext.Provider value={contextValue}>
+      {children}
+    </InventoryContext.Provider>
+  );
 };
+
+export { InventoryContext, InventoryContextProvider };

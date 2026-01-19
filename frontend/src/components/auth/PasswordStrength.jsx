@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import '../../assets/styles/Auth/auth.css';
+import '../../assets/styles/AUTH/auth.css';
 
 const PasswordStrength = ({ password }) => {
     // Calcular fortaleza de la contraseña

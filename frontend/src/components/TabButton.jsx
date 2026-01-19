@@ -1,108 +1,325 @@
-import React from "react";
-import PropTypes from "prop-types";
-import "../assets/styles/index.css";
-
-// ✅ Configuración de colores para tabs
-const tabColorClasses = {
-  blue: "border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20",
-  green: "border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 bg-green-50 dark:bg-green-900/20",
-  red: "border-red-600 text-red-600 dark:text-red-400 dark:border-red-400 bg-red-50 dark:bg-red-900/20",
-  purple: "border-purple-600 text-purple-600 dark:text-purple-400 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/20",
-  yellow: "border-yellow-600 text-yellow-600 dark:text-yellow-400 dark:border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20",
-  gray: "border-gray-600 text-gray-600 dark:text-gray-400 dark:border-gray-400 bg-gray-50 dark:bg-gray-800",
-};
-
-// ✅ Clases CSS puras para complementar Tailwind
-const cssPureClasses = {
-  base: "tab-button",
-  disabled: "tab-button--disabled",
-  colors: {
-    blue: "tab-button--blue",
-    green: "tab-button--green",
-    red: "tab-button--red",
-    purple: "tab-button--purple",
-    yellow: "tab-button--yellow",
-    gray: "tab-button--gray",
-  }
-};
-
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import "../assets/styles/main/components.css";
+/**
+ * Componente de botón de pestaña para navegación entre secciones
+ * Soporta múltiples modos de visualización y estados
+ */
 const TabButton = ({
-  tab,
-  isActive,
-  onClick,
-  color = "blue",
-  icon: Icon,
+  tabs = [],
+  activeTab = '',
+  onTabChange,
+  mode = 'default',
+  size = 'medium',
+  fullWidth = false,
+  withIcons = true,
+  withBadges = true,
+  animated = true,
   disabled = false,
+  className = '',
+  style = {}
 }) => {
-  const handleClick = () => {
-    if (!disabled && onClick) {
-      onClick(tab.id);
+  const [internalActiveTab, setInternalActiveTab] = useState(activeTab);
+  const [indicatorStyle, setIndicatorStyle] = useState({});
+  const [hoveredTab, setHoveredTab] = useState(null);
+  
+  const tabContainerRef = React.useRef(null);
+  const tabRefs = React.useRef({});
+
+  // Actualizar tab activo cuando cambia la prop
+  useEffect(() => {
+    if (activeTab !== internalActiveTab) {
+      setInternalActiveTab(activeTab);
+    }
+  }, [activeTab]);
+
+  // Calcular posición del indicador
+  useEffect(() => {
+    updateIndicatorPosition();
+  }, [internalActiveTab, tabs]);
+
+  // Actualizar indicador al redimensionar
+  useEffect(() => {
+    const handleResize = () => updateIndicatorPosition();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const updateIndicatorPosition = () => {
+    if (!tabContainerRef.current) return;
+    
+    const activeTabElement = tabRefs.current[internalActiveTab];
+    if (!activeTabElement) return;
+
+    const containerRect = tabContainerRef.current.getBoundingClientRect();
+    const tabRect = activeTabElement.getBoundingClientRect();
+    
+    const indicatorWidth = mode === 'underline' ? '80%' : '100%';
+    const indicatorHeight = mode === 'underline' ? '3px' : '100%';
+    
+    setIndicatorStyle({
+      left: `${tabRect.left - containerRect.left}px`,
+      width: `${tabRect.width}px`,
+      height: indicatorHeight,
+      maxWidth: indicatorWidth,
+      transform: 'translateX(0)',
+      transition: animated ? 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+    });
+  };
+
+  const handleTabClick = (tabId) => {
+    if (disabled) return;
+    
+    setInternalActiveTab(tabId);
+    
+    if (onTabChange) {
+      onTabChange(tabId);
     }
   };
 
-  // Construir clases combinando Tailwind y CSS puro
-  const getButtonClasses = () => {
-    const baseClasses = `${cssPureClasses.base} shrink-0 px-6 py-4 text-sm font-medium flex items-center whitespace-nowrap transition-all duration-200`;
-    
-    if (isActive) {
-      const activeColorClass = cssPureClasses.colors[color] || cssPureClasses.colors.blue;
-      return `${baseClasses} ${activeColorClass} ${tabColorClasses[color] || tabColorClasses.blue}`;
+  const handleMouseEnter = (tabId) => {
+    if (animated && !disabled) {
+      setHoveredTab(tabId);
     }
-    
-    // Estado inactivo
-    const inactiveClasses = "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700";
-    const disabledClass = disabled ? `${cssPureClasses.disabled} opacity-50 cursor-not-allowed` : "cursor-pointer";
-    
-    return `${baseClasses} ${inactiveClasses} ${disabledClass}`;
   };
+
+  const handleMouseLeave = () => {
+    if (animated && !disabled) {
+      setHoveredTab(null);
+    }
+  };
+
+  const getTabSizeClass = () => {
+    switch(size) {
+      case 'small': return 'tab-size-small';
+      case 'large': return 'tab-size-large';
+      default: return 'tab-size-medium';
+    }
+  };
+
+  const getTabModeClass = () => {
+    switch(mode) {
+      case 'pill': return 'tab-mode-pill';
+      case 'underline': return 'tab-mode-underline';
+      case 'rounded': return 'tab-mode-rounded';
+      case 'outline': return 'tab-mode-outline';
+      case 'segmented': return 'tab-mode-segmented';
+      default: return 'tab-mode-default';
+    }
+  };
+
+  const renderBadge = (badge) => {
+    if (!badge) return null;
+    
+    const badgeClass = `tab-badge ${
+      badge.type === 'error' ? 'badge-error' :
+      badge.type === 'warning' ? 'badge-warning' :
+      badge.type === 'success' ? 'badge-success' :
+      badge.type === 'info' ? 'badge-info' :
+      'badge-default'
+    }`;
+    
+    return (
+      <span className={badgeClass}>
+        {badge.count > 99 ? '99+' : badge.count}
+      </span>
+    );
+  };
+
+  const renderIcon = (icon, position = 'left') => {
+    if (!icon) return null;
+    
+    const iconClass = `tab-icon icon-${position} ${
+      typeof icon === 'string' ? 'icon-emoji' : 'icon-component'
+    }`;
+    
+    return (
+      <span className={iconClass}>
+        {typeof icon === 'string' ? icon : React.cloneElement(icon)}
+      </span>
+    );
+  };
+
+  // Si no hay tabs, mostrar estado vacío
+  if (!tabs || tabs.length === 0) {
+    return (
+      <div className={`tab-container empty ${className}`} style={style}>
+        <div className="empty-tabs">
+          <span className="empty-icon">📋</span>
+          <p className="empty-text">No hay pestañas configuradas</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Encontrar tab activo por defecto si no hay uno seleccionado
+  const defaultActiveTab = internalActiveTab || (tabs.find(tab => tab.default)?.id || tabs[0]?.id);
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={disabled}
-      className={getButtonClasses()}
-      role="tab"
-      aria-selected={isActive}
-      aria-controls={`tabpanel-${tab.id}`}
-      tabIndex={isActive ? 0 : -1}
+    <div 
+      className={`tab-container ${getTabModeClass()} ${getTabSizeClass()} ${
+        fullWidth ? 'full-width' : ''
+      } ${disabled ? 'disabled' : ''} ${className}`}
+      style={style}
+      ref={tabContainerRef}
     >
-      {Icon && (
-        <>
-          {/* Icono con clases de Tailwind para compatibilidad */}
-          <Icon className="w-4 h-4 mr-2 tab-button__icon" aria-hidden="true" />
-          {/* Icono alternativo con CSS puro (oculto por defecto) */}
-          <span className="sr-only">{tab.label} icon</span>
-        </>
+      <div className="tabs-wrapper">
+        {tabs.map((tab) => {
+          const isActive = internalActiveTab === tab.id;
+          const isHovered = hoveredTab === tab.id;
+          
+          const tabClass = `tab-button ${isActive ? 'active' : ''} ${
+            isHovered ? 'hovered' : ''
+          } ${tab.disabled ? 'tab-disabled' : ''}`;
+          
+          return (
+            <button
+              key={tab.id}
+              ref={(el) => { tabRefs.current[tab.id] = el; }}
+              className={tabClass}
+              onClick={() => !tab.disabled && handleTabClick(tab.id)}
+              onMouseEnter={() => handleMouseEnter(tab.id)}
+              onMouseLeave={handleMouseLeave}
+              disabled={disabled || tab.disabled}
+              title={tab.tooltip || tab.label}
+              aria-label={tab.label}
+              aria-selected={isActive}
+              aria-disabled={disabled || tab.disabled}
+              role="tab"
+              tabIndex={disabled || tab.disabled ? -1 : 0}
+            >
+              <div className="tab-content">
+                {/* Icono izquierdo */}
+                {withIcons && renderIcon(tab.iconLeft || tab.icon, 'left')}
+                
+                {/* Contenido principal */}
+                <span className="tab-label">{tab.label}</span>
+                
+                {/* Icono derecho */}
+                {withIcons && renderIcon(tab.iconRight, 'right')}
+                
+                {/* Badge */}
+                {withBadges && tab.badge && renderBadge(tab.badge)}
+              </div>
+              
+              {/* Subtexto opcional */}
+              {tab.subtext && (
+                <span className="tab-subtext">{tab.subtext}</span>
+              )}
+              
+              {/* Estado de carga */}
+              {tab.loading && (
+                <div className="tab-loading">
+                  <span className="loading-spinner"></span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+        
+        {/* Indicador visual para tabs activo */}
+        {mode !== 'segmented' && (
+          <div 
+            className={`tab-indicator ${
+              mode === 'underline' ? 'indicator-underline' : 'indicator-background'
+            }`}
+            style={indicatorStyle}
+            aria-hidden="true"
+          />
+        )}
+      </div>
+      
+      {/* Contenido de la pestaña activa (opcional) */}
+      {tabs.find(tab => tab.id === internalActiveTab)?.content && (
+        <div className="tab-content-container">
+          {tabs.find(tab => tab.id === internalActiveTab).content}
+        </div>
       )}
-      {tab.label}
-    </button>
+    </div>
   );
 };
 
-// ✅ PropTypes para eliminar warnings
 TabButton.propTypes = {
-  tab: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    label: PropTypes.string.isRequired,
-  }).isRequired,
-  isActive: PropTypes.bool.isRequired,
-  onClick: PropTypes.func.isRequired,
-  color: PropTypes.oneOf([
-    "blue",
-    "green",
-    "red",
-    "purple",
-    "yellow",
-    "gray",
-  ]),
-  icon: PropTypes.elementType,
+  /**
+   * Array de objetos de pestañas con:
+   * id: string (requerido)
+   * label: string (requerido)
+   * icon: string|ReactNode (opcional)
+   * iconLeft: string|ReactNode (opcional)
+   * iconRight: string|ReactNode (opcional)
+   * badge: {count: number, type: string} (opcional)
+   * subtext: string (opcional)
+   * tooltip: string (opcional)
+   * disabled: boolean (opcional)
+   * loading: boolean (opcional)
+   * default: boolean (opcional)
+   * content: ReactNode (opcional)
+   */
+  tabs: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+      iconLeft: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+      iconRight: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+      badge: PropTypes.shape({
+        count: PropTypes.number.isRequired,
+        type: PropTypes.oneOf(['default', 'error', 'warning', 'success', 'info'])
+      }),
+      subtext: PropTypes.string,
+      tooltip: PropTypes.string,
+      disabled: PropTypes.bool,
+      loading: PropTypes.bool,
+      default: PropTypes.bool,
+      content: PropTypes.node
+    })
+  ).isRequired,
+  
+  /** ID de la pestaña activa */
+  activeTab: PropTypes.string,
+  
+  /** Callback cuando cambia la pestaña */
+  onTabChange: PropTypes.func,
+  
+  /** Modo de visualización */
+  mode: PropTypes.oneOf(['default', 'pill', 'underline', 'rounded', 'outline', 'segmented']),
+  
+  /** Tamaño de los botones */
+  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  
+  /** Ocupar todo el ancho disponible */
+  fullWidth: PropTypes.bool,
+  
+  /** Mostrar iconos */
+  withIcons: PropTypes.bool,
+  
+  /** Mostrar badges */
+  withBadges: PropTypes.bool,
+  
+  /** Habilitar animaciones */
+  animated: PropTypes.bool,
+  
+  /** Deshabilitar todo el componente */
   disabled: PropTypes.bool,
+  
+  /** Clase CSS adicional */
+  className: PropTypes.string,
+  
+  /** Estilos adicionales */
+  style: PropTypes.object
 };
 
-// ✅ Default props
 TabButton.defaultProps = {
-  color: "blue",
+  tabs: [],
+  mode: 'default',
+  size: 'medium',
+  fullWidth: false,
+  withIcons: true,
+  withBadges: true,
+  animated: true,
   disabled: false,
+  className: '',
+  style: {}
 };
 
 export default TabButton;

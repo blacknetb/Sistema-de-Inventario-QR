@@ -1,12 +1,6 @@
-/**
- * Modal.js
- * Componente de modal reutilizable
- * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\components\common\Modal.js
- */
-
 import React, { useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom';
-import '../../assets/styles/common/modals.css';
+import PropTypes from 'prop-types';
+import '../../assets/styles/Common/common.css';
 
 const Modal = ({
     isOpen,
@@ -15,302 +9,153 @@ const Modal = ({
     children,
     size = 'medium',
     showCloseButton = true,
-    showHeader = true,
     showFooter = true,
-    footerContent,
-    onConfirm,
-    onCancel,
-    confirmText = 'Confirmar',
-    cancelText = 'Cancelar',
-    confirmVariant = 'primary',
-    cancelVariant = 'secondary',
+    primaryButtonText = 'Guardar',
+    secondaryButtonText = 'Cancelar',
+    onPrimaryClick,
+    onSecondaryClick,
     isLoading = false,
-    disableConfirm = false,
-    disableCancel = false,
+    primaryButtonDisabled = false,
+    primaryButtonVariant = 'primary',
+    hidePrimaryButton = false,
+    hideSecondaryButton = false,
     closeOnOverlayClick = true,
     closeOnEsc = true,
-    className = '',
-    ...props
+    className = ''
 }) => {
     const modalRef = useRef(null);
 
-    // Manejar tecla Escape
+    // Manejar tecla ESC
     useEffect(() => {
-        const handleEscape = (event) => {
-            if (closeOnEsc && event.key === 'Escape') {
+        const handleEsc = (event) => {
+            if (closeOnEsc && event.key === 'Escape' && isOpen) {
                 onClose();
             }
         };
 
-        if (isOpen && closeOnEsc) {
-            document.addEventListener('keydown', handleEscape);
-            // Prevenir scroll del body
-            document.body.style.overflow = 'hidden';
+        if (isOpen) {
+            document.addEventListener('keydown', handleEsc);
+            document.body.style.overflow = 'hidden'; // Prevenir scroll
         }
 
         return () => {
-            document.removeEventListener('keydown', handleEscape);
+            document.removeEventListener('keydown', handleEsc);
             document.body.style.overflow = 'unset';
         };
     }, [isOpen, closeOnEsc, onClose]);
 
-    // Enfocar en el modal cuando se abre
-    useEffect(() => {
-        if (isOpen && modalRef.current) {
-            modalRef.current.focus();
-        }
-    }, [isOpen]);
-
-    // Manejar clic en overlay
-    const handleOverlayClick = (event) => {
-        if (closeOnOverlayClick && event.target === event.currentTarget) {
+    // Manejar clic fuera del modal
+    const handleOverlayClick = (e) => {
+        if (closeOnOverlayClick && modalRef.current && !modalRef.current.contains(e.target)) {
             onClose();
         }
     };
 
-    // Si el modal no está abierto, no renderizar nada
     if (!isOpen) return null;
 
-    // Determinar clases CSS
-    const modalClasses = [
-        'modal',
-        `modal-${size}`,
-        className
-    ].filter(Boolean).join(' ');
+    const sizeClasses = {
+        small: 'modal-sm',
+        medium: 'modal-md',
+        large: 'modal-lg',
+        xlarge: 'modal-xl',
+        fullscreen: 'modal-fullscreen'
+    };
 
-    const modalContent = (
-        <div 
-            className="modal-overlay"
-            onClick={handleOverlayClick}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={title ? "modal-title" : undefined}
-        >
-            <div 
-                ref={modalRef}
-                className={modalClasses}
-                tabIndex="-1"
-                {...props}
-            >
-                {/* Encabezado del modal */}
-                {showHeader && (
+    const primaryButtonClasses = {
+        primary: 'btn-primary',
+        success: 'btn-success',
+        warning: 'btn-warning',
+        danger: 'btn-danger',
+        info: 'btn-info'
+    };
+
+    return (
+        <>
+            <div className="modal-overlay" onClick={handleOverlayClick} />
+            
+            <div className={`modal ${sizeClasses[size]} ${className}`}>
+                <div className="modal-content" ref={modalRef}>
+                    {/* Header del modal */}
                     <div className="modal-header">
-                        {title && (
-                            <h2 id="modal-title" className="modal-title">
-                                {title}
-                            </h2>
-                        )}
+                        {title && <h3 className="modal-title">{title}</h3>}
+                        
                         {showCloseButton && (
                             <button
                                 className="modal-close"
                                 onClick={onClose}
-                                aria-label="Cerrar modal"
                                 disabled={isLoading}
+                                aria-label="Cerrar modal"
                             >
-                                ×
+                                <i className="fas fa-times"></i>
                             </button>
                         )}
                     </div>
-                )}
 
-                {/* Cuerpo del modal */}
-                <div className="modal-body">
-                    {children}
-                </div>
+                    {/* Cuerpo del modal */}
+                    <div className="modal-body">
+                        {children}
+                    </div>
 
-                {/* Pie del modal */}
-                {showFooter && (
-                    <div className="modal-footer">
-                        {footerContent ? (
-                            footerContent
-                        ) : (
-                            <>
-                                {onCancel && (
+                    {/* Footer del modal */}
+                    {showFooter && (
+                        <div className="modal-footer">
+                            <div className="modal-footer-left">
+                                <button
+                                    className="btn btn-outline"
+                                    onClick={onSecondaryClick || onClose}
+                                    disabled={isLoading}
+                                    style={{ display: hideSecondaryButton ? 'none' : 'inline-flex' }}
+                                >
+                                    {secondaryButtonText}
+                                </button>
+                            </div>
+                            
+                            <div className="modal-footer-right">
+                                {!hidePrimaryButton && (
                                     <button
-                                        className={`btn btn-${cancelVariant}`}
-                                        onClick={onCancel}
-                                        disabled={isLoading || disableCancel}
-                                    >
-                                        {cancelText}
-                                    </button>
-                                )}
-                                {onConfirm && (
-                                    <button
-                                        className={`btn btn-${confirmVariant}`}
-                                        onClick={onConfirm}
-                                        disabled={isLoading || disableConfirm}
+                                        className={`btn ${primaryButtonClasses[primaryButtonVariant]}`}
+                                        onClick={onPrimaryClick}
+                                        disabled={primaryButtonDisabled || isLoading}
                                     >
                                         {isLoading ? (
                                             <>
-                                                <span className="btn-spinner"></span>
+                                                <div className="spinner-small"></div>
                                                 Procesando...
                                             </>
                                         ) : (
-                                            confirmText
+                                            primaryButtonText
                                         )}
                                     </button>
                                 )}
-                            </>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-
-    // Renderizar en portal
-    return ReactDOM.createPortal(
-        modalContent,
-        document.getElementById('modal-root') || document.body
-    );
-};
-
-// Modal de confirmación
-export const ConfirmModal = ({
-    isOpen,
-    onClose,
-    onConfirm,
-    title = "Confirmar Acción",
-    message,
-    confirmText = "Sí, Continuar",
-    cancelText = "Cancelar",
-    type = "warning",
-    ...props
-}) => {
-    const getIcon = () => {
-        switch (type) {
-            case 'success': return '✅';
-            case 'error': return '❌';
-            case 'info': return 'ℹ️';
-            case 'warning': return '⚠️';
-            default: return '❓';
-        }
-    };
-
-    const getConfirmVariant = () => {
-        switch (type) {
-            case 'success': return 'success';
-            case 'error': return 'danger';
-            case 'info': return 'info';
-            case 'warning': return 'warning';
-            default: return 'primary';
-        }
-    };
-
-    return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={title}
-            onConfirm={onConfirm}
-            onCancel={onClose}
-            confirmText={confirmText}
-            cancelText={cancelText}
-            confirmVariant={getConfirmVariant()}
-            size="small"
-            {...props}
-        >
-            <div className="confirm-modal-content">
-                <div className="confirm-icon">{getIcon()}</div>
-                <div className="confirm-message">
-                    {message || '¿Estás seguro de realizar esta acción?'}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-        </Modal>
+        </>
     );
 };
 
-// Modal de alerta
-export const AlertModal = ({
-    isOpen,
-    onClose,
-    title = "Alerta",
-    message,
-    type = "info",
-    buttonText = "Aceptar",
-    ...props
-}) => {
-    const getIcon = () => {
-        switch (type) {
-            case 'success': return '✅';
-            case 'error': return '❌';
-            case 'info': return 'ℹ️';
-            case 'warning': return '⚠️';
-            default: return '❓';
-        }
-    };
-
-    const getButtonVariant = () => {
-        switch (type) {
-            case 'success': return 'success';
-            case 'error': return 'danger';
-            case 'info': return 'info';
-            case 'warning': return 'warning';
-            default: return 'primary';
-        }
-    };
-
-    return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={title}
-            onConfirm={onClose}
-            confirmText={buttonText}
-            confirmVariant={getButtonVariant()}
-            showCancel={false}
-            size="small"
-            {...props}
-        >
-            <div className="alert-modal-content">
-                <div className="alert-icon">{getIcon()}</div>
-                <div className="alert-message">{message}</div>
-            </div>
-        </Modal>
-    );
-};
-
-// Modal de formulario
-export const FormModal = ({
-    isOpen,
-    onClose,
-    title,
-    onSubmit,
-    submitText = "Guardar",
-    cancelText = "Cancelar",
-    children,
-    initialValues,
-    validationSchema,
-    ...props
-}) => {
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        if (onSubmit) {
-            onSubmit(new FormData(event.target));
-        }
-    };
-
-    return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={title}
-            onConfirm={(e) => {
-                e.preventDefault();
-                const form = document.getElementById('modal-form');
-                form?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-            }}
-            onCancel={onClose}
-            confirmText={submitText}
-            cancelText={cancelText}
-            showFooter={true}
-            {...props}
-        >
-            <form id="modal-form" onSubmit={handleSubmit} className="modal-form">
-                {children}
-            </form>
-        </Modal>
-    );
+Modal.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    title: PropTypes.string,
+    children: PropTypes.node.isRequired,
+    size: PropTypes.oneOf(['small', 'medium', 'large', 'xlarge', 'fullscreen']),
+    showCloseButton: PropTypes.bool,
+    showFooter: PropTypes.bool,
+    primaryButtonText: PropTypes.string,
+    secondaryButtonText: PropTypes.string,
+    onPrimaryClick: PropTypes.func,
+    onSecondaryClick: PropTypes.func,
+    isLoading: PropTypes.bool,
+    primaryButtonDisabled: PropTypes.bool,
+    primaryButtonVariant: PropTypes.oneOf(['primary', 'success', 'warning', 'danger', 'info']),
+    hidePrimaryButton: PropTypes.bool,
+    hideSecondaryButton: PropTypes.bool,
+    closeOnOverlayClick: PropTypes.bool,
+    closeOnEsc: PropTypes.bool,
+    className: PropTypes.string
 };
 
 export default Modal;

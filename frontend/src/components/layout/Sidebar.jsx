@@ -1,104 +1,196 @@
 import React, { useState } from 'react';
-import "../../assets/styles/layout/layout.css";
+import { NavLink } from 'react-router-dom';
+import '../../assets/styles/layout/layout.css';
 
-/**
- * Componente Sidebar - Barra lateral de navegación
- * Incluye menú colapsable con diferentes secciones
- */
-const Sidebar = ({ activeSection }) => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [activeMenu, setActiveMenu] = useState(activeSection || 'dashboard');
+const Sidebar = ({ navigation, collapsed, onCloseMobileMenu, mobileOpen }) => {
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-    const menuItems = [
-        { id: 'dashboard', icon: '📊', label: 'Dashboard', path: '/dashboard' },
-        { id: 'products', icon: '📋', label: 'Productos', path: '/products' },
-        { id: 'categories', icon: '📑', label: 'Categorías', path: '/categories' },
-        { id: 'suppliers', icon: '🏭', label: 'Proveedores', path: '/suppliers' },
-        { id: 'inventory', icon: '📦', label: 'Inventario', path: '/inventory' },
-        { id: 'orders', icon: '🛒', label: 'Órdenes', path: '/orders' },
-        { id: 'customers', icon: '👥', label: 'Clientes', path: '/customers' },
-        { id: 'reports', icon: '📈', label: 'Reportes', path: '/reports' },
-        { id: 'settings', icon: '⚙️', label: 'Configuración', path: '/settings' },
-    ];
+  const toggleSubmenu = (index) => {
+    setActiveSubmenu(activeSubmenu === index ? null : index);
+  };
 
-    const secondaryItems = [
-        { id: 'help', icon: '❓', label: 'Ayuda', path: '/help' },
-        { id: 'support', icon: '💬', label: 'Soporte', path: '/support' },
-    ];
+  const handleNavClick = () => {
+    onCloseMobileMenu();
+  };
 
-    return (
-        <aside className={`app-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-            <div className="sidebar-header">
-                <button 
-                    className="sidebar-toggle" 
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
-                >
-                    <i className="toggle-icon">{isCollapsed ? '→' : '←'}</i>
-                </button>
-                {!isCollapsed && <h2 className="sidebar-title">Menú Principal</h2>}
+  const navItems = [
+    ...navigation,
+    {
+      path: '/reports',
+      label: 'Reportes',
+      icon: '📈',
+      badge: null,
+      submenu: [
+        { path: '/reports/inventory', label: 'Inventario' },
+        { path: '/reports/sales', label: 'Ventas' },
+        { path: '/reports/profit', label: 'Ganancias' }
+      ]
+    },
+    {
+      path: '/analytics',
+      label: 'Analíticas',
+      icon: '📊',
+      badge: 'Nuevo',
+      badgeType: 'success'
+    }
+  ];
+
+  return (
+    <aside className={`app-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
+      <div className="sidebar-header">
+        <div className="sidebar-logo">
+          <span className="logo-icon">📦</span>
+          {!collapsed && <span className="logo-text">InventarioPro</span>}
+        </div>
+        {!collapsed && (
+          <div className="sidebar-status">
+            <div className="status-indicator online"></div>
+            <span className="status-text">Sistema en línea</span>
+          </div>
+        )}
+      </div>
+
+      <nav className="sidebar-nav">
+        <div className="nav-section">
+          <div className="section-label">Principal</div>
+          <ul className="nav-list">
+            {navItems.map((item, index) => (
+              <li key={item.path} className="nav-item">
+                {item.submenu ? (
+                  <>
+                    <button
+                      className={`nav-link ${activeSubmenu === index ? 'active' : ''}`}
+                      onClick={() => toggleSubmenu(index)}
+                    >
+                      <span className="nav-icon">{item.icon}</span>
+                      {!collapsed && (
+                        <>
+                          <span className="nav-label">{item.label}</span>
+                          <span className="nav-chevron">
+                            {activeSubmenu === index ? '↑' : '↓'}
+                          </span>
+                        </>
+                      )}
+                      {item.badge && !collapsed && (
+                        <span className={`nav-badge ${item.badgeType || 'default'}`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                    
+                    {(!collapsed || mobileOpen) && activeSubmenu === index && (
+                      <ul className="submenu">
+                        {item.submenu.map(subItem => (
+                          <li key={subItem.path}>
+                            <NavLink
+                              to={subItem.path}
+                              className={({ isActive }) => 
+                                `submenu-link ${isActive ? 'active' : ''}`
+                              }
+                              onClick={handleNavClick}
+                            >
+                              <span className="submenu-icon">→</span>
+                              <span className="submenu-label">{subItem.label}</span>
+                            </NavLink>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) => 
+                      `nav-link ${isActive ? 'active' : ''}`
+                    }
+                    onClick={handleNavClick}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    {!collapsed && (
+                      <>
+                        <span className="nav-label">{item.label}</span>
+                        {item.badge && (
+                          <span className={`nav-badge ${item.badgeType || 'default'}`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </>
+                    )}
+                    {collapsed && item.badge && (
+                      <span className="collapsed-badge">{item.badge}</span>
+                    )}
+                  </NavLink>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="nav-section">
+          <div className="section-label">Herramientas</div>
+          <ul className="nav-list">
+            <li className="nav-item">
+              <a href="/import" className="nav-link" onClick={handleNavClick}>
+                <span className="nav-icon">⬆️</span>
+                {!collapsed && <span className="nav-label">Importar Datos</span>}
+              </a>
+            </li>
+            <li className="nav-item">
+              <a href="/export" className="nav-link" onClick={handleNavClick}>
+                <span className="nav-icon">⬇️</span>
+                {!collapsed && <span className="nav-label">Exportar Datos</span>}
+              </a>
+            </li>
+            <li className="nav-item">
+              <a href="/backup" className="nav-link" onClick={handleNavClick}>
+                <span className="nav-icon">💾</span>
+                {!collapsed && <span className="nav-label">Backup</span>}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div className="sidebar-footer">
+        {!collapsed ? (
+          <>
+            <div className="user-info">
+              <div className="user-avatar">
+                <span>A</span>
+              </div>
+              <div className="user-details">
+                <div className="user-name">Administrador</div>
+                <div className="user-role">Supervisor</div>
+              </div>
             </div>
-
-            <nav className="sidebar-nav">
-                <ul className="sidebar-menu">
-                    {menuItems.map((item) => (
-                        <li key={item.id} className="menu-item">
-                            <a 
-                                href={item.path} 
-                                className={`menu-link ${activeMenu === item.id ? 'active' : ''}`}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setActiveMenu(item.id);
-                                    // En una aplicación real, aquí iría la navegación
-                                    console.log(`Navegando a: ${item.path}`);
-                                }}
-                            >
-                                <i className="menu-icon">{item.icon}</i>
-                                {!isCollapsed && <span className="menu-label">{item.label}</span>}
-                                {!isCollapsed && activeMenu === item.id && (
-                                    <span className="active-indicator"></span>
-                                )}
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="sidebar-divider"></div>
-
-                <ul className="sidebar-menu secondary-menu">
-                    {secondaryItems.map((item) => (
-                        <li key={item.id} className="menu-item">
-                            <a 
-                                href={item.path} 
-                                className={`menu-link ${activeMenu === item.id ? 'active' : ''}`}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setActiveMenu(item.id);
-                                }}
-                            >
-                                <i className="menu-icon">{item.icon}</i>
-                                {!isCollapsed && <span className="menu-label">{item.label}</span>}
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-
-            {!isCollapsed && (
-                <div className="sidebar-footer">
-                    <div className="system-info">
-                        <div className="system-status">
-                            <span className="status-indicator active"></span>
-                            <span className="status-text">Sistema activo</span>
-                        </div>
-                        <div className="version-info">
-                            v1.0.0
-                        </div>
-                    </div>
-                </div>
-            )}
-        </aside>
-    );
+            <div className="quick-actions">
+              <button className="quick-action-btn" title="Ajustes Rápidos">
+                ⚙️
+              </button>
+              <button className="quick-action-btn" title="Modo Oscuro">
+                🌙
+              </button>
+              <button className="quick-action-btn" title="Ayuda">
+                ❓
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="collapsed-footer">
+            <button className="quick-action-btn" title="Ajustes Rápidos">
+              ⚙️
+            </button>
+            <button className="quick-action-btn" title="Modo Oscuro">
+              🌙
+            </button>
+            <button className="quick-action-btn" title="Ayuda">
+              ❓
+            </button>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
 };
 
 export default Sidebar;

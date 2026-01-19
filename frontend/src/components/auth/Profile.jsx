@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import '../../assets/styles/common/profile.css';
+import '../../assets/styles/AUTH/auth.css';
 
 const Profile = () => {
     const { user, updateProfile, changePassword, logout } = useAuth();
@@ -501,7 +501,6 @@ const Profile = () => {
         <div className="activity-tab">
             <h3>Actividad Reciente</h3>
             <div className="activity-list">
-                {/* Aquí iría la lista de actividades del usuario */}
                 <div className="activity-item">
                     <div className="activity-icon">
                         <i className="fas fa-sign-in-alt"></i>

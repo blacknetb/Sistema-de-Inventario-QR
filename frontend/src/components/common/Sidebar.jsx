@@ -1,264 +1,329 @@
-/**
- * Sidebar.js
- * Componente de barra lateral para navegación
- * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\components\common\Sidebar.js
- */
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
+import '../../assets/styles/Common/common.css';
 
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import '../../assets/styles/common/Sidebar.css';
-
-const Sidebar = ({ collapsed = false, onToggle }) => {
-    const [expandedSections, setExpandedSections] = useState({});
+const Sidebar = () => {
+    const { user } = useAuth();
     const location = useLocation();
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [activeSubmenu, setActiveSubmenu] = useState(null);
+    const [quickActions, setQuickActions] = useState([]);
 
-    // Secciones del menú
-    const menuSections = [
+    useEffect(() => {
+        // Cargar acciones rápidas basadas en permisos
+        const actions = [
+            {
+                id: 'add-product',
+                icon: 'fas fa-plus',
+                label: 'Nuevo Producto',
+                path: '/products/new',
+                permission: 'product.create'
+            },
+            {
+                id: 'scan-qr',
+                icon: 'fas fa-qrcode',
+                label: 'Escanear QR',
+                path: '/scan',
+                permission: 'scan'
+            },
+            {
+                id: 'quick-report',
+                icon: 'fas fa-chart-pie',
+                label: 'Reporte Rápido',
+                path: '/reports/quick',
+                permission: 'report.view'
+            },
+            {
+                id: 'low-stock',
+                icon: 'fas fa-exclamation-triangle',
+                label: 'Stock Bajo',
+                path: '/products?filter=low-stock',
+                permission: 'product.view'
+            }
+        ];
+        setQuickActions(actions);
+    }, []);
+
+    const menuItems = [
         {
             id: 'dashboard',
-            title: 'Dashboard',
-            icon: '📊',
-            path: '/',
-            items: []
+            label: 'Dashboard',
+            icon: 'fas fa-home',
+            path: '/dashboard',
+            permission: 'dashboard.view'
+        },
+        {
+            id: 'products',
+            label: 'Productos',
+            icon: 'fas fa-box',
+            path: '/products',
+            permission: 'product.view',
+            submenu: [
+                {
+                    label: 'Todos los Productos',
+                    path: '/products',
+                    icon: 'fas fa-list'
+                },
+                {
+                    label: 'Agregar Producto',
+                    path: '/products/new',
+                    icon: 'fas fa-plus'
+                },
+                {
+                    label: 'Categorías',
+                    path: '/categories',
+                    icon: 'fas fa-folder'
+                },
+                {
+                    label: 'Stock Bajo',
+                    path: '/products?filter=low-stock',
+                    icon: 'fas fa-exclamation-triangle'
+                },
+                {
+                    label: 'Sin Stock',
+                    path: '/products?filter=out-of-stock',
+                    icon: 'fas fa-times-circle'
+                }
+            ]
         },
         {
             id: 'inventory',
-            title: 'Inventario',
-            icon: '📦',
-            path: null,
-            items: [
-                { label: 'Todos los Productos', path: '/products' },
-                { label: 'Categorías', path: '/categories' },
-                { label: 'Marcas', path: '/brands' },
-                { label: 'Almacenes', path: '/warehouses' },
-                { label: 'Ubicaciones', path: '/locations' },
-                { label: 'Ajustes de Inventario', path: '/inventory-adjustments' }
+            label: 'Inventario',
+            icon: 'fas fa-warehouse',
+            path: '/inventory',
+            permission: 'inventory.view',
+            submenu: [
+                {
+                    label: 'Movimientos',
+                    path: '/inventory/movements',
+                    icon: 'fas fa-exchange-alt'
+                },
+                {
+                    label: 'Ajustes',
+                    path: '/inventory/adjustments',
+                    icon: 'fas fa-adjust'
+                },
+                {
+                    label: 'Transferencias',
+                    path: '/inventory/transfers',
+                    icon: 'fas fa-truck-moving'
+                },
+                {
+                    label: 'Conteo Físico',
+                    path: '/inventory/count',
+                    icon: 'fas fa-clipboard-check'
+                }
             ]
         },
         {
-            id: 'purchases',
-            title: 'Compras',
-            icon: '🛒',
-            path: null,
-            items: [
-                { label: 'Órdenes de Compra', path: '/purchase-orders' },
-                { label: 'Proveedores', path: '/suppliers' },
-                { label: 'Recepciones', path: '/receivings' },
-                { label: 'Devoluciones', path: '/returns' }
-            ]
-        },
-        {
-            id: 'sales',
-            title: 'Ventas',
-            icon: '💰',
-            path: null,
-            items: [
-                { label: 'Pedidos', path: '/orders' },
-                { label: 'Clientes', path: '/customers' },
-                { label: 'Cotizaciones', path: '/quotes' },
-                { label: 'Facturas', path: '/invoices' }
-            ]
+            id: 'suppliers',
+            label: 'Proveedores',
+            icon: 'fas fa-truck',
+            path: '/suppliers',
+            permission: 'supplier.view'
         },
         {
             id: 'reports',
-            title: 'Reportes',
-            icon: '📈',
-            path: null,
-            items: [
-                { label: 'Reporte de Inventario', path: '/reports/inventory' },
-                { label: 'Reporte de Ventas', path: '/reports/sales' },
-                { label: 'Reporte de Compras', path: '/reports/purchases' },
-                { label: 'Reporte de Utilidades', path: '/reports/profits' },
-                { label: 'Reportes Personalizados', path: '/reports/custom' }
+            label: 'Reportes',
+            icon: 'fas fa-chart-bar',
+            path: '/reports',
+            permission: 'report.view',
+            submenu: [
+                {
+                    label: 'Ventas',
+                    path: '/reports/sales',
+                    icon: 'fas fa-shopping-cart'
+                },
+                {
+                    label: 'Inventario',
+                    path: '/reports/inventory',
+                    icon: 'fas fa-boxes'
+                },
+                {
+                    label: 'Stock',
+                    path: '/reports/stock',
+                    icon: 'fas fa-chart-line'
+                },
+                {
+                    label: 'Proveedores',
+                    path: '/reports/suppliers',
+                    icon: 'fas fa-truck'
+                }
             ]
         },
         {
-            id: 'analytics',
-            title: 'Analítica',
-            icon: '📊',
-            path: '/analytics',
-            items: []
+            id: 'users',
+            label: 'Usuarios',
+            icon: 'fas fa-users',
+            path: '/users',
+            permission: 'user.view',
+            roles: ['admin', 'supervisor']
         },
         {
             id: 'settings',
-            title: 'Configuración',
-            icon: '⚙️',
-            path: null,
-            items: [
-                { label: 'Usuarios', path: '/settings/users' },
-                { label: 'Roles y Permisos', path: '/settings/roles' },
-                { label: 'Configuración General', path: '/settings/general' },
-                { label: 'Integraciones', path: '/settings/integrations' },
-                { label: 'Backup', path: '/settings/backup' }
-            ]
+            label: 'Configuración',
+            icon: 'fas fa-cog',
+            path: '/settings',
+            permission: 'settings.view'
         }
     ];
 
-    // Alternar sección expandida
-    const toggleSection = (sectionId) => {
-        setExpandedSections(prev => ({
-            ...prev,
-            [sectionId]: !prev[sectionId]
-        }));
+    const toggleSubmenu = (menuId) => {
+        if (activeSubmenu === menuId) {
+            setActiveSubmenu(null);
+        } else {
+            setActiveSubmenu(menuId);
+        }
     };
 
-    // Verificar si un enlace está activo
-    const isActive = (path) => {
-        return location.pathname === path || location.pathname.startsWith(path + '/');
+    const checkPermission = (item) => {
+        if (!item.permission) return true;
+        if (item.roles && !item.roles.includes(user?.rol)) return false;
+        // Aquí iría la lógica de permisos real
+        return true;
     };
 
-    // Verificar si una sección tiene algún ítem activo
-    const hasActiveItem = (section) => {
-        if (section.path && isActive(section.path)) return true;
-        return section.items.some(item => isActive(item.path));
-    };
+    const filteredMenuItems = menuItems.filter(checkPermission);
 
     return (
-        <aside className={`app-sidebar ${collapsed ? 'collapsed' : 'expanded'}`}>
-            {/* Logo y botón de toggle */}
+        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+            {/* Header del sidebar */}
             <div className="sidebar-header">
-                {!collapsed && (
-                    <div className="sidebar-logo">
-                        <div className="logo-icon">📦</div>
-                        <div className="logo-text">
-                            <h2>InventarioPro</h2>
-                            <span className="logo-subtitle">Panel de Control</span>
+                <button
+                    className="sidebar-toggle"
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    title={isCollapsed ? 'Expandir menú' : 'Contraer menú'}
+                >
+                    <i className={`fas fa-chevron-${isCollapsed ? 'right' : 'left'}`}></i>
+                </button>
+                
+                {!isCollapsed && (
+                    <div className="sidebar-brand">
+                        <div className="brand-icon">
+                            <i className="fas fa-boxes"></i>
+                        </div>
+                        <div className="brand-text">
+                            <span className="brand-primary">Inventario</span>
+                            <span className="brand-secondary">Básico</span>
                         </div>
                     </div>
                 )}
-                
-                <button className="sidebar-toggle" onClick={onToggle}>
-                    {collapsed ? '→' : '←'}
-                </button>
             </div>
 
-            {/* Menú de navegación */}
-            <nav className="sidebar-nav">
-                <ul className="sidebar-menu">
-                    {menuSections.map(section => {
-                        const isSectionActive = hasActiveItem(section);
-                        const isExpanded = expandedSections[section.id] || isSectionActive;
-
-                        return (
-                            <li 
-                                key={section.id}
-                                className={`menu-section ${isSectionActive ? 'active-section' : ''}`}
+            {/* Acciones rápidas */}
+            {!isCollapsed && (
+                <div className="quick-actions">
+                    <h3 className="section-title">Acciones Rápidas</h3>
+                    <div className="actions-grid">
+                        {quickActions.map(action => (
+                            <NavLink
+                                key={action.id}
+                                to={action.path}
+                                className="quick-action"
+                                title={action.label}
                             >
-                                {section.items.length > 0 ? (
-                                    <>
-                                        <button
-                                            className="section-header"
-                                            onClick={() => toggleSection(section.id)}
-                                        >
-                                            <span className="section-icon">{section.icon}</span>
-                                            {!collapsed && (
-                                                <>
-                                                    <span className="section-title">{section.title}</span>
-                                                    <span className="section-arrow">
-                                                        {isExpanded ? '▼' : '▶'}
-                                                    </span>
-                                                </>
-                                            )}
-                                        </button>
-                                        
-                                        {!collapsed && isExpanded && (
-                                            <ul className="section-items">
-                                                {section.items.map(item => (
-                                                    <li key={item.path}>
-                                                        <Link
-                                                            to={item.path}
-                                                            className={`menu-item ${isActive(item.path) ? 'active' : ''}`}
-                                                        >
-                                                            <span className="item-dot"></span>
-                                                            <span className="item-label">{item.label}</span>
-                                                        </Link>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </>
-                                ) : (
-                                    <Link
-                                        to={section.path}
-                                        className={`section-header link ${isActive(section.path) ? 'active' : ''}`}
-                                    >
-                                        <span className="section-icon">{section.icon}</span>
-                                        {!collapsed && (
-                                            <span className="section-title">{section.title}</span>
-                                        )}
-                                    </Link>
-                                )}
-                            </li>
-                        );
-                    })}
-                </ul>
-            </nav>
-
-            {/* Estadísticas rápidas */}
-            {!collapsed && (
-                <div className="sidebar-stats">
-                    <h3 className="stats-title">Resumen Rápido</h3>
-                    
-                    <div className="stats-grid">
-                        <div className="stat-item">
-                            <div className="stat-icon">📦</div>
-                            <div className="stat-info">
-                                <span className="stat-value">1,234</span>
-                                <span className="stat-label">Productos</span>
-                            </div>
-                        </div>
-                        
-                        <div className="stat-item">
-                            <div className="stat-icon">⚠️</div>
-                            <div className="stat-info">
-                                <span className="stat-value">23</span>
-                                <span className="stat-label">Bajo Stock</span>
-                            </div>
-                        </div>
-                        
-                        <div className="stat-item">
-                            <div className="stat-icon">📈</div>
-                            <div className="stat-info">
-                                <span className="stat-value">$45,678</span>
-                                <span className="stat-label">Ventas Hoy</span>
-                            </div>
-                        </div>
+                                <i className={action.icon}></i>
+                                <span>{action.label}</span>
+                            </NavLink>
+                        ))}
                     </div>
                 </div>
             )}
 
-            {/* Información de usuario */}
-            <div className="sidebar-user">
-                <div className="user-avatar">
-                    <img 
-                        src="https://via.placeholder.com/40" 
-                        alt="Usuario" 
-                        className="avatar-img"
-                    />
-                </div>
-                
-                {!collapsed && (
-                    <div className="user-info">
-                        <h4 className="user-name">Juan Pérez</h4>
-                        <p className="user-role">Administrador</p>
-                        <Link to="/profile" className="user-profile-link">
-                            Ver perfil
-                        </Link>
-                    </div>
-                )}
-            </div>
+            {/* Menú principal */}
+            <nav className="sidebar-menu">
+                <ul className="menu-list">
+                    {filteredMenuItems.map(item => (
+                        <li key={item.id} className="menu-item-wrapper">
+                            {item.submenu ? (
+                                <>
+                                    <button
+                                        className={`menu-item ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
+                                        onClick={() => toggleSubmenu(item.id)}
+                                    >
+                                        <i className={item.icon}></i>
+                                        {!isCollapsed && <span>{item.label}</span>}
+                                        {!isCollapsed && (
+                                            <i className={`fas fa-chevron-${activeSubmenu === item.id ? 'up' : 'down'}`}></i>
+                                        )}
+                                    </button>
+                                    
+                                    {!isCollapsed && activeSubmenu === item.id && (
+                                        <ul className="submenu">
+                                            {item.submenu.map(subItem => (
+                                                <li key={subItem.path}>
+                                                    <NavLink
+                                                        to={subItem.path}
+                                                        className={({ isActive }) => 
+                                                            `submenu-item ${isActive ? 'active' : ''}`
+                                                        }
+                                                    >
+                                                        <i className={subItem.icon}></i>
+                                                        <span>{subItem.label}</span>
+                                                    </NavLink>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </>
+                            ) : (
+                                <NavLink
+                                    to={item.path}
+                                    className={({ isActive }) => 
+                                        `menu-item ${isActive ? 'active' : ''}`
+                                    }
+                                    title={isCollapsed ? item.label : ''}
+                                >
+                                    <i className={item.icon}></i>
+                                    {!isCollapsed && <span>{item.label}</span>}
+                                </NavLink>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </nav>
 
-            {/* Botones de acción */}
-            {!collapsed && (
-                <div className="sidebar-actions">
-                    <button className="action-btn primary">
-                        <span className="action-icon">➕</span>
-                        Nuevo Producto
-                    </button>
-                    <button className="action-btn secondary">
-                        <span className="action-icon">📥</span>
-                        Importar Datos
-                    </button>
+            {/* Footer del sidebar */}
+            {!isCollapsed && (
+                <div className="sidebar-footer">
+                    <div className="system-info">
+                        <div className="info-item">
+                            <i className="fas fa-database"></i>
+                            <div>
+                                <span className="info-label">Productos</span>
+                                <span className="info-value">1,245</span>
+                            </div>
+                        </div>
+                        <div className="info-item">
+                            <i className="fas fa-box"></i>
+                            <div>
+                                <span className="info-label">Stock Total</span>
+                                <span className="info-value">45,678</span>
+                            </div>
+                        </div>
+                        <div className="info-item">
+                            <i className="fas fa-money-bill-wave"></i>
+                            <div>
+                                <span className="info-label">Valor Total</span>
+                                <span className="info-value">$1.2M</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="user-summary">
+                        <div className="user-avatar-small">
+                            {user?.nombre?.charAt(0) || 'U'}
+                        </div>
+                        <div className="user-details">
+                            <span className="user-name">{user?.nombre || 'Usuario'}</span>
+                            <span className="user-role">{user?.rol || 'Usuario'}</span>
+                        </div>
+                        <div className="system-status">
+                            <div className="status-indicator active"></div>
+                            <span>Sistema Activo</span>
+                        </div>
+                    </div>
                 </div>
             )}
         </aside>

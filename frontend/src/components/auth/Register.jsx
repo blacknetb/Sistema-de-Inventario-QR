@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../../assets/styles/Auth/auth.css';
+import '../../assets/styles/AUTH/auth.css';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -86,7 +86,7 @@ const Register = () => {
             // Preparar datos para enviar (sin confirmPassword)
             const { confirmPassword, ...dataToSend } = formData;
             
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            const response = await fetch('http://localhost:3000/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

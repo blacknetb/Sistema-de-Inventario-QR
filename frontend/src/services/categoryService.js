@@ -1,365 +1,239 @@
-/**
- * SERVICIO DE CATEGORÍAS
- * Maneja todas las operaciones CRUD para categorías
- * Compatible con backend RESTful API
- */
+import { get, post, put, del } from './api';
+import { localStorageService } from './index';
 
-import axios from 'axios';
-
-// Configuración base de axios
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-
-// Instancia de axios con configuración común
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  },
-  timeout: 10000 // 10 segundos
-});
-
-// Interceptor para manejar errores globalmente
-apiClient.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response) {
-      // El servidor respondió con un código de estado fuera del rango 2xx
-      console.error('Error de servidor:', error.response.data);
-      return Promise.reject(error.response.data);
-    } else if (error.request) {
-      // La solicitud fue hecha pero no se recibió respuesta
-      console.error('Error de red:', error.message);
-      return Promise.reject(new Error('Error de conexión con el servidor'));
-    } else {
-      // Algo sucedió al configurar la solicitud
-      console.error('Error:', error.message);
-      return Promise.reject(error);
-    }
-  }
-);
-
-/**
- * Servicio de Categorías
- */
 const categoryService = {
-  /**
-   * Obtiene todas las categorías con filtros opcionales
-   * @param {Object} params - Parámetros de filtrado
-   * @param {number} params.page - Página actual
-   * @param {number} params.limit - Elementos por página
-   * @param {string} params.search - Término de búsqueda
-   * @param {string} params.sort - Campo para ordenar
-   * @param {string} params.order - Orden (asc/desc)
-   * @param {AbortSignal} signal - Señal para cancelar la solicitud
-   * @returns {Promise} Promesa con las categorías
-   */
-  getAll: async (params = {}, signal) => {
+  // Obtener todas las categorías
+  getAllCategories: async () => {
     try {
-      const config = signal ? { params, signal } : { params };
+      // Simular llamada a API
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      const response = await apiClient.get('/categories', config);
+      // Obtener categorías del localStorage o usar default
+      let categories = localStorageService.get('categories') || [
+        { id: 1, name: 'Electrónica', description: 'Dispositivos electrónicos', itemCount: 3, color: '#3498db' },
+        { id: 2, name: 'Accesorios', description: 'Accesorios para computadora', itemCount: 2, color: '#2ecc71' },
+        { id: 3, name: 'Oficina', description: 'Equipos de oficina', itemCount: 1, color: '#9b59b6' },
+        { id: 4, name: 'Almacenamiento', description: 'Dispositivos de almacenamiento', itemCount: 1, color: '#e74c3c' },
+        { id: 5, name: 'Redes', description: 'Equipos de red', itemCount: 1, color: '#f39c12' },
+        { id: 6, name: 'Muebles', description: 'Mobiliario de oficina', itemCount: 0, color: '#1abc9c' },
+        { id: 7, name: 'Herramientas', description: 'Herramientas varias', itemCount: 0, color: '#34495e' }
+      ];
       
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        pagination: response.data.pagination || {
-          page: params.page || 1,
-          limit: params.limit || 10,
-          total: response.data.length || 0,
-          pages: Math.ceil((response.data.length || 0) / (params.limit || 10))
-        }
-      };
-    } catch (error) {
-      console.error('Error al obtener categorías:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al cargar las categorías',
-        data: []
-      };
-    }
-  },
-
-  /**
-   * Obtiene una categoría por su ID
-   * @param {string|number} id - ID de la categoría
-   * @returns {Promise} Promesa con la categoría
-   */
-  getById: async (id) => {
-    try {
-      const response = await apiClient.get(`/categories/${id}`);
+      // Actualizar contador de items
+      const items = localStorageService.get('inventory_items') || [];
+      categories.forEach(category => {
+        category.itemCount = items.filter(item => item.category === category.name).length;
+      });
+      
+      localStorageService.set('categories', categories);
       
       return {
         success: true,
-        data: response.data
+        data: categories,
+        message: 'Categorías obtenidas exitosamente'
       };
     } catch (error) {
-      console.error(`Error al obtener categoría ${id}:`, error);
-      return {
-        success: false,
-        message: error.message || 'Error al cargar la categoría'
-      };
+      console.error('Error obteniendo categorías:', error);
+      throw error;
     }
   },
 
-  /**
-   * Crea una nueva categoría
-   * @param {Object} categoryData - Datos de la categoría
-   * @param {string} categoryData.name - Nombre de la categoría
-   * @param {string} categoryData.description - Descripción de la categoría
-   * @returns {Promise} Promesa con la categoría creada
-   */
-  create: async (categoryData) => {
+  // Obtener una categoría por ID
+  getCategoryById: async (id) => {
     try {
-      // Validación básica del lado del cliente
-      if (!categoryData.name || categoryData.name.trim().length < 2) {
-        throw new Error('El nombre de la categoría debe tener al menos 2 caracteres');
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const categories = localStorageService.get('categories') || [];
+      const category = categories.find(cat => cat.id === parseInt(id));
+      
+      if (!category) {
+        throw new Error('Categoría no encontrada');
       }
-
-      const response = await apiClient.post('/categories', categoryData);
       
       return {
         success: true,
-        data: response.data,
+        data: category,
+        message: 'Categoría obtenida exitosamente'
+      };
+    } catch (error) {
+      console.error(`Error obteniendo categoría ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Crear una nueva categoría
+  createCategory: async (categoryData) => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const categories = localStorageService.get('categories') || [];
+      
+      // Validar que no exista una categoría con el mismo nombre
+      const existingCategory = categories.find(cat => 
+        cat.name.toLowerCase() === categoryData.name.toLowerCase()
+      );
+      
+      if (existingCategory) {
+        throw new Error('Ya existe una categoría con este nombre');
+      }
+      
+      const newCategory = {
+        ...categoryData,
+        id: categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1,
+        itemCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      const updatedCategories = [...categories, newCategory];
+      localStorageService.set('categories', updatedCategories);
+      
+      return {
+        success: true,
+        data: newCategory,
         message: 'Categoría creada exitosamente'
       };
     } catch (error) {
-      console.error('Error al crear categoría:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al crear la categoría'
-      };
+      console.error('Error creando categoría:', error);
+      throw error;
     }
   },
 
-  /**
-   * Actualiza una categoría existente
-   * @param {string|number} id - ID de la categoría
-   * @param {Object} categoryData - Datos actualizados de la categoría
-   * @returns {Promise} Promesa con la categoría actualizada
-   */
-  update: async (id, categoryData) => {
+  // Actualizar una categoría
+  updateCategory: async (id, categoryData) => {
     try {
-      // Validación básica del lado del cliente
-      if (categoryData.name && categoryData.name.trim().length < 2) {
-        throw new Error('El nombre de la categoría debe tener al menos 2 caracteres');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      let categories = localStorageService.get('categories') || [];
+      const categoryIndex = categories.findIndex(cat => cat.id === parseInt(id));
+      
+      if (categoryIndex === -1) {
+        throw new Error('Categoría no encontrada');
       }
-
-      const response = await apiClient.put(`/categories/${id}`, categoryData);
+      
+      // Validar que no exista otra categoría con el mismo nombre
+      const duplicateCategory = categories.find((cat, index) => 
+        index !== categoryIndex && 
+        cat.name.toLowerCase() === categoryData.name.toLowerCase()
+      );
+      
+      if (duplicateCategory) {
+        throw new Error('Ya existe otra categoría con este nombre');
+      }
+      
+      const updatedCategory = {
+        ...categories[categoryIndex],
+        ...categoryData,
+        id: parseInt(id),
+        updatedAt: new Date().toISOString()
+      };
+      
+      categories[categoryIndex] = updatedCategory;
+      localStorageService.set('categories', categories);
       
       return {
         success: true,
-        data: response.data,
+        data: updatedCategory,
         message: 'Categoría actualizada exitosamente'
       };
     } catch (error) {
-      console.error(`Error al actualizar categoría ${id}:`, error);
-      return {
-        success: false,
-        message: error.message || 'Error al actualizar la categoría'
-      };
+      console.error(`Error actualizando categoría ${id}:`, error);
+      throw error;
     }
   },
 
-  /**
-   * Elimina una categoría
-   * @param {string|number} id - ID de la categoría
-   * @returns {Promise} Promesa con el resultado de la eliminación
-   */
-  delete: async (id) => {
+  // Eliminar una categoría
+  deleteCategory: async (id) => {
     try {
-      await apiClient.delete(`/categories/${id}`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      let categories = localStorageService.get('categories') || [];
+      const filteredCategories = categories.filter(cat => cat.id !== parseInt(id));
+      
+      if (filteredCategories.length === categories.length) {
+        throw new Error('Categoría no encontrada');
+      }
+      
+      // Verificar si hay items usando esta categoría
+      const items = localStorageService.get('inventory_items') || [];
+      const itemsWithCategory = items.filter(item => {
+        const category = categories.find(cat => cat.id === parseInt(id));
+        return category && item.category === category.name;
+      });
+      
+      if (itemsWithCategory.length > 0) {
+        throw new Error(`No se puede eliminar. Hay ${itemsWithCategory.length} items usando esta categoría.`);
+      }
+      
+      localStorageService.set('categories', filteredCategories);
       
       return {
         success: true,
         message: 'Categoría eliminada exitosamente'
       };
     } catch (error) {
-      console.error(`Error al eliminar categoría ${id}:`, error);
-      
-      // Manejo específico de errores comunes
-      let message = 'Error al eliminar la categoría';
-      if (error.status === 409) {
-        message = 'No se puede eliminar la categoría porque tiene productos asociados';
-      } else if (error.status === 404) {
-        message = 'La categoría no existe';
-      }
-      
-      return {
-        success: false,
-        message: error.message || message
-      };
+      console.error(`Error eliminando categoría ${id}:`, error);
+      throw error;
     }
   },
 
-  /**
-   * Elimina múltiples categorías
-   * @param {Array<string|number>} ids - IDs de las categorías a eliminar
-   * @returns {Promise} Promesa con el resultado de la eliminación
-   */
-  deleteMultiple: async (ids) => {
+  // Obtener estadísticas por categoría
+  getCategoryStats: async () => {
     try {
-      const response = await apiClient.post('/categories/bulk-delete', { ids });
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      return {
-        success: true,
-        data: response.data,
-        message: `${ids.length} categoría(s) eliminada(s) exitosamente`
-      };
-    } catch (error) {
-      console.error('Error al eliminar múltiples categorías:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al eliminar las categorías'
-      };
-    }
-  },
-
-  /**
-   * Exporta categorías en formato CSV
-   * @param {Object} params - Parámetros de filtrado
-   * @returns {Promise} Promesa con los datos exportados
-   */
-  exportToCSV: async (params = {}) => {
-    try {
-      const response = await apiClient.get('/categories/export', {
-        params,
-        responseType: 'blob'
+      const categories = localStorageService.get('categories') || [];
+      const items = localStorageService.get('inventory_items') || [];
+      
+      const stats = categories.map(category => {
+        const categoryItems = items.filter(item => item.category === category.name);
+        const totalValue = categoryItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const lowStockCount = categoryItems.filter(item => item.status === 'Bajo Stock').length;
+        const outOfStockCount = categoryItems.filter(item => item.status === 'Agotado').length;
+        
+        return {
+          ...category,
+          totalItems: categoryItems.length,
+          totalValue: parseFloat(totalValue.toFixed(2)),
+          lowStockCount,
+          outOfStockCount,
+          averagePrice: categoryItems.length > 0 
+            ? parseFloat((totalValue / categoryItems.reduce((sum, item) => sum + item.quantity, 0)).toFixed(2))
+            : 0
+        };
       });
       
       return {
         success: true,
-        data: response.data,
-        filename: response.headers['content-disposition']?.split('filename=')[1] || 'categorias.csv'
+        data: stats,
+        message: 'Estadísticas por categoría obtenidas'
       };
     } catch (error) {
-      console.error('Error al exportar categorías:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al exportar las categorías'
-      };
+      console.error('Error obteniendo estadísticas de categorías:', error);
+      throw error;
     }
   },
 
-  /**
-   * Obtiene estadísticas de categorías
-   * @returns {Promise} Promesa con las estadísticas
-   */
-  getStats: async () => {
-    try {
-      const response = await apiClient.get('/categories/stats');
-      
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error al obtener estadísticas:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al cargar estadísticas'
-      };
-    }
-  },
-
-  /**
-   * Valida si un nombre de categoría está disponible
-   * @param {string} name - Nombre a validar
-   * @param {string|number} [excludeId] - ID de categoría a excluir (para edición)
-   * @returns {Promise} Promesa con el resultado de la validación
-   */
-  validateName: async (name, excludeId = null) => {
-    try {
-      const params = { name };
-      if (excludeId) params.excludeId = excludeId;
-      
-      const response = await apiClient.get('/categories/validate-name', { params });
-      
-      return {
-        success: true,
-        data: response.data,
-        isValid: response.data.isValid
-      };
-    } catch (error) {
-      console.error('Error al validar nombre:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al validar el nombre'
-      };
-    }
-  },
-
-  /**
-   * Obtiene categorías populares (con más productos)
-   * @param {number} limit - Límite de resultados
-   * @returns {Promise} Promesa con las categorías populares
-   */
-  getPopular: async (limit = 10) => {
-    try {
-      const response = await apiClient.get('/categories/popular', {
-        params: { limit }
-      });
-      
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error al obtener categorías populares:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al cargar categorías populares'
-      };
-    }
-  },
-
-  /**
-   * Obtiene categorías sin productos
-   * @returns {Promise} Promesa con las categorías sin productos
-   */
-  getWithoutProducts: async () => {
-    try {
-      const response = await apiClient.get('/categories/without-products');
-      
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error al obtener categorías sin productos:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al cargar categorías sin productos'
-      };
-    }
+  // Obtener sugerencias de colores para categorías
+  getColorSuggestions: () => {
+    return [
+      '#3498db', // Azul
+      '#2ecc71', // Verde
+      '#e74c3c', // Rojo
+      '#f39c12', // Naranja
+      '#9b59b6', // Morado
+      '#1abc9c', // Turquesa
+      '#34495e', // Azul oscuro
+      '#e67e22', // Naranja oscuro
+      '#27ae60', // Verde oscuro
+      '#8e44ad', // Morado oscuro
+      '#d35400', // Calabaza
+      '#16a085', // Verde esmeralda
+      '#c0392b', // Rojo oscuro
+      '#2980b9', // Azul marino
+      '#f1c40f'  // Amarillo
+    ];
   }
-};
-
-// Métodos de utilidad para manejar archivos y exportación
-categoryService.downloadCSV = (data, filename = 'categorias.csv') => {
-  const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
-// Configuración global de la API
-categoryService.setAuthToken = (token) => {
-  if (token) {
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete apiClient.defaults.headers.common['Authorization'];
-  }
-};
-
-// Configuración de la URL base
-categoryService.setBaseURL = (url) => {
-  apiClient.defaults.baseURL = url;
 };
 
 export default categoryService;

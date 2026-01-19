@@ -1,0 +1,14 @@
+export { default as DashboardPage } from './DashboardPage';
+export { default as InventoryPage } from './InventoryPage';
+export { default as AddItemPage } from './AddItemPage';
+export { default as EditItemPage } from './EditItemPage';
+export { default as ReportsPage } from './ReportsPage';
+export { default as CategoriesPage } from './CategoriesPage';
+export { default as SuppliersPage } from './SuppliersPage';
+export { default as SettingsPage } from './SettingsPage';
+export { default as LoginPage } from './LoginPage';
+export { default as RegisterPage } from './RegisterPage';
+export { default as ProfilePage } from './ProfilePage';
+export { default as HelpPage } from './HelpPage';
+export { default as NotFoundPage } from './NotFoundPage';
+export { default as PrintPage } from './PrintPage';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../../assets/styles/Auth/auth.css';
+import '../../assets/styles/AUTH/auth.css';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -56,8 +56,7 @@ const Login = () => {
         setLoading(true);
         
         try {
-            // Aquí se haría la llamada al backend
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch('http://localhost:3000/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

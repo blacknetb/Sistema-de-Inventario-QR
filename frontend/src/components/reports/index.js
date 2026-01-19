@@ -1,15 +1,12 @@
-import ReportGenerator from './ReportGenerator';
-import ReportList from './ReportList';
-import ReportViewer from './ReportViewer';
-
-export {
-  ReportGenerator,
-  ReportList,
-  ReportViewer
-};
-
-export default {
-  ReportGenerator,
-  ReportList,
-  ReportViewer
-};
+export { default as ReportsDashboard } from './ReportsDashboard';
+export { default as InventoryReport } from './InventoryReport';
+export { default as SalesReport } from './SalesReport';
+export { default as StockReport } from './StockReport';
+export { default as FinancialReport } from './FinancialReport';
+export { default as CategoryReport } from './CategoryReport';
+export { default as TrendAnalysis } from './TrendAnalysis';
+export { default as ReportFilters } from './ReportFilters';
+export { default as ReportCharts } from './ReportCharts';
+export { default as ExportReport } from './ExportReport';
+export { default as ReportTemplates } from './ReportTemplates';
+export * from './ReportUtils';

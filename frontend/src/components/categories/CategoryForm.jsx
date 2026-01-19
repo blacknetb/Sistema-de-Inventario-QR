@@ -1,42 +1,71 @@
-import React, { useState } from 'react';
-import '../../assets/styles/categoria/CategoryForm.css';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import '../../assets/styles/CATEGORIES/categories.css';
 
-const CategoryForm = ({ onSuccess, onCancel }) => {
+const CategoryForm = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const isEditMode = Boolean(id);
+
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        status: 'active'
+        nombre: '',
+        descripcion: '',
+        codigo: '',
+        color: '#3b82f6',
+        icono: '📦',
+        estado: true
     });
+
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
-    // Validar formulario
-    const validateForm = () => {
-        const newErrors = {};
-        
-        if (!formData.name.trim()) {
-            newErrors.name = 'El nombre es requerido';
-        } else if (formData.name.length < 3) {
-            newErrors.name = 'El nombre debe tener al menos 3 caracteres';
+    // Cargar datos si estamos en modo edición
+    useEffect(() => {
+        if (isEditMode) {
+            fetchCategory();
         }
+    }, [id]);
 
-        if (formData.description && formData.description.length > 500) {
-            newErrors.description = 'La descripción no debe exceder 500 caracteres';
+    const fetchCategory = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/categories/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al cargar la categoría');
+            }
+
+            const data = await response.json();
+            setFormData({
+                nombre: data.nombre || '',
+                descripcion: data.descripcion || '',
+                codigo: data.codigo || '',
+                color: data.color || '#3b82f6',
+                icono: data.icono || '📦',
+                estado: data.estado !== false
+            });
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+            navigate('/categories');
+        } finally {
+            setLoading(false);
         }
-
-        return newErrors;
     };
 
-    // Manejar cambios en los inputs
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         }));
-        
-        // Limpiar error del campo cuando el usuario comienza a escribir
+
+        // Limpiar error del campo
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -45,164 +74,338 @@ const CategoryForm = ({ onSuccess, onCancel }) => {
         }
     };
 
-    // Manejar envío del formulario
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.nombre.trim()) {
+            newErrors.nombre = 'El nombre es requerido';
+        } else if (formData.nombre.length < 2) {
+            newErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
+        }
+
+        if (!formData.codigo.trim()) {
+            newErrors.codigo = 'El código es requerido';
+        } else if (!/^[A-Z0-9-]+$/.test(formData.codigo)) {
+            newErrors.codigo = 'Código inválido (solo mayúsculas, números y guiones)';
+        }
+
+        if (formData.descripcion && formData.descripcion.length > 500) {
+            newErrors.descripcion = 'La descripción no puede exceder 500 caracteres';
+        }
+
+        return newErrors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
 
-        setLoading(true);
-        setErrors({});
+        setSubmitting(true);
 
         try {
-            const response = await fetch('http://localhost:3000/api/categories', {
-                method: 'POST',
+            const token = localStorage.getItem('token');
+            const url = isEditMode 
+                ? `http://localhost:3000/api/categories/${id}`
+                : 'http://localhost:3000/api/categories';
+            
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
-                throw new Error(data.message || 'Error al crear la categoría');
+                const data = await response.json();
+                throw new Error(data.message || 'Error al guardar la categoría');
             }
 
-            setSuccessMessage('¡Categoría creada exitosamente!');
-            setFormData({
-                name: '',
-                description: '',
-                status: 'active'
-            });
-
-            // Esperar 2 segundos antes de llamar a onSuccess
-            setTimeout(() => {
-                if (onSuccess) onSuccess();
-            }, 2000);
-
+            const result = await response.json();
+            const message = isEditMode 
+                ? 'Categoría actualizada exitosamente' 
+                : 'Categoría creada exitosamente';
+            
+            alert(message);
+            navigate('/categories');
         } catch (err) {
-            setErrors({ submit: err.message });
-            console.error('Error creating category:', err);
+            alert(`Error: ${err.message}`);
         } finally {
-            setLoading(false);
+            setSubmitting(false);
         }
     };
 
+    const iconosDisponibles = [
+        '📦', '📁', '📂', '🗂️', '📊', '📈', '📉', '💻', '📱', '🖥️',
+        '🖨️', '🎮', '📷', '🎥', '📺', '🔊', '🎧', '📚', '✏️', '📝',
+        '🔧', '🔨', '⚙️', '🔩', '⚡', '🔋', '💡', '🔦', '🧰', '🛠️',
+        '⚗️', '🧪', '🧫', '🔬', '💊', '🧴', '🧼', '🪒', '🧽', '🧹',
+        '👕', '👖', '👔', '👗', '👞', '👟', '🧦', '🎩', '🧢', '👒',
+        '🥾', '🧣', '🧤', '🥽', '👜', '💼', '🎒', '🧳', '☂️', '🧵',
+        '🍎', '🍌', '🍇', '🍓', '🍊', '🥦', '🥕', '🌽', '🥔', '🍞',
+        '🥩', '🥚', '🥛', '🧀', '🍯', '🍚', '🍜', '🍣', '🍕', '🍔',
+        '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🎱', '🏓', '🏸'
+    ];
+
+    const coloresDisponibles = [
+        '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', 
+        '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
+        '#14b8a6', '#f43f5e', '#0ea5e9', '#a855f7', '#d946ef',
+        '#facc15', '#22c55e', '#eab308', '#ea580c', '#dc2626'
+    ];
+
+    if (loading) {
+        return (
+            <div className="loading-container">
+                <div className="spinner"></div>
+                <p>Cargando categoría...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="category-form-overlay">
-            <div className="category-form-container">
-                <div className="form-header">
-                    <h2>Crear Nueva Categoría</h2>
-                    <button onClick={onCancel} className="close-btn">×</button>
-                </div>
+        <div className="category-form-container">
+            <div className="form-header">
+                <h2>
+                    {isEditMode ? '✏️ Editar Categoría' : '➕ Nueva Categoría'}
+                </h2>
+                <p className="subtitle">
+                    {isEditMode 
+                        ? 'Modifica los datos de la categoría' 
+                        : 'Completa el formulario para crear una nueva categoría'}
+                </p>
+            </div>
 
-                {successMessage && (
-                    <div className="success-message">
-                        ✅ {successMessage}
-                    </div>
-                )}
-
-                {errors.submit && (
-                    <div className="error-message">
-                        ❌ {errors.submit}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="category-form">
+            <form onSubmit={handleSubmit} className="category-form">
+                <div className="form-grid">
                     <div className="form-group">
-                        <label htmlFor="name">
+                        <label htmlFor="nombre">
                             Nombre de la Categoría *
                         </label>
                         <input
                             type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
+                            id="nombre"
+                            name="nombre"
+                            value={formData.nombre}
                             onChange={handleChange}
-                            placeholder="Ej: Electrónicos, Ropa, Alimentos"
-                            className={errors.name ? 'error' : ''}
-                            disabled={loading}
+                            placeholder="Ej: Electrónica, Ropa, Alimentos"
+                            className={errors.nombre ? 'input-error' : ''}
+                            maxLength="100"
                         />
-                        {errors.name && (
-                            <span className="error-text">{errors.name}</span>
+                        {errors.nombre && (
+                            <span className="error-message">{errors.nombre}</span>
                         )}
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="description">
-                            Descripción
-                        </label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            placeholder="Descripción detallada de la categoría (opcional)"
-                            rows="4"
-                            className={errors.description ? 'error' : ''}
-                            disabled={loading}
-                        />
-                        {errors.description && (
-                            <span className="error-text">{errors.description}</span>
-                        )}
-                        <div className="char-counter">
-                            {formData.description.length}/500 caracteres
+                        <div className="char-count">
+                            {formData.nombre.length}/100 caracteres
                         </div>
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="status">
-                            Estado
+                        <label htmlFor="codigo">
+                            Código Único *
                         </label>
-                        <select
-                            id="status"
-                            name="status"
-                            value={formData.status}
+                        <input
+                            type="text"
+                            id="codigo"
+                            name="codigo"
+                            value={formData.codigo}
                             onChange={handleChange}
-                            disabled={loading}
-                        >
-                            <option value="active">Activo</option>
-                            <option value="inactive">Inactivo</option>
-                        </select>
+                            placeholder="Ej: CAT-ELEC-001"
+                            className={errors.codigo ? 'input-error' : ''}
+                            maxLength="20"
+                            style={{ textTransform: 'uppercase' }}
+                        />
+                        {errors.codigo && (
+                            <span className="error-message">{errors.codigo}</span>
+                        )}
+                        <small className="form-help">
+                            Solo mayúsculas, números y guiones
+                        </small>
                     </div>
 
-                    <div className="form-actions">
+                    <div className="form-group full-width">
+                        <label htmlFor="descripcion">
+                            Descripción
+                        </label>
+                        <textarea
+                            id="descripcion"
+                            name="descripcion"
+                            value={formData.descripcion}
+                            onChange={handleChange}
+                            placeholder="Describe brevemente esta categoría..."
+                            rows="4"
+                            className={errors.descripcion ? 'input-error' : ''}
+                            maxLength="500"
+                        />
+                        {errors.descripcion && (
+                            <span className="error-message">{errors.descripcion}</span>
+                        )}
+                        <div className="char-count">
+                            {formData.descripcion.length}/500 caracteres
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="icono">
+                            Icono
+                        </label>
+                        <div className="icon-selector">
+                            <div className="selected-icon">
+                                <span className="icon-preview">{formData.icono}</span>
+                                <input
+                                    type="text"
+                                    id="icono"
+                                    name="icono"
+                                    value={formData.icono}
+                                    onChange={handleChange}
+                                    maxLength="2"
+                                />
+                            </div>
+                            <div className="icon-grid">
+                                {iconosDisponibles.map((icono, index) => (
+                                    <button
+                                        key={index}
+                                        type="button"
+                                        className={`icon-option ${formData.icono === icono ? 'selected' : ''}`}
+                                        onClick={() => setFormData(prev => ({ ...prev, icono }))}
+                                        title={`Icono: ${icono}`}
+                                    >
+                                        {icono}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="color">
+                            Color de Identificación
+                        </label>
+                        <div className="color-selector">
+                            <input
+                                type="color"
+                                id="color"
+                                name="color"
+                                value={formData.color}
+                                onChange={handleChange}
+                                className="color-input"
+                            />
+                            <div className="color-preview" style={{ backgroundColor: formData.color }}></div>
+                            <span className="color-value">{formData.color}</span>
+                        </div>
+                        <div className="color-grid">
+                            {coloresDisponibles.map((color, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    className="color-option"
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => setFormData(prev => ({ ...prev, color }))}
+                                    title={color}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="checkbox-label">
+                            <input
+                                type="checkbox"
+                                name="estado"
+                                checked={formData.estado}
+                                onChange={handleChange}
+                            />
+                            <span>Categoría Activa</span>
+                        </label>
+                        <small className="form-help">
+                            Las categorías inactivas no aparecerán en las listas desplegables
+                        </small>
+                    </div>
+                </div>
+
+                <div className="form-preview">
+                    <h4>Vista Previa:</h4>
+                    <div 
+                        className="preview-card"
+                        style={{ 
+                            borderLeftColor: formData.color,
+                            backgroundColor: `${formData.color}10`
+                        }}
+                    >
+                        <div className="preview-header">
+                            <span className="preview-icon">{formData.icono}</span>
+                            <div>
+                                <h5>{formData.nombre || '[Nombre de la categoría]'}</h5>
+                                <code>{formData.codigo || '[Código]'}</code>
+                            </div>
+                            <span className={`status-badge ${formData.estado ? 'active' : 'inactive'}`}>
+                                {formData.estado ? 'Activa' : 'Inactiva'}
+                            </span>
+                        </div>
+                        <p className="preview-description">
+                            {formData.descripcion || '[Descripción de la categoría]'}
+                        </p>
+                        <div className="preview-stats">
+                            <span>📦 0 productos</span>
+                            <span>💰 $0.00 valor total</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="form-actions">
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? (
+                            <>
+                                <span className="spinner-small"></span>
+                                Guardando...
+                            </>
+                        ) : (
+                            <>
+                                <i className="fas fa-save"></i>
+                                {isEditMode ? 'Actualizar Categoría' : 'Crear Categoría'}
+                            </>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => navigate('/categories')}
+                        disabled={submitting}
+                    >
+                        <i className="fas fa-times"></i>
+                        Cancelar
+                    </button>
+
+                    {isEditMode && (
                         <button
                             type="button"
-                            onClick={onCancel}
-                            className="btn-cancel"
-                            disabled={loading}
+                            className="btn btn-danger"
+                            onClick={() => {
+                                if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+                                    navigate(`/categories/delete/${id}`);
+                                }
+                            }}
+                            disabled={submitting}
                         >
-                            Cancelar
+                            <i className="fas fa-trash"></i>
+                            Eliminar
                         </button>
-                        <button
-                            type="submit"
-                            className="btn-submit"
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <span className="spinner"></span>
-                                    Creando...
-                                </>
-                            ) : (
-                                'Crear Categoría'
-                            )}
-                        </button>
-                    </div>
-                </form>
-
-                <div className="form-help">
-                    <p><strong>Nota:</strong> Los campos marcados con * son obligatorios.</p>
-                    <p>Las categorías ayudan a organizar tus productos de manera eficiente.</p>
+                    )}
                 </div>
-            </div>
+            </form>
         </div>
     );
 };

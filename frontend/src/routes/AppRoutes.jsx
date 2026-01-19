@@ -1,563 +1,320 @@
-import React, { Suspense, lazy, useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import PrivateRoute from './PrivateRoute';
+import PublicRoute from './PublicRoute';
+import { AdminRouteWithAuth } from './AdminRoute';
+import Sidebar from '../components/layout/Sidebar';
+import Header from '../components/layout/Header';
+import LoadingScreen from '../components/common/LoadingScreen';
+import SystemAlert from '../components/common/SystemAlert';
+
+// Importar páginas
 import {
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-  useNavigate,
-  Outlet
-} from 'react-router-dom';
-import PropTypes from "prop-types";
+  DashboardPage,
+  InventoryPage,
+  AddItemPage,
+  EditItemPage,
+  ReportsPage,
+  CategoriesPage,
+  SuppliersPage,
+  SettingsPage,
+  LoginPage,
+  RegisterPage,
+  ProfilePage,
+  HelpPage,
+  NotFoundPage,
+  PrintPage
+} from '../pages';
 
-// ✅ Importar hooks y componentes necesarios
-// NOTA: Estos importes deben ajustarse a tu estructura real de archivos
-const useAuth = () => ({
-  isAuthenticated: false,
-  isLoading: false,
-  user: null,
-  hasPermission: () => Promise.resolve(false),
-  hasRole: () => false
-});
+import './routes.css';
 
-const Layout = ({ children }) => <div>{children}</div>;
-const Loader = ({ message, fullScreen, showProgress }) => (
-  <div className="loader-container">
-    <div className="loader-spinner"></div>
-    {message && <p>{message}</p>}
-  </div>
-);
-const RouteErrorBoundary = ({ children }) => children;
-const AccessDenied = ({ missingRoles = [], missingPermissions = [] }) => (
-  <div className="access-denied">
-    <h1>Acceso Denegado</h1>
-  </div>
-);
-
-/**
- * ✅ MEJORA: Función para lazy loading con preloading
- */
-const lazyWithPreload = (importFunction) => {
-  const Component = lazy(importFunction);
-  Component.preload = importFunction;
-  return Component;
-};
-
-/**
- * ✅ MEJORA: Preloading estratégico de rutas comunes
- */
-const preloadComponent = (component) => {
-  if (component?.preload) {
-    component.preload().catch(error => {
-      console.warn('Error al precargar componente:', error);
-    });
-  }
-};
-
-// ✅ MEJORA: Componentes de autenticación
-const Login = lazyWithPreload(() => import('../pages/Login'));
-const Register = lazyWithPreload(() => import('../pages/Register'));
-
-// ✅ MEJORA: Componentes principales
-const Dashboard = lazyWithPreload(() => import('../pages/Dashboard'));
-const Products = lazyWithPreload(() => import('../pages/Products'));
-const ProductDetails = lazyWithPreload(() => import('../pages/ProductDetails'));
-const NewProduct = lazyWithPreload(() => import('../pages/NewProduct'));
-const EditProduct = lazyWithPreload(() => import('../pages/EditProduct'));
-const Inventory = lazyWithPreload(() => import('../pages/Inventory'));
-const Categories = lazyWithPreload(() => import('../pages/Categories'));
-const QRManagement = lazyWithPreload(() => import('../pages/QRManagement'));
-const QRScanner = lazyWithPreload(() => import('../pages/QRScanner'));
-const Reports = lazyWithPreload(() => import('../pages/Reports'));
-const Settings = lazyWithPreload(() => import('../pages/Settings'));
-const Profile = lazyWithPreload(() => import('../pages/Profile'));
-const Users = lazyWithPreload(() => import('../pages/Users'));
-const NotFound = lazyWithPreload(() => import('../pages/NotFound'));
-
-/**
- * ✅ MEJORA: Componente PrivateRoute mejorado
- */
-const PrivateRoute = ({
-  children,
-  requiredRoles = [],
-  requiredPermissions = [],
-  redirectTo = '/login'
-}) => {
-  const {
-    isAuthenticated,
-    isLoading,
-    user,
-    hasPermission,
-    hasRole
-  } = useAuth();
-
+// Componente para manejar las transiciones de ruta
+const RouteTransition = ({ children }) => {
   const location = useLocation();
-  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
-  const [accessGranted, setAccessGranted] = useState(false);
+  const [displayLocation, setDisplayLocation] = useState(location);
+  const [transitionStage, setTransitionStage] = useState('fadeIn');
 
   useEffect(() => {
-    const checkAccess = async () => {
-      // Si no está autenticado, denegar acceso
-      if (!isAuthenticated) {
-        setAccessGranted(false);
-        setIsCheckingAccess(false);
-        return;
-      }
-
-      try {
-        // ✅ MEJORA: Verificación de roles
-        let hasRequiredRole = true;
-        if (requiredRoles.length > 0 && user?.roles) {
-          hasRequiredRole = requiredRoles.some(role =>
-            Array.isArray(user.roles) ? user.roles.includes(role) : hasRole(role)
-          );
-        }
-
-        // ✅ MEJORA: Verificación de permisos
-        let hasRequiredPermissions = true;
-        if (requiredPermissions.length > 0) {
-          const permissionChecks = await Promise.all(
-            requiredPermissions.map(permission => hasPermission(permission))
-          );
-          hasRequiredPermissions = permissionChecks.every(result => result);
-        }
-
-        setAccessGranted(hasRequiredRole && hasRequiredPermissions);
-      } catch (error) {
-        console.error('Error verificando acceso:', error);
-        setAccessGranted(false);
-      } finally {
-        setIsCheckingAccess(false);
-      }
-    };
-
-    if (!isLoading) {
-      checkAccess();
+    if (location !== displayLocation) {
+      setTransitionStage('fadeOut');
+      const timer = setTimeout(() => {
+        setDisplayLocation(location);
+        setTransitionStage('fadeIn');
+      }, 300);
+      
+      return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, isLoading, user, requiredRoles, requiredPermissions, hasPermission, hasRole]);
+  }, [location, displayLocation]);
 
-  // ✅ MEJORA: Mostrar loader mientras se verifica
-  if (isLoading || isCheckingAccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader message="Verificando acceso..." />
-      </div>
-    );
-  }
+  return (
+    <div className={`route-transition ${transitionStage}`}>
+      {children}
+    </div>
+  );
+};
 
-  // ✅ MEJORA: Redirección si no está autenticado
-  if (!isAuthenticated) {
-    const returnUrl = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`${redirectTo}?returnUrl=${returnUrl}`} state={{ from: location }} replace />;
-  }
+// Componente de layout principal
+const MainLayout = ({ children }) => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [systemAlert, setSystemAlert] = useState(null);
 
-  // ✅ MEJORA: Mostrar AccessDenied si no tiene permisos
-  if (!accessGranted) {
-    return (
-      <AccessDenied
-        missingRoles={requiredRoles}
-        missingPermissions={requiredPermissions}
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+
+  // Datos de ejemplo para notificaciones
+  useEffect(() => {
+    const mockNotifications = [
+      {
+        id: 1,
+        type: 'warning',
+        message: 'El producto "Teclado Mecánico" está agotado',
+        time: 'Hace 2 horas',
+        read: false
+      },
+      {
+        id: 2,
+        type: 'info',
+        message: 'Nueva orden recibida #ORD-1234',
+        time: 'Hace 4 horas',
+        read: true
+      },
+      {
+        id: 3,
+        type: 'success',
+        message: 'Reporte semanal generado exitosamente',
+        time: 'Ayer',
+        read: true
+      },
+      {
+        id: 4,
+        type: 'danger',
+        message: 'Stock crítico en "Monitor 24" Samsung"',
+        time: 'Ayer',
+        read: false
+      }
+    ];
+
+    setNotifications(mockNotifications);
+  }, []);
+
+  const toggleSidebar = () => {
+    if (window.innerWidth <= 1024) {
+      setMobileSidebarOpen(!mobileSidebarOpen);
+    } else {
+      setSidebarCollapsed(!sidebarCollapsed);
+    }
+  };
+
+  const closeMobileSidebar = () => {
+    setMobileSidebarOpen(false);
+  };
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    setShowUserMenu(false);
+  };
+
+  const toggleUserMenu = () => {
+    setShowUserMenu(!showUserMenu);
+    setShowNotifications(false);
+  };
+
+  const markNotificationAsRead = (id) => {
+    setNotifications(notifications.map(notification =>
+      notification.id === id ? { ...notification, read: true } : notification
+    ));
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    setShowNotifications(false);
+  };
+
+  const handleLogout = () => {
+    // Mostrar confirmación
+    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      window.location.href = '/login';
+    }
+  };
+
+  const unreadNotifications = notifications.filter(n => !n.read).length;
+
+  return (
+    <div className="app-layout">
+      {/* Overlay para mobile */}
+      {mobileSidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={closeMobileSidebar}
+        />
+      )}
+
+      {/* Sidebar */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        mobileOpen={mobileSidebarOpen}
+        onToggle={toggleSidebar}
+        userRole={userData.role}
       />
-    );
-  }
 
-  return children;
-};
+      {/* Header */}
+      <Header
+        sidebarCollapsed={sidebarCollapsed}
+        onToggleSidebar={toggleSidebar}
+        userData={userData}
+        notifications={notifications}
+        unreadCount={unreadNotifications}
+        showNotifications={showNotifications}
+        showUserMenu={showUserMenu}
+        onToggleNotifications={toggleNotifications}
+        onToggleUserMenu={toggleUserMenu}
+        onMarkAsRead={markNotificationAsRead}
+        onClearNotifications={clearAllNotifications}
+        onLogout={handleLogout}
+      />
 
-PrivateRoute.propTypes = {
-  children: PropTypes.node.isRequired,
-  requiredRoles: PropTypes.array,
-  requiredPermissions: PropTypes.array,
-  redirectTo: PropTypes.string
-};
+      {/* Contenido principal */}
+      <main className="main-content">
+        <RouteTransition>
+          {children}
+        </RouteTransition>
+      </main>
 
-/**
- * ✅ MEJORA: Componente PublicRoute mejorado
- */
-const PublicRoute = ({
-  children,
-  restricted = false,
-  redirectTo = '/'
-}) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && restricted) {
-      const from = location.state?.from?.pathname || redirectTo;
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, isLoading, restricted, navigate, location, redirectTo]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader message="Cargando..." />
-      </div>
-    );
-  }
-
-  if (isAuthenticated && restricted) {
-    // Redirección manejada por useEffect
-    return null;
-  }
-
-  return children;
-};
-
-PublicRoute.propTypes = {
-  children: PropTypes.node.isRequired,
-  restricted: PropTypes.bool,
-  redirectTo: PropTypes.string
-};
-
-/**
- * ✅ MEJORA: Layout wrapper con rutas anidadas
- */
-const LayoutWrapper = () => {
-  return (
-    <Layout>
-      <Outlet />
-    </Layout>
+      {/* Alertas del sistema */}
+      <SystemAlert
+        alert={systemAlert}
+        onClose={() => setSystemAlert(null)}
+      />
+    </div>
   );
 };
 
-/**
- * ✅ MEJORA: Componente AppRoutes optimizado
- */
+// Componente de ruta con layout
+const RouteWithLayout = ({ element, layout = true }) => {
+  if (!layout) {
+    return element;
+  }
+
+  return <MainLayout>{element}</MainLayout>;
+};
+
+// Componente principal de rutas
 const AppRoutes = () => {
-  const location = useLocation();
+  const [loading, setLoading] = useState(true);
 
-  // ✅ MEJORA: Preloading estratégico basado en ruta actual
   useEffect(() => {
-    const preloadBasedOnRoute = () => {
-      const path = location.pathname;
+    // Simular carga inicial
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
 
-      // Preload de componentes basado en patrones de acceso
-      if (path === '/') {
-        preloadComponent(Dashboard);
-      } else if (path.startsWith('/products')) {
-        preloadComponent(Products);
-        preloadComponent(ProductDetails);
-      } else if (path.startsWith('/inventory')) {
-        preloadComponent(Inventory);
-      } else if (path.startsWith('/qr')) {
-        preloadComponent(QRManagement);
-        preloadComponent(QRScanner);
-      } else if (path.startsWith('/reports')) {
-        preloadComponent(Reports);
-      } else if (path.startsWith('/settings')) {
-        preloadComponent(Settings);
-        preloadComponent(Profile);
-      } else if (path.startsWith('/admin')) {
-        preloadComponent(Users);
-      }
-    };
+    return () => clearTimeout(timer);
+  }, []);
 
-    // Delay pequeño para no bloquear render inicial
-    const timeoutId = setTimeout(preloadBasedOnRoute, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [location.pathname]);
+  if (loading) {
+    return <LoadingScreen message="Cargando sistema de inventario..." />;
+  }
 
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader
-            message="Cargando aplicación..."
-            showProgress={true}
-          />
-        </div>
-      }
-    >
+    <Router>
       <Routes>
-        {/* ✅ MEJORA: Rutas públicas con PublicRoute */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute restricted={true}>
-              <RouteErrorBoundary>
-                <Login />
-              </RouteErrorBoundary>
-            </PublicRoute>
-          }
-        />
+        {/* Rutas públicas sin layout */}
+        <Route path="/login" element={
+          <PublicRoute restricted={true}>
+            <RouteWithLayout element={<LoginPage />} layout={false} />
+          </PublicRoute>
+        } />
+        
+        <Route path="/register" element={
+          <PublicRoute restricted={true}>
+            <RouteWithLayout element={<RegisterPage />} layout={false} />
+          </PublicRoute>
+        } />
 
-        <Route
-          path="/register"
-          element={
-            <PublicRoute restricted={true}>
-              <RouteErrorBoundary>
-                <Register />
-              </RouteErrorBoundary>
-            </PublicRoute>
-          }
-        />
+        {/* Rutas de impresión (sin layout) */}
+        <Route path="/print" element={
+          <PrivateRoute>
+            <PrintPage />
+          </PrivateRoute>
+        } />
 
-        {/* ✅ MEJORA: Ruta de acceso denegado */}
-        <Route
-          path="/access-denied"
-          element={
-            <PublicRoute>
-              <RouteErrorBoundary>
-                <AccessDenied />
-              </RouteErrorBoundary>
-            </PublicRoute>
-          }
-        />
+        {/* Rutas con layout */}
+        <Route path="/" element={
+          <PrivateRoute>
+            <RouteWithLayout element={<DashboardPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/dashboard" element={
+          <PrivateRoute>
+            <RouteWithLayout element={<DashboardPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/inventory" element={
+          <PrivateRoute>
+            <RouteWithLayout element={<InventoryPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/inventory/add" element={
+          <PrivateRoute requiredRoles={['admin', 'gestor']}>
+            <RouteWithLayout element={<AddItemPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/inventory/edit/:id" element={
+          <PrivateRoute requiredRoles={['admin', 'gestor']}>
+            <RouteWithLayout element={<EditItemPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/reports" element={
+          <PrivateRoute>
+            <RouteWithLayout element={<ReportsPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/categories" element={
+          <PrivateRoute requiredRoles={['admin', 'gestor']}>
+            <RouteWithLayout element={<CategoriesPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/suppliers" element={
+          <PrivateRoute requiredRoles={['admin', 'gestor']}>
+            <RouteWithLayout element={<SuppliersPage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/settings" element={
+          <AdminRouteWithAuth>
+            <RouteWithLayout element={<SettingsPage />} />
+          </AdminRouteWithAuth>
+        } />
+        
+        <Route path="/profile" element={
+          <PrivateRoute>
+            <RouteWithLayout element={<ProfilePage />} />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/help" element={
+          <PrivateRoute>
+            <RouteWithLayout element={<HelpPage />} />
+          </PrivateRoute>
+        } />
 
-        {/* ✅ MEJORA: Rutas protegidas con Layout */}
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <LayoutWrapper />
-            </PrivateRoute>
-          }
-        >
-          {/* Dashboard - Accesible para todos los usuarios autenticados */}
-          <Route
-            index
-            element={
-              <RouteErrorBoundary>
-                <Dashboard />
-              </RouteErrorBoundary>
-            }
-          />
-
-          {/* Productos - Permisos específicos */}
-          <Route
-            path="products"
-            element={
-              <PrivateRoute requiredPermissions={['products.view']}>
-                <RouteErrorBoundary>
-                  <Products />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          <Route
-            path="products/new"
-            element={
-              <PrivateRoute requiredPermissions={['products.create']}>
-                <RouteErrorBoundary>
-                  <NewProduct />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          <Route
-            path="products/:id"
-            element={
-              <PrivateRoute requiredPermissions={['products.view']}>
-                <RouteErrorBoundary>
-                  <ProductDetails />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          <Route
-            path="products/:id/edit"
-            element={
-              <PrivateRoute requiredPermissions={['products.edit']}>
-                <RouteErrorBoundary>
-                  <EditProduct />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          {/* Inventario - Permisos de gestión */}
-          <Route
-            path="inventory"
-            element={
-              <PrivateRoute requiredPermissions={['inventory.manage']}>
-                <RouteErrorBoundary>
-                  <Inventory />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          {/* Categorías - Permisos de administración */}
-          <Route
-            path="categories"
-            element={
-              <PrivateRoute requiredPermissions={['categories.manage']}>
-                <RouteErrorBoundary>
-                  <Categories />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          {/* Gestión QR - Permisos específicos */}
-          <Route
-            path="qr"
-            element={
-              <PrivateRoute requiredPermissions={['qr.manage']}>
-                <RouteErrorBoundary>
-                  <QRManagement />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          <Route
-            path="qr/scanner"
-            element={
-              <PrivateRoute requiredPermissions={['qr.scan']}>
-                <RouteErrorBoundary>
-                  <QRScanner />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          {/* Reportes - Permisos de visualización */}
-          <Route
-            path="reports"
-            element={
-              <PrivateRoute requiredPermissions={['reports.view']}>
-                <RouteErrorBoundary>
-                  <Reports />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          {/* Perfil - Acceso personal */}
-          <Route
-            path="profile"
-            element={
-              <PrivateRoute>
-                <RouteErrorBoundary>
-                  <Profile />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          {/* Configuración - Solo administradores */}
-          <Route
-            path="settings"
-            element={
-              <PrivateRoute requiredRoles={['admin']}>
-                <RouteErrorBoundary>
-                  <Settings />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-
-          {/* Gestión de usuarios - Solo administradores */}
-          <Route
-            path="users"
-            element={
-              <PrivateRoute requiredRoles={['admin']}>
-                <RouteErrorBoundary>
-                  <Users />
-                </RouteErrorBoundary>
-              </PrivateRoute>
-            }
-          />
-        </Route>
-
-        {/* ✅ MEJORA: Ruta 404 mejorada */}
-        <Route
-          path="*"
-          element={
-            <RouteErrorBoundary>
-              <NotFound />
-            </RouteErrorBoundary>
-          }
-        />
+        {/* Ruta 404 */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </Suspense>
+    </Router>
   );
 };
 
-// ✅ MEJORA: HOCs para protección de rutas
-
-/**
- * HOC para protección de rutas con roles
- */
-export const withRole = (Component, requiredRoles = []) => {
-  const WithRoleWrapper = (props) => {
-    const { hasRole, isLoading } = useAuth();
-
-    if (isLoading) {
-      return <Loader fullScreen />;
-    }
-
-    const hasRequiredRole = requiredRoles.length === 0 ||
-      requiredRoles.some(role => hasRole(role));
-
-    if (!hasRequiredRole) {
-      return <Navigate to="/access-denied" replace />;
-    }
-
-    return <Component {...props} />;
-  };
-
-  WithRoleWrapper.displayName = `withRole(${Component.displayName || Component.name})`;
-  return WithRoleWrapper;
-};
-
-/**
- * HOC para protección de rutas con permisos
- */
-export const withPermission = (Component, requiredPermissions = []) => {
-  const WithPermissionWrapper = (props) => {
-    const { hasPermission, isLoading } = useAuth();
-    const [checkingPermissions, setCheckingPermissions] = useState(true);
-    const [hasRequiredPermissions, setHasRequiredPermissions] = useState(false);
-
-    useEffect(() => {
-      const checkPermissions = async () => {
-        if (requiredPermissions.length === 0) {
-          setHasRequiredPermissions(true);
-          setCheckingPermissions(false);
-          return;
-        }
-
-        const results = await Promise.all(
-          requiredPermissions.map((permission) => hasPermission(permission))
-        );
-
-        setHasRequiredPermissions(results.every((result) => result));
-        setCheckingPermissions(false);
-      };
-
-      checkPermissions();
-    }, [hasPermission, requiredPermissions]);
-
-    if (isLoading || checkingPermissions) {
-      return <Loader fullScreen />;
-    }
-
-    if (!hasRequiredPermissions) {
-      return <Navigate to="/access-denied" replace />;
-    }
-
-    return <Component {...props} />;
-  };
-
-  WithPermissionWrapper.displayName = `withPermission(${Component.displayName || Component.name
-    })`;
-
-  WithPermissionWrapper.propTypes = {
-    props: PropTypes.object,
-  };
-
-  return WithPermissionWrapper;
-};
-
-// ✅ MEJORA: Exportación de componentes útiles
-export { PrivateRoute, PublicRoute };
-
-export default React.memo(AppRoutes);
+export default AppRoutes;

@@ -1,15 +1,14 @@
-/**
- * Archivo de exportación principal para componentes de Layout
- * Permite importaciones limpias desde otros módulos
- */
-
-import Header from './Header';
-import Sidebar from './Sidebar';
-import Footer from './Footer';
-import MainLayout from './MainLayout';
-
-// Exportación individual
-export { Header, Sidebar, Footer, MainLayout };
-
-// Exportación por defecto (MainLayout como principal)
-export default MainLayout;
+export { default as AppLayout } from './AppLayout';
+export { default as Header } from './Header';
+export { default as Sidebar } from './Sidebar';
+export { default as Footer } from './Footer';
+export { default as Breadcrumb } from './Breadcrumb';
+export { default as MainContent } from './MainContent';
+export { default as Container } from './Container';
+export { default as PageHeader } from './PageHeader';
+export { default as GridLayout } from './GridLayout';
+export { default as CardLayout } from './CardLayout';
+export { default as ModalLayout } from './ModalLayout';
+export { default as Drawer } from './Drawer';
+export { default as Alert } from './Alert';
+export { default as LoadingOverlay } from './LoadingOverlay';

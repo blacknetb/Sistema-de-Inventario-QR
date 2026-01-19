@@ -1,596 +1,509 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import QRCode from 'qrcode';
 import QRCodeDisplay from './QRCodeDisplay';
-import '../../assets/styles/qr.css';
+import QRItemCard from './QRItemCard';
+import QRPrintSheet from './QRPrintSheet';
+import { generateQRData, validateQRData, downloadQRCode } from './QRUtils';
+import './qr.css';
 
-/**
- * Componente QRGenerator - Generador de códigos QR para productos
- * Permite crear códigos QR personalizados con información de productos
- */
-const QRGenerator = ({ product, onClose, onSave }) => {
-    const [qrData, setQrData] = useState({
-        productId: '',
-        productName: '',
-        sku: '',
-        price: '',
-        stock: '',
-        category: '',
-        url: '',
-        customData: ''
-    });
-    
-    const [qrSize, setQrSize] = useState(256);
-    const [qrColor, setQrColor] = useState('#000000');
-    const [bgColor, setBgColor] = useState('#FFFFFF');
-    const [includeLogo, setIncludeLogo] = useState(false);
-    const [logoSize, setLogoSize] = useState(50);
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+const QRGenerator = ({ inventoryItems = [] }) => {
+  const [formData, setFormData] = useState({
+    itemId: '',
+    itemName: '',
+    category: '',
+    quantity: 1,
+    price: 0,
+    location: 'Almacén Principal'
+  });
+  
+  const [generatedQR, setGeneratedQR] = useState(null);
+  const [qrHistory, setQrHistory] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showPrintSheet, setShowPrintSheet] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [batchMode, setBatchMode] = useState(false);
+  
+  const qrCanvasRef = useRef(null);
 
-    const canvasRef = useRef(null);
-    const fileInputRef = useRef(null);
+  // Cargar historial desde localStorage
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('qrHistory');
+    if (savedHistory) {
+      try {
+        setQrHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error('Error loading QR history:', e);
+      }
+    }
+  }, []);
 
-    // Plantillas predefinidas
-    const templates = [
-        { id: 'basic', name: 'Básico', color: '#000000', bgColor: '#FFFFFF' },
-        { id: 'inventory', name: 'Inventario', color: '#2C3E50', bgColor: '#ECF0F1' },
-        { id: 'warning', name: 'Alerta', color: '#E74C3C', bgColor: '#FDEDEC' },
-        { id: 'premium', name: 'Premium', color: '#9B59B6', bgColor: '#F4ECF7' },
-        { id: 'custom', name: 'Personalizado', color: qrColor, bgColor: bgColor }
-    ];
+  // Guardar historial en localStorage
+  useEffect(() => {
+    if (qrHistory.length > 0) {
+      localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
+    }
+  }, [qrHistory]);
 
-    useEffect(() => {
-        if (product) {
-            const productUrl = `${window.location.origin}/product/${product.id}`;
-            setQrData({
-                productId: product.id || '',
-                productName: product.name || '',
-                sku: product.sku || '',
-                price: product.price || '',
-                stock: product.stock || '',
-                category: product.category || '',
-                url: productUrl,
-                customData: JSON.stringify({
-                    type: 'product',
-                    id: product.id,
-                    sku: product.sku,
-                    name: product.name
-                }, null, 2)
-            });
-        } else {
-            // Datos por defecto
-            setQrData(prev => ({
-                ...prev,
-                customData: JSON.stringify({
-                    type: 'product',
-                    id: 'new',
-                    sku: 'SKU-000',
-                    name: 'Nuevo Producto'
-                }, null, 2)
-            }));
-        }
-    }, [product]);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'quantity' || name === 'price' ? parseFloat(value) || 0 : value
+    }));
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setQrData(prev => ({ ...prev, [name]: value }));
-        
-        // Si cambia el nombre o SKU, actualizar la URL
-        if (name === 'productName' || name === 'sku') {
-            const productUrl = `${window.location.origin}/product/${qrData.productId || 'new'}`;
-            setQrData(prev => ({ ...prev, url: productUrl }));
-        }
-    };
-
-    const handleTemplateSelect = (template) => {
-        if (template.id !== 'custom') {
-            setQrColor(template.color);
-            setBgColor(template.bgColor);
-        }
-    };
-
-    const generateQRCode = () => {
-        setIsGenerating(true);
-        setError('');
-        setSuccess('');
-
-        try {
-            // Validar datos
-            if (!qrData.productName && !qrData.sku && !qrData.customData) {
-                throw new Error('Debe proporcionar al menos un dato para el código QR');
-            }
-
-            // Generar datos para el QR
-            const qrContent = {
-                product: {
-                    id: qrData.productId || 'new',
-                    name: qrData.productName,
-                    sku: qrData.sku,
-                    price: qrData.price,
-                    stock: qrData.stock,
-                    category: qrData.category
-                },
-                url: qrData.url,
-                timestamp: new Date().toISOString(),
-                system: 'Inventory System'
-            };
-
-            const qrString = JSON.stringify(qrContent);
-            
-            // En una aplicación real, aquí se usaría una librería QR
-            // Por ahora, mostramos un mensaje de éxito
-            setSuccess(`Código QR generado exitosamente para: ${qrData.productName || qrData.sku}`);
-            
-            // Simular generación de QR
-            setTimeout(() => {
-                setIsGenerating(false);
-            }, 1000);
-
-        } catch (err) {
-            setError(err.message);
-            setIsGenerating(false);
-        }
-    };
-
-    const downloadQRCode = () => {
-        const canvas = canvasRef.current;
-        if (!canvas) {
-            setError('No hay código QR para descargar');
-            return;
-        }
-
-        try {
-            const link = document.createElement('a');
-            link.download = `qr-${qrData.sku || 'product'}-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            setSuccess('Código QR descargado exitosamente');
-        } catch (err) {
-            setError('Error al descargar el código QR');
-        }
-    };
-
-    const printQRCode = () => {
-        window.print();
-    };
-
-    const handleLogoUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (!file.type.startsWith('image/')) {
-            setError('Por favor, selecciona un archivo de imagen válido');
-            return;
-        }
-
-        if (file.size > 2 * 1024 * 1024) { // 2MB
-            setError('La imagen no debe exceder 2MB');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            setIncludeLogo(true);
-            // Aquí se procesaría la imagen para el logo
-            console.log('Logo cargado:', event.target.result);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleSaveToDatabase = () => {
-        if (onSave) {
-            const qrDataToSave = {
-                ...qrData,
-                qrSize,
-                qrColor,
-                bgColor,
-                includeLogo,
-                logoSize,
-                generatedAt: new Date().toISOString()
-            };
-            onSave(qrDataToSave);
-        }
-    };
-
-    const resetForm = () => {
-        setQrData({
-            productId: '',
-            productName: '',
-            sku: '',
-            price: '',
-            stock: '',
-            category: '',
-            url: '',
-            customData: ''
+  const handleItemSelect = (e) => {
+    const selectedId = e.target.value;
+    if (selectedId) {
+      const selectedItem = inventoryItems.find(item => item.id == selectedId);
+      if (selectedItem) {
+        setFormData({
+          itemId: selectedItem.id,
+          itemName: selectedItem.name,
+          category: selectedItem.category,
+          quantity: selectedItem.quantity,
+          price: selectedItem.price,
+          location: 'Almacén Principal'
         });
-        setQrSize(256);
-        setQrColor('#000000');
-        setBgColor('#FFFFFF');
-        setIncludeLogo(false);
-        setLogoSize(50);
-        setError('');
-        setSuccess('');
-    };
+      }
+    } else {
+      setFormData({
+        itemId: '',
+        itemName: '',
+        category: '',
+        quantity: 1,
+        price: 0,
+        location: 'Almacén Principal'
+      });
+    }
+  };
 
-    return (
-        <div className="qr-generator-container">
-            <div className="qr-generator-header">
-                <h2 className="qr-title">
-                    <i className="qr-icon">🔳</i>
-                    Generador de Códigos QR
-                </h2>
-                <p className="qr-subtitle">
-                    Crea códigos QR personalizados para tus productos de inventario
-                </p>
-            </div>
+  const generateQRCode = async () => {
+    if (!formData.itemName.trim()) {
+      alert('Por favor ingresa un nombre para el producto');
+      return;
+    }
 
-            <div className="qr-generator-content">
-                <div className="qr-left-panel">
-                    <div className="qr-preview-section">
-                        <h3 className="section-title">Vista Previa</h3>
-                        <QRCodeDisplay
-                            data={qrData}
-                            size={qrSize}
-                            color={qrColor}
-                            bgColor={bgColor}
-                            includeLogo={includeLogo}
-                            logoSize={logoSize}
-                        />
-                        <div className="qr-preview-actions">
-                            <button 
-                                className="btn btn-secondary"
-                                onClick={downloadQRCode}
-                                disabled={isGenerating}
-                            >
-                                <i className="btn-icon">⬇️</i>
-                                Descargar PNG
-                            </button>
-                            <button 
-                                className="btn btn-secondary"
-                                onClick={printQRCode}
-                                disabled={isGenerating}
-                            >
-                                <i className="btn-icon">🖨️</i>
-                                Imprimir
-                            </button>
-                        </div>
-                    </div>
+    setIsGenerating(true);
+    
+    try {
+      const qrData = generateQRData(formData);
+      const validation = validateQRData(qrData);
+      
+      if (!validation.isValid) {
+        alert(`Error: ${validation.error}`);
+        return;
+      }
 
-                    <div className="qr-templates-section">
-                        <h3 className="section-title">Plantillas</h3>
-                        <div className="template-grid">
-                            {templates.map(template => (
-                                <button
-                                    key={template.id}
-                                    className={`template-btn ${template.id === 'custom' ? 'custom' : ''}`}
-                                    onClick={() => handleTemplateSelect(template)}
-                                    style={{
-                                        backgroundColor: template.bgColor,
-                                        borderColor: template.color
-                                    }}
-                                    title={template.name}
-                                >
-                                    <div 
-                                        className="template-preview"
-                                        style={{ backgroundColor: template.color }}
-                                    ></div>
-                                    <span className="template-name">{template.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+      // Generar código QR
+      const qrCodeDataUrl = await QRCode.toDataURL(JSON.stringify(qrData), {
+        width: 400,
+        margin: 2,
+        color: {
+          dark: '#2c3e50',
+          light: '#ffffff'
+        }
+      });
+
+      const newQR = {
+        id: Date.now(),
+        data: qrData,
+        qrCode: qrCodeDataUrl,
+        timestamp: new Date().toISOString(),
+        type: 'single'
+      };
+
+      setGeneratedQR(newQR);
+      setQrHistory(prev => [newQR, ...prev.slice(0, 49)]); // Mantener últimos 50
+
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      alert('Error al generar el código QR');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleBatchSelect = (itemId) => {
+    setSelectedItems(prev => {
+      if (prev.includes(itemId)) {
+        return prev.filter(id => id !== itemId);
+      } else {
+        return [...prev, itemId];
+      }
+    });
+  };
+
+  const generateBatchQRCodes = async () => {
+    if (selectedItems.length === 0) {
+      alert('Por favor selecciona al menos un producto');
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      const batchQRs = [];
+      
+      for (const itemId of selectedItems) {
+        const item = inventoryItems.find(item => item.id == itemId);
+        if (item) {
+          const qrData = generateQRData({
+            itemId: item.id,
+            itemName: item.name,
+            category: item.category,
+            quantity: item.quantity,
+            price: item.price,
+            location: 'Almacén Principal'
+          });
+
+          const qrCodeDataUrl = await QRCode.toDataURL(JSON.stringify(qrData), {
+            width: 300,
+            margin: 2,
+            color: {
+              dark: '#2c3e50',
+              light: '#ffffff'
+            }
+          });
+
+          batchQRs.push({
+            id: `${item.id}-${Date.now()}`,
+            data: qrData,
+            qrCode: qrCodeDataUrl,
+            timestamp: new Date().toISOString(),
+            type: 'batch'
+          });
+        }
+      }
+
+      setQrHistory(prev => [...batchQRs, ...prev]);
+      setShowPrintSheet(true);
+      
+    } catch (error) {
+      console.error('Error generating batch QR codes:', error);
+      alert('Error al generar códigos QR en lote');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (generatedQR) {
+      downloadQRCode(generatedQR.qrCode, `${formData.itemName}-qr.png`);
+    }
+  };
+
+  const handlePrint = () => {
+    setShowPrintSheet(true);
+  };
+
+  const clearQR = () => {
+    setGeneratedQR(null);
+  };
+
+  const clearHistory = () => {
+    if (window.confirm('¿Estás seguro de querer borrar todo el historial de QR?')) {
+      setQrHistory([]);
+      localStorage.removeItem('qrHistory');
+    }
+  };
+
+  return (
+    <div className="qr-generator-container">
+      <div className="qr-generator-header">
+        <h1>Generador de Códigos QR</h1>
+        <p>Genera códigos QR para productos de inventario</p>
+      </div>
+
+      <div className="qr-generator-content">
+        <div className="qr-controls-section">
+          <div className="mode-toggle">
+            <button 
+              className={`mode-btn ${!batchMode ? 'active' : ''}`}
+              onClick={() => setBatchMode(false)}
+            >
+              Generación Individual
+            </button>
+            <button 
+              className={`mode-btn ${batchMode ? 'active' : ''}`}
+              onClick={() => setBatchMode(true)}
+            >
+              Generación por Lote
+            </button>
+          </div>
+
+          {!batchMode ? (
+            <div className="qr-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Seleccionar Producto Existente</label>
+                  <select 
+                    className="form-control"
+                    onChange={handleItemSelect}
+                    value={formData.itemId}
+                  >
+                    <option value="">-- Seleccionar producto --</option>
+                    {inventoryItems.map(item => (
+                      <option key={item.id} value={item.id}>
+                        {item.name} (ID: {item.id})
+                      </option>
+                    ))}
+                  </select>
                 </div>
+              </div>
 
-                <div className="qr-right-panel">
-                    <div className="qr-form-section">
-                        <h3 className="section-title">Configuración del QR</h3>
-                        
-                        {error && (
-                            <div className="alert alert-error">
-                                <i className="alert-icon">⚠️</i>
-                                <span>{error}</span>
-                            </div>
-                        )}
-
-                        {success && (
-                            <div className="alert alert-success">
-                                <i className="alert-icon">✅</i>
-                                <span>{success}</span>
-                            </div>
-                        )}
-
-                        <form className="qr-form">
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label className="form-label">Nombre del Producto</label>
-                                    <input
-                                        type="text"
-                                        name="productName"
-                                        value={qrData.productName}
-                                        onChange={handleInputChange}
-                                        className="form-input"
-                                        placeholder="Ej: Laptop Dell XPS 13"
-                                        maxLength="100"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">SKU</label>
-                                    <input
-                                        type="text"
-                                        name="sku"
-                                        value={qrData.sku}
-                                        onChange={handleInputChange}
-                                        className="form-input"
-                                        placeholder="Ej: LP-DELL-XPS13"
-                                        maxLength="50"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">Precio ($)</label>
-                                    <input
-                                        type="number"
-                                        name="price"
-                                        value={qrData.price}
-                                        onChange={handleInputChange}
-                                        className="form-input"
-                                        placeholder="0.00"
-                                        step="0.01"
-                                        min="0"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">Stock</label>
-                                    <input
-                                        type="number"
-                                        name="stock"
-                                        value={qrData.stock}
-                                        onChange={handleInputChange}
-                                        className="form-input"
-                                        placeholder="0"
-                                        min="0"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">Categoría</label>
-                                    <input
-                                        type="text"
-                                        name="category"
-                                        value={qrData.category}
-                                        onChange={handleInputChange}
-                                        className="form-input"
-                                        placeholder="Ej: Electrónicos"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">URL Personalizada</label>
-                                    <input
-                                        type="url"
-                                        name="url"
-                                        value={qrData.url}
-                                        onChange={handleInputChange}
-                                        className="form-input"
-                                        placeholder="https://ejemplo.com/producto"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label className="form-label">Datos Personalizados (JSON)</label>
-                                <textarea
-                                    name="customData"
-                                    value={qrData.customData}
-                                    onChange={handleInputChange}
-                                    className="form-textarea"
-                                    rows="6"
-                                    placeholder='{"key": "value"}'
-                                />
-                                <div className="form-help">
-                                    Ingresa datos adicionales en formato JSON válido
-                                </div>
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label className="form-label">Tamaño del QR</label>
-                                    <div className="range-input">
-                                        <input
-                                            type="range"
-                                            min="100"
-                                            max="500"
-                                            step="10"
-                                            value={qrSize}
-                                            onChange={(e) => setQrSize(parseInt(e.target.value))}
-                                            className="range-slider"
-                                        />
-                                        <span className="range-value">{qrSize}px</span>
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">Color del QR</label>
-                                    <div className="color-input">
-                                        <input
-                                            type="color"
-                                            value={qrColor}
-                                            onChange={(e) => setQrColor(e.target.value)}
-                                            className="color-picker"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={qrColor}
-                                            onChange={(e) => setQrColor(e.target.value)}
-                                            className="color-text"
-                                            placeholder="#000000"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">Color de Fondo</label>
-                                    <div className="color-input">
-                                        <input
-                                            type="color"
-                                            value={bgColor}
-                                            onChange={(e) => setBgColor(e.target.value)}
-                                            className="color-picker"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={bgColor}
-                                            onChange={(e) => setBgColor(e.target.value)}
-                                            className="color-text"
-                                            placeholder="#FFFFFF"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label className="checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={includeLogo}
-                                        onChange={(e) => setIncludeLogo(e.target.checked)}
-                                        className="checkbox-input"
-                                    />
-                                    <span className="checkbox-custom"></span>
-                                    <span className="checkbox-text">Incluir Logo</span>
-                                </label>
-                                
-                                {includeLogo && (
-                                    <div className="logo-options">
-                                        <div className="form-row">
-                                            <div className="form-group">
-                                                <label className="form-label">Tamaño del Logo</label>
-                                                <div className="range-input">
-                                                    <input
-                                                        type="range"
-                                                        min="10"
-                                                        max="100"
-                                                        step="5"
-                                                        value={logoSize}
-                                                        onChange={(e) => setLogoSize(parseInt(e.target.value))}
-                                                        className="range-slider"
-                                                    />
-                                                    <span className="range-value">{logoSize}%</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <div className="form-group">
-                                                <label className="form-label">Subir Logo</label>
-                                                <input
-                                                    type="file"
-                                                    ref={fileInputRef}
-                                                    onChange={handleLogoUpload}
-                                                    accept="image/*"
-                                                    className="file-input"
-                                                    style={{ display: 'none' }}
-                                                />
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-secondary"
-                                                    onClick={() => fileInputRef.current.click()}
-                                                >
-                                                    <i className="btn-icon">📷</i>
-                                                    Seleccionar Imagen
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </form>
-                    </div>
-
-                    <div className="qr-actions-section">
-                        <div className="action-buttons">
-                            <button
-                                className="btn btn-primary"
-                                onClick={generateQRCode}
-                                disabled={isGenerating}
-                            >
-                                {isGenerating ? (
-                                    <>
-                                        <span className="spinner"></span>
-                                        Generando...
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="btn-icon">⚡</i>
-                                        Generar QR
-                                    </>
-                                )}
-                            </button>
-                            
-                            <button
-                                className="btn btn-success"
-                                onClick={handleSaveToDatabase}
-                                disabled={isGenerating}
-                            >
-                                <i className="btn-icon">💾</i>
-                                Guardar en BD
-                            </button>
-                            
-                            <button
-                                className="btn btn-secondary"
-                                onClick={resetForm}
-                                disabled={isGenerating}
-                            >
-                                <i className="btn-icon">🔄</i>
-                                Reiniciar
-                            </button>
-                            
-                            {onClose && (
-                                <button
-                                    className="btn btn-danger"
-                                    onClick={onClose}
-                                    disabled={isGenerating}
-                                >
-                                    <i className="btn-icon">✕</i>
-                                    Cancelar
-                                </button>
-                            )}
-                        </div>
-                        
-                        <div className="qr-info">
-                            <h4 className="info-title">
-                                <i className="info-icon">ℹ️</i>
-                                Información del QR
-                            </h4>
-                            <ul className="info-list">
-                                <li className="info-item">
-                                    <strong>Tamaño:</strong> {qrSize} × {qrSize} px
-                                </li>
-                                <li className="info-item">
-                                    <strong>Color:</strong> 
-                                    <span className="color-sample" style={{ backgroundColor: qrColor }}></span>
-                                    {qrColor}
-                                </li>
-                                <li className="info-item">
-                                    <strong>Fondo:</strong> 
-                                    <span className="color-sample" style={{ backgroundColor: bgColor }}></span>
-                                    {bgColor}
-                                </li>
-                                <li className="info-item">
-                                    <strong>Logo:</strong> {includeLogo ? 'Sí' : 'No'}
-                                </li>
-                                <li className="info-item">
-                                    <strong>Última generación:</strong> {new Date().toLocaleTimeString()}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nombre del Producto *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="itemName"
+                    value={formData.itemName}
+                    onChange={handleInputChange}
+                    placeholder="Ej: Laptop Dell XPS 13"
+                    required
+                  />
                 </div>
-            </div>
+                
+                <div className="form-group">
+                  <label>Categoría</label>
+                  <select
+                    className="form-control"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Seleccionar categoría</option>
+                    <option value="Electrónica">Electrónica</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Oficina">Oficina</option>
+                    <option value="Almacenamiento">Almacenamiento</option>
+                    <option value="Redes">Redes</option>
+                    <option value="Muebles">Muebles</option>
+                    <option value="Herramientas">Herramientas</option>
+                  </select>
+                </div>
+              </div>
 
-            <canvas ref={canvasRef} style={{ display: 'none' }} width={qrSize} height={qrSize} />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Cantidad</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleInputChange}
+                    min="1"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Precio ($)</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Ubicación</label>
+                  <select
+                    className="form-control"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                  >
+                    <option value="Almacén Principal">Almacén Principal</option>
+                    <option value="Almacén Secundario">Almacén Secundario</option>
+                    <option value="Sala de Exhibición">Sala de Exhibición</option>
+                    <option value="Bodega">Bodega</option>
+                    <option value="Oficina">Oficina</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button 
+                  className="btn-generate"
+                  onClick={generateQRCode}
+                  disabled={isGenerating || !formData.itemName.trim()}
+                >
+                  {isGenerating ? (
+                    <>
+                      <span className="spinner"></span>
+                      Generando...
+                    </>
+                  ) : 'Generar Código QR'}
+                </button>
+                
+                {generatedQR && (
+                  <>
+                    <button className="btn-download" onClick={handleDownload}>
+                      Descargar QR
+                    </button>
+                    <button className="btn-print" onClick={handlePrint}>
+                      Imprimir
+                    </button>
+                    <button className="btn-clear" onClick={clearQR}>
+                      Limpiar
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="batch-generator">
+              <h3>Seleccionar Productos para Generar QR en Lote</h3>
+              <div className="batch-items-grid">
+                {inventoryItems.map(item => (
+                  <div 
+                    key={item.id} 
+                    className={`batch-item-card ${selectedItems.includes(item.id) ? 'selected' : ''}`}
+                    onClick={() => handleBatchSelect(item.id)}
+                  >
+                    <div className="batch-item-checkbox">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedItems.includes(item.id)}
+                        onChange={() => handleBatchSelect(item.id)}
+                      />
+                    </div>
+                    <div className="batch-item-info">
+                      <h4>{item.name}</h4>
+                      <p><strong>Categoría:</strong> {item.category}</p>
+                      <p><strong>Cantidad:</strong> {item.quantity}</p>
+                      <p><strong>Precio:</strong> ${item.price.toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="batch-actions">
+                <button 
+                  className="btn-generate-batch"
+                  onClick={generateBatchQRCodes}
+                  disabled={isGenerating || selectedItems.length === 0}
+                >
+                  {isGenerating ? (
+                    <>
+                      <span className="spinner"></span>
+                      Generando {selectedItems.length} códigos QR...
+                    </>
+                  ) : `Generar ${selectedItems.length} Códigos QR`}
+                </button>
+                
+                <button 
+                  className="btn-clear-selection"
+                  onClick={() => setSelectedItems([])}
+                  disabled={selectedItems.length === 0}
+                >
+                  Limpiar Selección
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-    );
+
+        <div className="qr-display-section">
+          {!batchMode && generatedQR ? (
+            <QRCodeDisplay 
+              qrData={generatedQR.data}
+              qrCode={generatedQR.qrCode}
+              itemData={formData}
+              onDownload={handleDownload}
+              onPrint={handlePrint}
+            />
+          ) : !batchMode ? (
+            <div className="qr-placeholder">
+              <div className="placeholder-icon">📱</div>
+              <h3>QR Code Preview</h3>
+              <p>Complete el formulario y haga clic en "Generar Código QR" para ver el resultado</p>
+              <div className="qr-simulation">
+                <div className="qr-pattern">
+                  <div className="qr-corner top-left"></div>
+                  <div className="qr-corner top-right"></div>
+                  <div className="qr-corner bottom-left"></div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="batch-preview">
+              <h3>Vista Previa de Lote</h3>
+              <p>Productos seleccionados: {selectedItems.length}</p>
+              {selectedItems.length > 0 && (
+                <div className="selected-items-preview">
+                  {selectedItems.slice(0, 3).map(itemId => {
+                    const item = inventoryItems.find(item => item.id == itemId);
+                    return item ? (
+                      <div key={item.id} className="preview-item">
+                        <span className="item-badge">{item.name.substring(0, 15)}...</span>
+                      </div>
+                    ) : null;
+                  })}
+                  {selectedItems.length > 3 && (
+                    <div className="preview-more">+{selectedItems.length - 3} más</div>
+                  )}
+                </div>
+              )}
+              <div className="batch-info">
+                <p><strong>Instrucciones:</strong></p>
+                <ul>
+                  <li>Selecciona los productos de la lista</li>
+                  <li>Cada producto generará un código QR único</li>
+                  <li>Puedes imprimir todos los códigos en una hoja</li>
+                  <li>Los códigos se guardarán en el historial</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="qr-history-section">
+        <div className="history-header">
+          <h3>Historial de Códigos QR Generados</h3>
+          <button 
+            className="btn-clear-history"
+            onClick={clearHistory}
+            disabled={qrHistory.length === 0}
+          >
+            Limpiar Historial
+          </button>
+        </div>
+        
+        {qrHistory.length > 0 ? (
+          <div className="history-grid">
+            {qrHistory.map(qr => (
+              <QRItemCard 
+                key={qr.id}
+                qrItem={qr}
+                onDownload={() => downloadQRCode(qr.qrCode, `${qr.data.itemName}-qr.png`)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="empty-history">
+            <p>No hay códigos QR en el historial</p>
+          </div>
+        )}
+      </div>
+
+      {showPrintSheet && generatedQR && (
+        <QRPrintSheet 
+          qrItems={batchMode ? qrHistory.filter(qr => qr.type === 'batch') : [generatedQR]}
+          onClose={() => setShowPrintSheet(false)}
+          title={batchMode ? "Códigos QR en Lote" : `QR: ${formData.itemName}`}
+        />
+      )}
+    </div>
+  );
 };
 
 export default QRGenerator;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import '../../assets/styles/Auth/auth.css';
+import '../../assets/styles/AUTH/auth.css';
 
 const ResetPassword = () => {
     const [formData, setFormData] = useState({
@@ -79,7 +79,7 @@ const ResetPassword = () => {
         setLoading(true);
         
         try {
-            const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+            const response = await fetch('http://localhost:3000/api/auth/reset-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

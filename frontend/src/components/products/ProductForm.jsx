@@ -1,483 +1,626 @@
 import React, { useState, useEffect } from 'react';
-import '../../assets/styles/products.css';
+import ProductImages from './ProductImages';
+import ProductVariants from './ProductVariants';
+import ProductPricing from './ProductPricing';
+import ProductStock from './ProductStock';
+import '../../assets/styles/Products/products.CSS';
 
-/**
- * Componente ProductForm - Formulario para crear/editar productos
- * Incluye validación y manejo de errores
- */
-const ProductForm = ({ product, onSubmit, onCancel, categories, suppliers }) => {
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        sku: '',
-        category: '',
-        price: '',
-        cost: '',
-        stock: '',
-        minStock: '',
-        supplier: '',
-        status: 'available',
-        image: null
-    });
+const ProductForm = ({ product, onSave, onClose }) => {
+  const [activeTab, setActiveTab] = useState('basic');
+  const [formData, setFormData] = useState({
+    // Información básica
+    sku: '',
+    name: '',
+    description: '',
+    category: '',
+    subcategory: '',
+    brand: '',
+    supplier: '',
+    unit: 'Unidad',
+    weight: '',
+    dimensions: '',
+    barcode: '',
+    
+    // Precios
+    cost: '',
+    price: '',
+    salePrice: '',
+    taxRate: 16,
+    
+    // Stock
+    stock: 0,
+    minStock: 0,
+    maxStock: 0,
+    stockStatus: 'in-stock',
+    
+    // Estado
+    status: 'active',
+    
+    // Etiquetas y características
+    tags: [],
+    features: [],
+    
+    // Especificaciones
+    specifications: {},
+    
+    // Imágenes y variantes
+    images: [],
+    variants: [],
+    
+    // Notas
+    notes: ''
+  });
 
-    const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
-    // Categorías y proveedores por defecto
-    const defaultCategories = ['Electrónicos', 'Oficina', 'Hogar', 'Ropa', 'Alimentos', 'Herramientas', 'Juguetes', 'Salud'];
-    const defaultSuppliers = ['Dell Technologies', 'Apple Inc.', 'OfficeMax', 'Samsung', 'LG', 'Sony', 'HP', 'Lenovo'];
+  // Inicializar con datos del producto si existe
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        sku: product.sku || '',
+        name: product.name || '',
+        description: product.description || '',
+        category: product.category || '',
+        subcategory: product.subcategory || '',
+        brand: product.brand || '',
+        supplier: product.supplier || '',
+        unit: product.unit || 'Unidad',
+        weight: product.weight || '',
+        dimensions: product.dimensions || '',
+        barcode: product.barcode || '',
+        cost: product.cost || '',
+        price: product.price || '',
+        salePrice: product.salePrice || '',
+        taxRate: product.taxRate || 16,
+        stock: product.stock || 0,
+        minStock: product.minStock || 0,
+        maxStock: product.maxStock || 0,
+        stockStatus: product.stockStatus || 'in-stock',
+        status: product.status || 'active',
+        tags: product.tags || [],
+        features: product.features || [],
+        specifications: product.specifications || {},
+        images: product.images || [],
+        variants: product.variants || [],
+        notes: product.notes || ''
+      });
+    } else {
+      // Generar SKU automático
+      generateSKU();
+    }
+  }, [product]);
 
-    const categoriesList = categories || defaultCategories;
-    const suppliersList = suppliers || defaultSuppliers;
+  const generateSKU = () => {
+    const prefix = 'PROD';
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    setFormData(prev => ({
+      ...prev,
+      sku: `${prefix}-${random}`
+    }));
+  };
 
-    useEffect(() => {
-        if (product) {
-            setFormData({
-                name: product.name || '',
-                description: product.description || '',
-                sku: product.sku || '',
-                category: product.category || '',
-                price: product.price || '',
-                cost: product.cost || '',
-                stock: product.stock || '',
-                minStock: product.minStock || '',
-                supplier: product.supplier || '',
-                status: product.status || 'available',
-                image: product.image || null
-            });
-        } else {
-            // Generar SKU automático
-            const autoSKU = `PROD-${Date.now().toString().slice(-6)}`;
-            setFormData(prev => ({ ...prev, sku: autoSKU }));
-        }
-    }, [product]);
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
 
-    const validateForm = () => {
-        const newErrors = {};
-        
-        if (!formData.name.trim()) newErrors.name = 'El nombre es requerido';
-        if (!formData.sku.trim()) newErrors.sku = 'El SKU es requerido';
-        if (!formData.category) newErrors.category = 'La categoría es requerida';
-        
-        const price = parseFloat(formData.price);
-        if (isNaN(price) || price <= 0) newErrors.price = 'Precio inválido';
-        
-        const stock = parseInt(formData.stock);
-        if (isNaN(stock) || stock < 0) newErrors.stock = 'Stock inválido';
-        
-        const minStock = parseInt(formData.minStock);
-        if (isNaN(minStock) || minStock < 0) newErrors.minStock = 'Stock mínimo inválido';
-        
-        if (!formData.supplier) newErrors.supplier = 'El proveedor es requerido';
-        
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    // Limpiar error del campo
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const handleNestedChange = (section, data) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: data
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validaciones básicas
+    if (!formData.sku.trim()) newErrors.sku = 'El SKU es requerido';
+    if (!formData.name.trim()) newErrors.name = 'El nombre es requerido';
+    if (!formData.category) newErrors.category = 'La categoría es requerida';
+    if (!formData.price || formData.price <= 0) newErrors.price = 'El precio debe ser mayor a 0';
+    if (!formData.cost || formData.cost < 0) newErrors.cost = 'El costo no puede ser negativo';
+    
+    if (formData.cost > formData.price) {
+      newErrors.cost = 'El costo no puede ser mayor al precio';
+    }
+
+    if (formData.minStock > formData.maxStock && formData.maxStock > 0) {
+      newErrors.minStock = 'El stock mínimo no puede ser mayor al máximo';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    // Calcular automáticamente el estado del stock
+    const calculatedStockStatus = calculateStockStatus(formData.stock, formData.minStock);
+    
+    const productData = {
+      ...formData,
+      stockStatus: calculatedStockStatus,
+      // Convertir números
+      cost: parseFloat(formData.cost) || 0,
+      price: parseFloat(formData.price) || 0,
+      salePrice: parseFloat(formData.salePrice) || parseFloat(formData.price) || 0,
+      stock: parseInt(formData.stock) || 0,
+      minStock: parseInt(formData.minStock) || 0,
+      maxStock: parseInt(formData.maxStock) || 0,
+      weight: parseFloat(formData.weight) || 0,
+      taxRate: parseFloat(formData.taxRate) || 0
     };
 
-    const handleChange = (e) => {
-        const { name, value, type, files } = e.target;
-        
-        if (type === 'file') {
-            setFormData(prev => ({ ...prev, [name]: files[0] }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
-        }
-        
-        // Limpiar error del campo modificado
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
-        }
-    };
+    onSave(productData);
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        if (!validateForm()) {
-            return;
-        }
-        
-        setIsSubmitting(true);
-        
-        try {
-            // Preparar datos para enviar al backend
-            const productData = {
-                ...formData,
-                price: parseFloat(formData.price),
-                cost: formData.cost ? parseFloat(formData.cost) : null,
-                stock: parseInt(formData.stock),
-                minStock: parseInt(formData.minStock)
-            };
-            
-            if (onSubmit) {
-                await onSubmit(productData);
-            }
-            
-            // Reset form after successful submission
-            if (!product) {
-                setFormData({
-                    name: '',
-                    description: '',
-                    sku: `PROD-${Date.now().toString().slice(-6)}`,
-                    category: '',
-                    price: '',
-                    cost: '',
-                    stock: '',
-                    minStock: '',
-                    supplier: '',
-                    status: 'available',
-                    image: null
-                });
-            }
-            
-        } catch (error) {
-            console.error('Error al guardar producto:', error);
-            setErrors({ submit: 'Error al guardar el producto. Intenta nuevamente.' });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+  const calculateStockStatus = (stock, minStock) => {
+    if (stock <= 0) return 'out-of-stock';
+    if (stock <= minStock) return 'low-stock';
+    return 'in-stock';
+  };
 
-    const generateSKU = () => {
-        const prefix = formData.category ? formData.category.substring(0, 3).toUpperCase() : 'PROD';
-        const random = Math.random().toString(36).substr(2, 6).toUpperCase();
-        const newSKU = `${prefix}-${random}`;
-        setFormData(prev => ({ ...prev, sku: newSKU }));
-    };
+  const tabs = [
+    { id: 'basic', label: 'Información Básica', icon: '📝' },
+    { id: 'images', label: 'Imágenes', icon: '🖼️' },
+    { id: 'pricing', label: 'Precios', icon: '💰' },
+    { id: 'stock', label: 'Stock', icon: '📦' },
+    { id: 'variants', label: 'Variantes', icon: '🔄' },
+    { id: 'specs', label: 'Especificaciones', icon: '📋' },
+    { id: 'advanced', label: 'Avanzado', icon: '⚙️' }
+  ];
 
-    return (
-        <div className="product-form-container">
-            <h2 className="form-title">
-                {product ? 'Editar Producto' : 'Nuevo Producto'}
-            </h2>
-            
-            {errors.submit && (
-                <div className="alert alert-error">
-                    <i className="alert-icon">⚠️</i>
-                    <span>{errors.submit}</span>
-                </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="product-form">
-                <div className="form-grid">
-                    {/* Columna izquierda */}
-                    <div className="form-column">
-                        <div className="form-group">
-                            <label htmlFor="name" className="form-label required">
-                                Nombre del Producto
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                className={`form-input ${errors.name ? 'error' : ''}`}
-                                placeholder="Ej: Laptop Dell XPS 13"
-                                maxLength="100"
-                            />
-                            {errors.name && (
-                                <span className="error-message">{errors.name}</span>
-                            )}
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="description" className="form-label">
-                                Descripción
-                            </label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                className="form-textarea"
-                                placeholder="Describe el producto..."
-                                rows="4"
-                                maxLength="500"
-                            />
-                            <div className="char-counter">
-                                {formData.description.length}/500 caracteres
-                            </div>
-                        </div>
-                        
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="sku" className="form-label required">
-                                    SKU
-                                </label>
-                                <div className="input-with-action">
-                                    <input
-                                        type="text"
-                                        id="sku"
-                                        name="sku"
-                                        value={formData.sku}
-                                        onChange={handleChange}
-                                        className={`form-input ${errors.sku ? 'error' : ''}`}
-                                        placeholder="Ej: PROD-ABC123"
-                                    />
-                                    <button 
-                                        type="button"
-                                        className="input-action-btn"
-                                        onClick={generateSKU}
-                                        title="Generar SKU automático"
-                                    >
-                                        🔄
-                                    </button>
-                                </div>
-                                {errors.sku && (
-                                    <span className="error-message">{errors.sku}</span>
-                                )}
-                            </div>
-                            
-                            <div className="form-group">
-                                <label htmlFor="category" className="form-label required">
-                                    Categoría
-                                </label>
-                                <select
-                                    id="category"
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                    className={`form-select ${errors.category ? 'error' : ''}`}
-                                >
-                                    <option value="">Seleccionar categoría</option>
-                                    {categoriesList.map((category, index) => (
-                                        <option key={index} value={category}>
-                                            {category}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.category && (
-                                    <span className="error-message">{errors.category}</span>
-                                )}
-                            </div>
-                        </div>
+  const categories = [
+    'Electrónica', 'Accesorios', 'Oficina', 'Almacenamiento', 
+    'Redes', 'Mobiliario', 'Herramientas', 'Consumibles'
+  ];
+
+  const suppliers = [
+    'Dell Technologies', 'Logitech Inc', 'Samsung Electronics', 
+    'Razer Inc', 'HP Inc', 'Apple', 'Microsoft', 'Anker'
+  ];
+
+  const units = ['Unidad', 'Paquete', 'Caja', 'Metro', 'Kilogramo', 'Litro'];
+
+  return (
+    <div className="product-form">
+      <div className="form-header">
+        <h2>{product ? 'Editar Producto' : 'Nuevo Producto'}</h2>
+        <button className="close-btn" onClick={onClose}>×</button>
+      </div>
+
+      <div className="form-tabs">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span className="tab-icon">{tab.icon}</span>
+            <span className="tab-label">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="form-content">
+          {activeTab === 'basic' && (
+            <div className="tab-content">
+              <div className="form-section">
+                <h3>Información Básica</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>
+                      SKU *
+                      {errors.sku && <span className="error-message">{errors.sku}</span>}
+                    </label>
+                    <div className="input-with-action">
+                      <input
+                        type="text"
+                        name="sku"
+                        value={formData.sku}
+                        onChange={handleChange}
+                        placeholder="Ej: PROD-001"
+                        className={errors.sku ? 'error' : ''}
+                      />
+                      <button 
+                        type="button" 
+                        className="action-btn"
+                        onClick={generateSKU}
+                      >
+                        Generar
+                      </button>
                     </div>
-                    
-                    {/* Columna derecha */}
-                    <div className="form-column">
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="price" className="form-label required">
-                                    Precio de Venta ($)
-                                </label>
-                                <div className="input-with-prefix">
-                                    <span className="input-prefix">$</span>
-                                    <input
-                                        type="number"
-                                        id="price"
-                                        name="price"
-                                        value={formData.price}
-                                        onChange={handleChange}
-                                        className={`form-input ${errors.price ? 'error' : ''}`}
-                                        placeholder="0.00"
-                                        min="0"
-                                        step="0.01"
-                                    />
-                                </div>
-                                {errors.price && (
-                                    <span className="error-message">{errors.price}</span>
-                                )}
-                            </div>
-                            
-                            <div className="form-group">
-                                <label htmlFor="cost" className="form-label">
-                                    Costo ($)
-                                </label>
-                                <div className="input-with-prefix">
-                                    <span className="input-prefix">$</span>
-                                    <input
-                                        type="number"
-                                        id="cost"
-                                        name="cost"
-                                        value={formData.cost}
-                                        onChange={handleChange}
-                                        className="form-input"
-                                        placeholder="0.00"
-                                        min="0"
-                                        step="0.01"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="stock" className="form-label required">
-                                    Stock Actual
-                                </label>
-                                <input
-                                    type="number"
-                                    id="stock"
-                                    name="stock"
-                                    value={formData.stock}
-                                    onChange={handleChange}
-                                    className={`form-input ${errors.stock ? 'error' : ''}`}
-                                    placeholder="0"
-                                    min="0"
-                                />
-                                {errors.stock && (
-                                    <span className="error-message">{errors.stock}</span>
-                                )}
-                            </div>
-                            
-                            <div className="form-group">
-                                <label htmlFor="minStock" className="form-label required">
-                                    Stock Mínimo
-                                </label>
-                                <input
-                                    type="number"
-                                    id="minStock"
-                                    name="minStock"
-                                    value={formData.minStock}
-                                    onChange={handleChange}
-                                    className={`form-input ${errors.minStock ? 'error' : ''}`}
-                                    placeholder="0"
-                                    min="0"
-                                />
-                                {errors.minStock && (
-                                    <span className="error-message">{errors.minStock}</span>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="supplier" className="form-label required">
-                                Proveedor
-                            </label>
-                            <select
-                                id="supplier"
-                                name="supplier"
-                                value={formData.supplier}
-                                onChange={handleChange}
-                                className={`form-select ${errors.supplier ? 'error' : ''}`}
-                            >
-                                <option value="">Seleccionar proveedor</option>
-                                {suppliersList.map((supplier, index) => (
-                                    <option key={index} value={supplier}>
-                                        {supplier}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.supplier && (
-                                <span className="error-message">{errors.supplier}</span>
-                            )}
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="status" className="form-label">
-                                Estado
-                            </label>
-                            <div className="status-options">
-                                <label className="status-option">
-                                    <input
-                                        type="radio"
-                                        name="status"
-                                        value="available"
-                                        checked={formData.status === 'available'}
-                                        onChange={handleChange}
-                                    />
-                                    <span className="status-badge available">Disponible</span>
-                                </label>
-                                <label className="status-option">
-                                    <input
-                                        type="radio"
-                                        name="status"
-                                        value="low-stock"
-                                        checked={formData.status === 'low-stock'}
-                                        onChange={handleChange}
-                                    />
-                                    <span className="status-badge low-stock">Stock Bajo</span>
-                                </label>
-                                <label className="status-option">
-                                    <input
-                                        type="radio"
-                                        name="status"
-                                        value="out-of-stock"
-                                        checked={formData.status === 'out-of-stock'}
-                                        onChange={handleChange}
-                                    />
-                                    <span className="status-badge out-of-stock">Agotado</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="image" className="form-label">
-                                Imagen del Producto
-                            </label>
-                            <div className="file-upload">
-                                <input
-                                    type="file"
-                                    id="image"
-                                    name="image"
-                                    onChange={handleChange}
-                                    className="file-input"
-                                    accept="image/*"
-                                />
-                                <label htmlFor="image" className="file-label">
-                                    <i className="file-icon">📷</i>
-                                    <span>{formData.image ? 'Cambiar imagen' : 'Subir imagen'}</span>
-                                </label>
-                                {formData.image && (
-                                    <div className="file-preview">
-                                        {typeof formData.image === 'string' ? (
-                                            <img 
-                                                src={formData.image} 
-                                                alt="Vista previa" 
-                                                className="preview-image"
-                                            />
-                                        ) : (
-                                            <span className="preview-text">
-                                                {formData.image.name}
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>
+                      Nombre *
+                      {errors.name && <span className="error-message">{errors.name}</span>}
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Nombre del producto"
+                      className={errors.name ? 'error' : ''}
+                    />
+                  </div>
                 </div>
-                
-                <div className="form-actions">
-                    <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={onCancel}
-                        disabled={isSubmitting}
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <span className="spinner"></span>
-                                Guardando...
-                            </>
-                        ) : (
-                            <>
-                                <i className="btn-icon">✓</i>
-                                {product ? 'Actualizar Producto' : 'Guardar Producto'}
-                            </>
-                        )}
-                    </button>
+
+                <div className="form-group">
+                  <label>Descripción</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Descripción detallada del producto..."
+                    rows="4"
+                  />
                 </div>
-            </form>
-            
-            <div className="form-help">
-                <h4>📝 Notas:</h4>
-                <ul>
-                    <li>Los campos marcados con <span className="required-marker">*</span> son obligatorios.</li>
-                    <li>El SKU debe ser único para cada producto.</li>
-                    <li>El stock mínimo activa alertas cuando el stock cae por debajo de este valor.</li>
-                    <li>Las imágenes recomendadas son de 500x500px en formato JPG o PNG.</li>
-                </ul>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>
+                      Categoría *
+                      {errors.category && <span className="error-message">{errors.category}</span>}
+                    </label>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      className={errors.category ? 'error' : ''}
+                    >
+                      <option value="">Seleccionar categoría</option>
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Subcategoría</label>
+                    <input
+                      type="text"
+                      name="subcategory"
+                      value={formData.subcategory}
+                      onChange={handleChange}
+                      placeholder="Ej: Laptops, Monitores"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Marca</label>
+                    <input
+                      type="text"
+                      name="brand"
+                      value={formData.brand}
+                      onChange={handleChange}
+                      placeholder="Ej: Dell, Samsung"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Proveedor</label>
+                    <select
+                      name="supplier"
+                      value={formData.supplier}
+                      onChange={handleChange}
+                    >
+                      <option value="">Seleccionar proveedor</option>
+                      {suppliers.map(sup => (
+                        <option key={sup} value={sup}>{sup}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Unidad y Medidas</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Unidad de medida</label>
+                    <select
+                      name="unit"
+                      value={formData.unit}
+                      onChange={handleChange}
+                    >
+                      {units.map(unit => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Peso (kg)</label>
+                    <input
+                      type="number"
+                      name="weight"
+                      value={formData.weight}
+                      onChange={handleChange}
+                      placeholder="0.00"
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Dimensiones (LxAxH cm)</label>
+                    <input
+                      type="text"
+                      name="dimensions"
+                      value={formData.dimensions}
+                      onChange={handleChange}
+                      placeholder="30x20x10"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Código de barras</label>
+                  <input
+                    type="text"
+                    name="barcode"
+                    value={formData.barcode}
+                    onChange={handleChange}
+                    placeholder="1234567890123"
+                  />
+                </div>
+              </div>
             </div>
+          )}
+
+          {activeTab === 'images' && (
+            <div className="tab-content">
+              <ProductImages
+                images={formData.images}
+                onImagesChange={(images) => handleNestedChange('images', images)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'pricing' && (
+            <div className="tab-content">
+              <ProductPricing
+                pricing={formData}
+                onPricingChange={handleNestedChange}
+                errors={errors}
+              />
+            </div>
+          )}
+
+          {activeTab === 'stock' && (
+            <div className="tab-content">
+              <ProductStock
+                stockData={formData}
+                onStockChange={handleNestedChange}
+                errors={errors}
+              />
+            </div>
+          )}
+
+          {activeTab === 'variants' && (
+            <div className="tab-content">
+              <ProductVariants
+                variants={formData.variants}
+                onVariantsChange={(variants) => handleNestedChange('variants', variants)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'specs' && (
+            <div className="tab-content">
+              <div className="form-section">
+                <h3>Especificaciones Técnicas</h3>
+                <div className="specifications-form">
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Procesador</label>
+                      <input
+                        type="text"
+                        name="spec_processor"
+                        value={formData.specifications?.processor || ''}
+                        onChange={(e) => handleNestedChange('specifications', {
+                          ...formData.specifications,
+                          processor: e.target.value
+                        })}
+                        placeholder="Ej: Intel Core i7"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>RAM</label>
+                      <input
+                        type="text"
+                        name="spec_ram"
+                        value={formData.specifications?.ram || ''}
+                        onChange={(e) => handleNestedChange('specifications', {
+                          ...formData.specifications,
+                          ram: e.target.value
+                        })}
+                        placeholder="Ej: 16GB"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Almacenamiento</label>
+                      <input
+                        type="text"
+                        name="spec_storage"
+                        value={formData.specifications?.storage || ''}
+                        onChange={(e) => handleNestedChange('specifications', {
+                          ...formData.specifications,
+                          storage: e.target.value
+                        })}
+                        placeholder="Ej: 512GB SSD"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Pantalla</label>
+                      <input
+                        type="text"
+                        name="spec_display"
+                        value={formData.specifications?.display || ''}
+                        onChange={(e) => handleNestedChange('specifications', {
+                          ...formData.specifications,
+                          display: e.target.value
+                        })}
+                        placeholder="Ej: 13.4'' FHD+"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Características</label>
+                    <div className="tags-input">
+                      {formData.features.map((feature, index) => (
+                        <span key={index} className="tag">
+                          {feature}
+                          <button
+                            type="button"
+                            className="tag-remove"
+                            onClick={() => {
+                              const newFeatures = formData.features.filter((_, i) => i !== index);
+                              handleNestedChange('features', newFeatures);
+                            }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        type="text"
+                        placeholder="Agregar característica y presiona Enter"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.target.value.trim()) {
+                            e.preventDefault();
+                            handleNestedChange('features', [...formData.features, e.target.value.trim()]);
+                            e.target.value = '';
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Etiquetas</label>
+                    <div className="tags-input">
+                      {formData.tags.map((tag, index) => (
+                        <span key={index} className="tag">
+                          {tag}
+                          <button
+                            type="button"
+                            className="tag-remove"
+                            onClick={() => {
+                              const newTags = formData.tags.filter((_, i) => i !== index);
+                              handleNestedChange('tags', newTags);
+                            }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        type="text"
+                        placeholder="Agregar etiqueta y presiona Enter"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.target.value.trim()) {
+                            e.preventDefault();
+                            handleNestedChange('tags', [...formData.tags, e.target.value.trim()]);
+                            e.target.value = '';
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'advanced' && (
+            <div className="tab-content">
+              <div className="form-section">
+                <h3>Configuración Avanzada</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Estado del producto</label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                    >
+                      <option value="active">Activo</option>
+                      <option value="inactive">Inactivo</option>
+                      <option value="draft">Borrador</option>
+                      <option value="archived">Archivado</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Estado del stock</label>
+                    <select
+                      name="stockStatus"
+                      value={formData.stockStatus}
+                      onChange={handleChange}
+                    >
+                      <option value="in-stock">En stock</option>
+                      <option value="low-stock">Stock bajo</option>
+                      <option value="out-of-stock">Agotado</option>
+                      <option value="backorder">Pedido especial</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Notas internas</label>
+                  <textarea
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                    placeholder="Notas internas para el producto..."
+                    rows="4"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-    );
+
+        <div className="form-footer">
+          <button type="button" className="btn-secondary" onClick={onClose}>
+            Cancelar
+          </button>
+          <button type="submit" className="btn-primary">
+            {product ? 'Actualizar Producto' : 'Crear Producto'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default ProductForm;

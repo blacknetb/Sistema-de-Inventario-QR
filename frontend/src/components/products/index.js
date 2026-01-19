@@ -1,22 +1,17 @@
-/**
- * Archivo de exportación principal para componentes de Products
- * Permite importaciones limpias desde otros módulos
- */
-
-import ProductList from './ProductList';
-import ProductForm from './ProductForm';
-import ProductCard from './ProductCard';
-import ProductDetail from './ProductDetail';
-import ProductFilters from './ProductFilters';
-
-// Exportación individual de todos los componentes
-export {
-    ProductList,
-    ProductForm,
-    ProductCard,
-    ProductDetail,
-    ProductFilters
-};
-
-// Exportación por defecto (ProductList como principal)
-export default ProductList;
+export { default as ProductManager } from './ProductManager';
+export { default as ProductForm } from './ProductForm';
+export { default as ProductTable } from './ProductTable';
+export { default as ProductCard } from './ProductCard';
+export { default as ProductDetail } from './ProductDetail';
+export { default as ProductFilter } from './ProductFilter';
+export { default as ProductBatchActions } from './ProductBatchActions';
+export { default as ProductImportExport } from './ProductImportExport';
+export { default as ProductCategories } from './ProductCategories';
+export { default as ProductVariants } from './ProductVariants';
+export { default as ProductImages } from './ProductImages';
+export { default as ProductPricing } from './ProductPricing';
+export { default as ProductStock } from './ProductStock';
+export { default as ProductReviews } from './ProductReviews';
+export { default as ProductAnalytics } from './ProductAnalytics';
+export { default as ProductQuickView } from './ProductQuickView';
+export { default as ProductComparison } from './ProductComparison';

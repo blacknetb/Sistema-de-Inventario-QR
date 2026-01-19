@@ -1,364 +1,357 @@
 import React, { useState } from 'react';
-import '../../assets/styles/products.css';
+import ProductImages from './ProductImages';
+import ProductVariants from './ProductVariants';
+import ProductReviews from './ProductReviews';
+import ProductAnalytics from './ProductAnalytics';
+import '../../assets/styles/Products/products.CSS';
 
-/**
- * Componente ProductDetail - Vista detallada de un producto
- * Muestra información completa y estadísticas del producto
- */
-const ProductDetail = ({ product, onClose, onEdit, onDelete, onAddStock }) => {
-    const [activeTab, setActiveTab] = useState('details');
-    const [stockToAdd, setStockToAdd] = useState('');
+const ProductDetail = ({ product, onClose, onEdit }) => {
+  const [activeTab, setActiveTab] = useState('overview');
 
-    if (!product) {
-        return (
-            <div className="product-detail empty">
-                <div className="empty-state">
-                    <i className="empty-icon">🔍</i>
-                    <h3>Producto no encontrado</h3>
-                    <p>El producto que buscas no existe o ha sido eliminado.</p>
-                    <button className="btn btn-primary" onClick={onClose}>
-                        Volver a productos
-                    </button>
-                </div>
-            </div>
-        );
-    }
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
 
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2
-        }).format(price);
-    };
+  const calculateProfit = () => {
+    const profit = product.price - product.cost;
+    const margin = product.cost > 0 ? (profit / product.cost * 100) : 0;
+    return { profit, margin };
+  };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+  const getStockStatus = (stock, minStock) => {
+    if (stock <= 0) return { label: 'Agotado', color: '#e74c3c', icon: '❌' };
+    if (stock <= minStock) return { label: 'Bajo Stock', color: '#f39c12', icon: '⚠️' };
+    return { label: 'Disponible', color: '#2ecc71', icon: '✅' };
+  };
 
-    const calculateProfit = () => {
-        if (!product.cost) return null;
-        const profit = product.price - product.cost;
-        const margin = (profit / product.cost) * 100;
-        return { profit, margin };
-    };
+  const { profit, margin } = calculateProfit();
+  const stockStatus = getStockStatus(product.stock, product.minStock);
+  const hasSale = product.salePrice && product.salePrice < product.price;
 
-    const profitData = calculateProfit();
+  const tabs = [
+    { id: 'overview', label: 'Resumen', icon: '📊' },
+    { id: 'specs', label: 'Especificaciones', icon: '📋' },
+    { id: 'variants', label: 'Variantes', icon: '🔄' },
+    { id: 'reviews', label: 'Reseñas', icon: '⭐' },
+    { id: 'analytics', label: 'Analíticas', icon: '📈' },
+    { id: 'history', label: 'Historial', icon: '📅' }
+  ];
 
-    const handleAddStock = () => {
-        const quantity = parseInt(stockToAdd);
-        if (!isNaN(quantity) && quantity > 0 && onAddStock) {
-            onAddStock(product, quantity);
-            setStockToAdd('');
-        }
-    };
-
-    const tabs = [
-        { id: 'details', label: 'Detalles', icon: '📋' },
-        { id: 'movements', label: 'Movimientos', icon: '📊' },
-        { id: 'history', label: 'Historial', icon: '📅' },
-        { id: 'stats', label: 'Estadísticas', icon: '📈' }
-    ];
-
-    return (
-        <div className="product-detail">
-            <div className="detail-header">
-                <div className="header-left">
-                    <button className="back-btn" onClick={onClose}>
-                        ← Volver
-                    </button>
-                    <h1 className="product-title">{product.name}</h1>
-                    <div className="product-subtitle">
-                        <span className="product-sku">{product.sku}</span>
-                        <span className="product-category">{product.category}</span>
-                        {product.status === 'available' && (
-                            <span className="status-badge available">Disponible</span>
-                        )}
-                        {product.status === 'low-stock' && (
-                            <span className="status-badge low-stock">Stock Bajo</span>
-                        )}
-                        {product.status === 'out-of-stock' && (
-                            <span className="status-badge out-of-stock">Agotado</span>
-                        )}
-                    </div>
-                </div>
-                
-                <div className="header-right">
-                    <div className="action-buttons">
-                        <button 
-                            className="btn btn-secondary"
-                            onClick={() => onEdit && onEdit(product)}
-                        >
-                            <i className="btn-icon">✏️</i>
-                            <span>Editar</span>
-                        </button>
-                        <button 
-                            className="btn btn-danger"
-                            onClick={() => onDelete && onDelete(product)}
-                        >
-                            <i className="btn-icon">🗑️</i>
-                            <span>Eliminar</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div className="detail-content">
-                <div className="detail-sidebar">
-                    <div className="product-image-large">
-                        {product.image ? (
-                            <img src={product.image} alt={product.name} className="detail-img" />
-                        ) : (
-                            <div className="image-placeholder-large">
-                                <i className="placeholder-icon">📦</i>
-                                <span>Sin imagen</span>
-                            </div>
-                        )}
-                    </div>
-                    
-                    <div className="quick-stats">
-                        <div className="stat-card">
-                            <div className="stat-icon">💰</div>
-                            <div className="stat-info">
-                                <div className="stat-label">Precio</div>
-                                <div className="stat-value">{formatPrice(product.price)}</div>
-                            </div>
-                        </div>
-                        
-                        <div className="stat-card">
-                            <div className="stat-icon">📦</div>
-                            <div className="stat-info">
-                                <div className="stat-label">Stock Actual</div>
-                                <div className="stat-value">{product.stock} unidades</div>
-                                <div className="stat-sub">
-                                    Mínimo: {product.minStock || 0}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {profitData && (
-                            <div className="stat-card">
-                                <div className="stat-icon">📈</div>
-                                <div className="stat-info">
-                                    <div className="stat-label">Margen</div>
-                                    <div className="stat-value success">
-                                        {profitData.margin.toFixed(1)}%
-                                    </div>
-                                    <div className="stat-sub">
-                                        Ganancia: {formatPrice(profitData.profit)}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        
-                        <div className="stat-card">
-                            <div className="stat-icon">🏭</div>
-                            <div className="stat-info">
-                                <div className="stat-label">Proveedor</div>
-                                <div className="stat-value">{product.supplier}</div>
-                                <div className="stat-sub">
-                                    Última compra: {formatDate(product.lastUpdated)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="stock-management">
-                        <h3 className="section-title">Gestión de Stock</h3>
-                        <div className="stock-form">
-                            <div className="form-group">
-                                <label className="form-label">Agregar Stock</label>
-                                <div className="input-with-action">
-                                    <input
-                                        type="number"
-                                        className="form-input"
-                                        value={stockToAdd}
-                                        onChange={(e) => setStockToAdd(e.target.value)}
-                                        placeholder="Cantidad"
-                                        min="1"
-                                    />
-                                    <button 
-                                        className="btn btn-primary"
-                                        onClick={handleAddStock}
-                                        disabled={!stockToAdd || parseInt(stockToAdd) <= 0}
-                                    >
-                                        Agregar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div className="detail-main">
-                    <div className="detail-tabs">
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
-                                onClick={() => setActiveTab(tab.id)}
-                            >
-                                <i className="tab-icon">{tab.icon}</i>
-                                <span>{tab.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                    
-                    <div className="tab-content">
-                        {activeTab === 'details' && (
-                            <div className="details-tab">
-                                <div className="section">
-                                    <h3 className="section-title">Descripción</h3>
-                                    <p className="section-content">
-                                        {product.description || 'No hay descripción disponible para este producto.'}
-                                    </p>
-                                </div>
-                                
-                                <div className="section">
-                                    <h3 className="section-title">Información General</h3>
-                                    <div className="info-grid">
-                                        <div className="info-item">
-                                            <span className="info-label">SKU:</span>
-                                            <span className="info-value">{product.sku}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Categoría:</span>
-                                            <span className="info-value">{product.category}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Proveedor:</span>
-                                            <span className="info-value">{product.supplier}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Estado:</span>
-                                            <span className="info-value">
-                                                {product.status === 'available' && 'Disponible'}
-                                                {product.status === 'low-stock' && 'Stock Bajo'}
-                                                {product.status === 'out-of-stock' && 'Agotado'}
-                                            </span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Precio:</span>
-                                            <span className="info-value">{formatPrice(product.price)}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Costo:</span>
-                                            <span className="info-value">
-                                                {product.cost ? formatPrice(product.cost) : 'No especificado'}
-                                            </span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Stock:</span>
-                                            <span className="info-value">{product.stock} unidades</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Stock Mínimo:</span>
-                                            <span className="info-value">{product.minStock || 0} unidades</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Última Actualización:</span>
-                                            <span className="info-value">{formatDate(product.lastUpdated)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {profitData && (
-                                    <div className="section">
-                                        <h3 className="section-title">Análisis Financiero</h3>
-                                        <div className="financial-grid">
-                                            <div className="financial-item">
-                                                <div className="financial-label">Precio de Venta</div>
-                                                <div className="financial-value">{formatPrice(product.price)}</div>
-                                            </div>
-                                            <div className="financial-item">
-                                                <div className="financial-label">Costo Unitario</div>
-                                                <div className="financial-value">{formatPrice(product.cost)}</div>
-                                            </div>
-                                            <div className="financial-item">
-                                                <div className="financial-label">Ganancia por Unidad</div>
-                                                <div className="financial-value success">
-                                                    {formatPrice(profitData.profit)}
-                                                </div>
-                                            </div>
-                                            <div className="financial-item">
-                                                <div className="financial-label">Margen de Ganancia</div>
-                                                <div className="financial-value success">
-                                                    {profitData.margin.toFixed(1)}%
-                                                </div>
-                                            </div>
-                                            <div className="financial-item">
-                                                <div className="financial-label">Valor Total en Stock</div>
-                                                <div className="financial-value">
-                                                    {formatPrice(product.price * product.stock)}
-                                                </div>
-                                            </div>
-                                            <div className="financial-item">
-                                                <div className="financial-label">Ganancia Total Potencial</div>
-                                                <div className="financial-value success">
-                                                    {formatPrice(profitData.profit * product.stock)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        
-                        {activeTab === 'movements' && (
-                            <div className="movements-tab">
-                                <div className="empty-state">
-                                    <i className="empty-icon">📊</i>
-                                    <h3>Movimientos del Producto</h3>
-                                    <p>Aquí se mostrarán los movimientos de entrada y salida del producto.</p>
-                                    <div className="mock-data">
-                                        <div className="mock-row">
-                                            <span className="mock-date">15 Ene 2024</span>
-                                            <span className="mock-type entrada">Entrada</span>
-                                            <span className="mock-quantity">+50 unidades</span>
-                                            <span className="mock-reason">Compra a proveedor</span>
-                                        </div>
-                                        <div className="mock-row">
-                                            <span className="mock-date">14 Ene 2024</span>
-                                            <span className="mock-type salida">Salida</span>
-                                            <span className="mock-quantity">-5 unidades</span>
-                                            <span className="mock-reason">Venta #ORD-001</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {activeTab === 'history' && (
-                            <div className="history-tab">
-                                <div className="empty-state">
-                                    <i className="empty-icon">📅</i>
-                                    <h3>Historial del Producto</h3>
-                                    <p>Aquí se mostrará el historial completo de modificaciones del producto.</p>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {activeTab === 'stats' && (
-                            <div className="stats-tab">
-                                <div className="empty-state">
-                                    <i className="empty-icon">📈</i>
-                                    <h3>Estadísticas</h3>
-                                    <p>Aquí se mostrarán las estadísticas de ventas y rendimiento del producto.</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="product-detail">
+      <div className="detail-header">
+        <div className="header-left">
+          <button className="back-btn" onClick={onClose}>
+            ← Volver
+          </button>
+          <h1>{product.name}</h1>
+          <div className="product-meta">
+            <span className="sku">SKU: {product.sku}</span>
+            <span className="category">{product.category}</span>
+            <span className="brand">{product.brand}</span>
+          </div>
         </div>
-    );
+        <div className="header-right">
+          <button className="btn-secondary" onClick={onClose}>
+            Cerrar
+          </button>
+          <button className="btn-primary" onClick={onEdit}>
+            ✏️ Editar
+          </button>
+        </div>
+      </div>
+
+      <div className="detail-content">
+        <div className="sidebar">
+          <div className="product-images">
+            <ProductImages 
+              images={product.images}
+              onImagesChange={() => {}}
+              readonly={true}
+            />
+          </div>
+
+          <div className="quick-stats">
+            <div className="stat-card">
+              <div className="stat-icon">💰</div>
+              <div className="stat-content">
+                <div className="stat-value">{formatCurrency(product.price)}</div>
+                <div className="stat-label">Precio de venta</div>
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon">📦</div>
+              <div className="stat-content">
+                <div className="stat-value">{product.stock}</div>
+                <div className="stat-label">Stock actual</div>
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon">📈</div>
+              <div className="stat-content">
+                <div className="stat-value">{formatCurrency(profit)}</div>
+                <div className="stat-label">Ganancia por unidad</div>
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon" style={{ color: stockStatus.color }}>
+                {stockStatus.icon}
+              </div>
+              <div className="stat-content">
+                <div 
+                  className="stat-value" 
+                  style={{ color: stockStatus.color }}
+                >
+                  {stockStatus.label}
+                </div>
+                <div className="stat-label">Estado del stock</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="supplier-info">
+            <h3>Información del Proveedor</h3>
+            <div className="info-grid">
+              <div className="info-item">
+                <span className="info-label">Proveedor:</span>
+                <span className="info-value">{product.supplier}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Código de barras:</span>
+                <span className="info-value">{product.barcode}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Unidad:</span>
+                <span className="info-value">{product.unit}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Peso:</span>
+                <span className="info-value">{product.weight} kg</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Dimensiones:</span>
+                <span className="info-value">{product.dimensions}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="main-content">
+          <div className="detail-tabs">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <span className="tab-icon">{tab.icon}</span>
+                <span className="tab-label">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="tab-content">
+            {activeTab === 'overview' && (
+              <div className="overview-tab">
+                <div className="section">
+                  <h3>Descripción del Producto</h3>
+                  <p className="description">{product.description}</p>
+                </div>
+
+                <div className="section">
+                  <h3>Precios y Costos</h3>
+                  <div className="price-grid">
+                    <div className="price-item">
+                      <span className="price-label">Costo:</span>
+                      <span className="price-value">{formatCurrency(product.cost)}</span>
+                    </div>
+                    <div className="price-item">
+                      <span className="price-label">Precio regular:</span>
+                      <span className="price-value">{formatCurrency(product.price)}</span>
+                    </div>
+                    {hasSale && (
+                      <div className="price-item">
+                        <span className="price-label">Precio de oferta:</span>
+                        <span className="price-value sale">{formatCurrency(product.salePrice)}</span>
+                      </div>
+                    )}
+                    <div className="price-item">
+                      <span className="price-label">IVA ({product.taxRate}%):</span>
+                      <span className="price-value">{formatCurrency(product.price * product.taxRate / 100)}</span>
+                    </div>
+                    <div className="price-item highlight">
+                      <span className="price-label">Ganancia:</span>
+                      <span className="price-value profit">{formatCurrency(profit)}</span>
+                    </div>
+                    <div className="price-item highlight">
+                      <span className="price-label">Margen:</span>
+                      <span className="price-value margin">{margin.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="section">
+                  <h3>Gestión de Stock</h3>
+                  <div className="stock-grid">
+                    <div className="stock-item">
+                      <span className="stock-label">Stock actual:</span>
+                      <span className="stock-value">{product.stock} {product.unit}</span>
+                    </div>
+                    <div className="stock-item">
+                      <span className="stock-label">Stock mínimo:</span>
+                      <span className="stock-value">{product.minStock} {product.unit}</span>
+                    </div>
+                    <div className="stock-item">
+                      <span className="stock-label">Stock máximo:</span>
+                      <span className="stock-value">{product.maxStock || '∞'} {product.unit}</span>
+                    </div>
+                    <div className="stock-item">
+                      <span className="stock-label">Valor del stock:</span>
+                      <span className="stock-value">{formatCurrency(product.price * product.stock)}</span>
+                    </div>
+                    <div className="stock-item">
+                      <span className="stock-label">Estado:</span>
+                      <span 
+                        className="stock-status-badge"
+                        style={{ 
+                          backgroundColor: stockStatus.color + '20', 
+                          color: stockStatus.color 
+                        }}
+                      >
+                        {stockStatus.label}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {product.features?.length > 0 && (
+                  <div className="section">
+                    <h3>Características Principales</h3>
+                    <ul className="features-list">
+                      {product.features.map((feature, index) => (
+                        <li key={index}>
+                          <span className="feature-icon">✓</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {product.tags?.length > 0 && (
+                  <div className="section">
+                    <h3>Etiquetas</h3>
+                    <div className="tags-container">
+                      {product.tags.map((tag, index) => (
+                        <span key={index} className="tag">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'specs' && (
+              <div className="specs-tab">
+                <h3>Especificaciones Técnicas</h3>
+                {Object.keys(product.specifications || {}).length > 0 ? (
+                  <div className="specs-grid">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="spec-item">
+                        <span className="spec-label">{key}:</span>
+                        <span className="spec-value">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="no-specs">No hay especificaciones técnicas definidas.</p>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'variants' && (
+              <div className="variants-tab">
+                <ProductVariants
+                  variants={product.variants}
+                  onVariantsChange={() => {}}
+                  readonly={true}
+                />
+              </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="reviews-tab">
+                <ProductReviews
+                  productId={product.id}
+                  rating={product.rating}
+                  reviewCount={product.reviewCount}
+                />
+              </div>
+            )}
+
+            {activeTab === 'analytics' && (
+              <div className="analytics-tab">
+                <ProductAnalytics
+                  stats={{
+                    total: 1,
+                    inStock: product.stock > 0 ? 1 : 0,
+                    lowStock: product.stock <= product.minStock ? 1 : 0,
+                    outOfStock: product.stock <= 0 ? 1 : 0,
+                    totalValue: product.price * product.stock
+                  }}
+                />
+                <div className="sales-analytics">
+                  <h3>Análisis de Ventas</h3>
+                  <p>Esta sección mostraría datos históricos de ventas del producto.</p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'history' && (
+              <div className="history-tab">
+                <h3>Historial del Producto</h3>
+                <div className="history-list">
+                  <div className="history-item">
+                    <div className="history-icon">📅</div>
+                    <div className="history-content">
+                      <div className="history-title">Producto creado</div>
+                      <div className="history-date">{product.createdAt}</div>
+                      <div className="history-user">por {product.createdBy}</div>
+                    </div>
+                  </div>
+                  <div className="history-item">
+                    <div className="history-icon">✏️</div>
+                    <div className="history-content">
+                      <div className="history-title">Última actualización</div>
+                      <div className="history-date">{product.updatedAt}</div>
+                      <div className="history-user">por {product.updatedBy}</div>
+                    </div>
+                  </div>
+                  <div className="history-item">
+                    <div className="history-icon">📦</div>
+                    <div className="history-content">
+                      <div className="history-title">Último ajuste de stock</div>
+                      <div className="history-date">2024-03-15</div>
+                      <div className="history-details">+5 unidades agregadas</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ProductDetail;

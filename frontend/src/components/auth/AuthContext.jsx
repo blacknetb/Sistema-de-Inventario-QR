@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
-import '../../assets/styles/Auth/auth.css';
+import '../../assets/styles/AUTH/auth.css';
 
 // Crear el contexto de autenticación
 const AuthContext = createContext();
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
                 
                 if (token && userData) {
                     // Verificar token con el backend
-                    const response = await fetch('http://localhost:5000/api/auth/verify', {
+                    const response = await fetch('http://localhost:3000/api/auth/verify', {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError(null);
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch('http://localhost:3000/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             setError(null);
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            const response = await fetch('http://localhost:3000/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }) => {
             
             if (token) {
                 // Opcional: Notificar al backend sobre el logout
-                await fetch('http://localhost:5000/api/auth/logout', {
+                await fetch('http://localhost:3000/api/auth/logout', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }) => {
     const forgotPassword = async (email) => {
         try {
             setError(null);
-            const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+            const response = await fetch('http://localhost:3000/api/auth/forgot-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ export const AuthProvider = ({ children }) => {
     const resetPassword = async (token, password) => {
         try {
             setError(null);
-            const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+            const response = await fetch('http://localhost:3000/api/auth/reset-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ export const AuthProvider = ({ children }) => {
             setError(null);
             const token = localStorage.getItem('token');
             
-            const response = await fetch('http://localhost:5000/api/auth/profile', {
+            const response = await fetch('http://localhost:3000/api/auth/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ export const AuthProvider = ({ children }) => {
             setError(null);
             const token = localStorage.getItem('token');
             
-            const response = await fetch('http://localhost:5000/api/auth/change-password', {
+            const response = await fetch('http://localhost:3000/api/auth/change-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

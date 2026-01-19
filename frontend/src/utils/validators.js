@@ -1,331 +1,227 @@
-/**
- * Sistema de validación centralizado usando Yup
- * Esquemas para todos los formularios de la aplicación
- */
-
-import * as yup from 'yup';
-
-// ==================== MÉTODOS PERSONALIZADOS YUP ====================
-
-// ✅ MÉTODO PARA VALIDAR FORMATO DE SKU
-yup.addMethod(yup.string, 'skuFormat', function(message = 'Formato de SKU inválido') {
-  return this.test('sku-format', message, function(value) {
-    if (!value) return true;
-    const skuRegex = /^[A-Z0-9-]{3,50}$/;
-    return skuRegex.test(value.trim());
-  });
-});
-
-// ✅ MÉTODO PARA VALIDAR STOCK MÁXIMO > MÍNIMO
-yup.addMethod(yup.number, 'maxStockGreaterThanMin', function(message = 'El stock máximo debe ser mayor al stock mínimo') {
-  return this.test('max-greater-than-min', message, function(value) {
-    const { min_stock } = this.parent;
-    if (value === undefined || min_stock === undefined) return true;
-    return value > min_stock;
-  });
-});
-
-// ==================== ESQUEMAS DE VALIDACIÓN ====================
+import { INVENTORY_CONSTANTS, MESSAGES } from './constants';
 
 /**
- * ✅ ESQUEMA DE AUTENTICACIÓN
+ * Valida un campo requerido
+ * @param {any} value - Valor a validar
+ * @param {string} fieldName - Nombre del campo (opcional)
+ * @returns {string|null} Mensaje de error o null si es válido
  */
-export const authSchema = {
-  login: yup.object().shape({
-    email: yup
-      .string()
-      .trim()
-      .email('Ingrese un email válido')
-      .required('El email es requerido')
-      .max(255, 'El email no puede exceder 255 caracteres'),
-    
-    password: yup
-      .string()
-      .required('La contraseña es requerida')
-      .min(6, 'La contraseña debe tener al menos 6 caracteres')
-      .max(128, 'La contraseña no puede exceder 128 caracteres')
-  }),
-  
-  register: yup.object().shape({
-    name: yup
-      .string()
-      .trim()
-      .min(2, 'El nombre debe tener al menos 2 caracteres')
-      .max(255, 'El nombre no puede exceder 255 caracteres')
-      .required('El nombre es requerido'),
-    
-    email: yup
-      .string()
-      .trim()
-      .email('Ingrese un email válido')
-      .required('El email es requerido')
-      .max(255, 'El email no puede exceder 255 caracteres'),
-    
-    password: yup
-      .string()
-      .required('La contraseña es requerida')
-      .min(8, 'La contraseña debe tener al menos 8 caracteres')
-      .max(128, 'La contraseña no puede exceder 128 caracteres'),
-    
-    confirmPassword: yup
-      .string()
-      .required('Confirme la contraseña')
-      .oneOf([yup.ref('password'), null], 'Las contraseñas deben coincidir')
-  }),
+export const validateRequired = (value, fieldName = 'Campo') => {
+  if (value === null || value === undefined || value === '') {
+    return `${fieldName} es requerido`;
+  }
+  if (Array.isArray(value) && value.length === 0) {
+    return `${fieldName} debe tener al menos un elemento`;
+  }
+  return null;
 };
 
 /**
- * ✅ ESQUEMA DE PRODUCTO
+ * Valida un campo numérico
+ * @param {any} value - Valor a validar
+ * @param {object} options - Opciones de validación
+ * @returns {string|null} Mensaje de error o null si es válido
  */
-export const productSchema = {
-  full: yup.object().shape({
-    name: yup
-      .string()
-      .trim()
-      .min(2, 'El nombre debe tener al menos 2 caracteres')
-      .max(255, 'El nombre no puede exceder 255 caracteres')
-      .required('El nombre es requerido'),
-    
-    description: yup
-      .string()
-      .trim()
-      .max(2000, 'La descripción no puede exceder 2000 caracteres')
-      .nullable(),
-    
-    sku: yup
-      .string()
-      .trim()
-      .required('El SKU es requerido')
-      .min(3, 'El SKU debe tener al menos 3 caracteres')
-      .max(50, 'El SKU no puede exceder 50 caracteres')
-      .skuFormat(),
-    
-    category_id: yup
-      .number()
-      .typeError('Seleccione una categoría válida')
-      .positive('Seleccione una categoría válida')
-      .integer('Seleccione una categoría válida')
-      .required('La categoría es requerida'),
-    
-    price: yup
-      .number()
-      .typeError('Ingrese un precio válido')
-      .min(0, 'El precio debe ser mayor o igual a 0')
-      .max(9999999.99, 'El precio no puede exceder 9,999,999.99')
-      .required('El precio es requerido'),
-    
-    cost: yup
-      .number()
-      .typeError('Ingrese un costo válido')
-      .min(0, 'El costo debe ser mayor o igual a 0')
-      .max(9999999.99, 'El costo no puede exceder 9,999,999.99')
-      .required('El costo es requerido'),
-    
-    min_stock: yup
-      .number()
-      .typeError('Ingrese un stock mínimo válido')
-      .min(0, 'El stock mínimo debe ser mayor o igual a 0')
-      .max(999999, 'El stock mínimo no puede exceder 999,999')
-      .integer('El stock mínimo debe ser un número entero')
-      .required('El stock mínimo es requerido'),
-    
-    max_stock: yup
-      .number()
-      .typeError('Ingrese un stock máximo válido')
-      .min(1, 'El stock máximo debe ser mayor a 0')
-      .max(999999, 'El stock máximo no puede exceder 999,999')
-      .integer('El stock máximo debe ser un número entero')
-      .required('El stock máximo es requerido')
-      .maxStockGreaterThanMin(),
-    
-    unit: yup
-      .string()
-      .trim()
-      .max(50, 'La unidad no puede exceder 50 caracteres')
-      .required('La unidad es requerida'),
-    
-    status: yup
-      .string()
-      .oneOf(['active', 'inactive', 'discontinued', 'archived'], 'Estado inválido')
-      .required('El estado es requerido'),
-  }),
+export const validateNumber = (value, options = {}) => {
+  const { min, max, integer = false, positive = false } = options;
   
-  quick: yup.object().shape({
-    name: yup
-      .string()
-      .trim()
-      .min(2, 'El nombre debe tener al menos 2 caracteres')
-      .max(255, 'El nombre no puede exceder 255 caracteres')
-      .required('El nombre es requerido'),
-    
-    sku: yup
-      .string()
-      .trim()
-      .required('El SKU es requerido')
-      .min(3, 'El SKU debe tener al menos 3 caracteres')
-      .max(50, 'El SKU no puede exceder 50 caracteres')
-      .skuFormat(),
-    
-    category_id: yup
-      .number()
-      .typeError('Seleccione una categoría válida')
-      .positive('Seleccione una categoría válida')
-      .required('La categoría es requerida'),
-    
-    price: yup
-      .number()
-      .typeError('Ingrese un precio válido')
-      .min(0, 'El precio debe ser mayor o igual a 0')
-      .max(9999999.99, 'El precio no puede exceder 9,999,999.99')
-      .required('El precio es requerido')
-  })
+  if (value === null || value === undefined || value === '') {
+    return null; // No validar si está vacío (usar validateRequired para campos obligatorios)
+  }
+  
+  const num = Number(value);
+  
+  if (isNaN(num)) {
+    return MESSAGES.ERROR.INVALID_NUMBER;
+  }
+  
+  if (integer && !Number.isInteger(num)) {
+    return 'Debe ser un número entero';
+  }
+  
+  if (positive && num < 0) {
+    return 'Debe ser un número positivo';
+  }
+  
+  if (min !== undefined && num < min) {
+    return `El valor mínimo es ${min}`;
+  }
+  
+  if (max !== undefined && num > max) {
+    return `El valor máximo es ${max}`;
+  }
+  
+  return null;
 };
 
 /**
- * ✅ ESQUEMA DE MOVIMIENTO DE INVENTARIO
+ * Valida un precio
+ * @param {any} value - Valor a validar
+ * @returns {string|null} Mensaje de error o null si es válido
  */
-export const inventoryMovementSchema = yup.object().shape({
-  product_id: yup
-    .number()
-    .typeError('Seleccione un producto válido')
-    .positive('Seleccione un producto válido')
-    .integer('Seleccione un producto válido')
-    .required('El producto es requerido'),
+export const validatePrice = (value) => {
+  const numberError = validateNumber(value, { min: 0 });
+  if (numberError) return numberError;
   
-  quantity: yup
-    .number()
-    .typeError('Ingrese una cantidad válida')
-    .min(1, 'La cantidad debe ser mayor a 0')
-    .max(999999, 'La cantidad no puede exceder 999,999')
-    .integer('La cantidad debe ser un número entero')
-    .required('La cantidad es requerida'),
+  if (Number(value) <= 0) {
+    return MESSAGES.ERROR.INVALID_PRICE;
+  }
   
-  movement_type: yup
-    .string()
-    .oneOf(['entry', 'exit', 'adjustment', 'transfer', 'count'], 'Tipo de movimiento inválido')
-    .required('El tipo de movimiento es requerido'),
-  
-  reason: yup
-    .string()
-    .trim()
-    .min(3, 'El motivo debe tener al menos 3 caracteres')
-    .max(500, 'El motivo no puede exceder 500 caracteres')
-    .required('El motivo es requerido')
-});
-
-// ==================== FUNCIONES DE VALIDACIÓN ====================
+  return null;
+};
 
 /**
- * ✅ VALIDAR FORMULARIO
+ * Valida una cantidad
+ * @param {any} value - Valor a validar
+ * @returns {string|null} Mensaje de error o null si es válido
  */
-export const validateForm = async (schema, data, options = {}) => {
+export const validateQuantity = (value) => {
+  const numberError = validateNumber(value, { min: 0, integer: true });
+  if (numberError) return numberError;
+  
+  if (!Number.isInteger(Number(value))) {
+    return MESSAGES.ERROR.INVALID_QUANTITY;
+  }
+  
+  return null;
+};
+
+/**
+ * Valida un correo electrónico
+ * @param {string} email - Email a validar
+ * @returns {string|null} Mensaje de error o null si es válido
+ */
+export const validateEmail = (email) => {
+  if (!email) return null;
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return 'Ingresa un correo electrónico válido';
+  }
+  
+  return null;
+};
+
+/**
+ * Valida un teléfono
+ * @param {string} phone - Teléfono a validar
+ * @returns {string|null} Mensaje de error o null si es válido
+ */
+export const validatePhone = (phone) => {
+  if (!phone) return null;
+  
+  const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
+  if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+    return 'Ingresa un número de teléfono válido';
+  }
+  
+  return null;
+};
+
+/**
+ * Valida una URL
+ * @param {string} url - URL a validar
+ * @returns {string|null} Mensaje de error o null si es válido
+ */
+export const validateURL = (url) => {
+  if (!url) return null;
+  
   try {
-    const validatedData = await schema.validate(data, {
-      abortEarly: false,
-      stripUnknown: true,
-      ...options
-    });
-    
-    return {
-      success: true,
-      data: validatedData,
-      errors: null
-    };
-  } catch (error) {
-    if (error instanceof yup.ValidationError) {
-      const errors = error.inner.reduce((acc, err) => {
-        const path = err.path || 'general';
-        if (!acc[path]) {
-          acc[path] = err.message;
-        }
-        return acc;
-      }, {});
-      
-      return {
-        success: false,
-        data: null,
-        errors
-      };
+    new URL(url);
+    return null;
+  } catch {
+    return 'Ingresa una URL válida';
+  }
+};
+
+/**
+ * Valida una fecha
+ * @param {string} date - Fecha a validar
+ * @param {object} options - Opciones de validación
+ * @returns {string|null} Mensaje de error o null si es válido
+ */
+export const validateDate = (date, options = {}) => {
+  if (!date) return null;
+  
+  const { minDate, maxDate, futureOnly = false, pastOnly = false } = options;
+  const inputDate = new Date(date);
+  const today = new Date();
+  
+  if (isNaN(inputDate.getTime())) {
+    return 'Fecha inválida';
+  }
+  
+  if (futureOnly && inputDate <= today) {
+    return 'La fecha debe ser futura';
+  }
+  
+  if (pastOnly && inputDate >= today) {
+    return 'La fecha debe ser pasada';
+  }
+  
+  if (minDate && inputDate < new Date(minDate)) {
+    return `La fecha no puede ser anterior a ${new Date(minDate).toLocaleDateString()}`;
+  }
+  
+  if (maxDate && inputDate > new Date(maxDate)) {
+    return `La fecha no puede ser posterior a ${new Date(maxDate).toLocaleDateString()}`;
+  }
+  
+  return null;
+};
+
+/**
+ * Valida un formulario completo de producto
+ * @param {object} formData - Datos del formulario
+ * @returns {object} Objeto con errores
+ */
+export const validateProductForm = (formData) => {
+  const errors = {};
+  
+  // Validar nombre
+  const nameError = validateRequired(formData.name, 'Nombre del producto');
+  if (nameError) errors.name = nameError;
+  
+  // Validar categoría
+  const categoryError = validateRequired(formData.category, 'Categoría');
+  if (categoryError) errors.category = categoryError;
+  
+  // Validar cantidad
+  const quantityError = validateQuantity(formData.quantity);
+  if (quantityError) errors.quantity = quantityError;
+  
+  // Validar precio
+  const priceError = validatePrice(formData.price);
+  if (priceError) errors.price = priceError;
+  
+  // Validar descripción (si existe)
+  if (formData.description && formData.description.length > 1000) {
+    errors.description = 'La descripción no puede exceder los 1000 caracteres';
+  }
+  
+  return errors;
+};
+
+/**
+ * Valida si hay errores en un objeto de errores
+ * @param {object} errors - Objeto de errores
+ * @returns {boolean} True si hay errores
+ */
+export const hasErrors = (errors) => {
+  return Object.values(errors).some(error => error !== null && error !== undefined && error !== '');
+};
+
+/**
+ * Limpia los errores de un formulario
+ * @param {object} errors - Objeto de errores
+ * @returns {object} Objeto de errores limpio
+ */
+export const cleanErrors = (errors) => {
+  const cleaned = {};
+  Object.keys(errors).forEach(key => {
+    if (errors[key]) {
+      cleaned[key] = errors[key];
     }
-    
-    return {
-      success: false,
-      data: null,
-      errors: { general: 'Error de validación' }
-    };
-  }
-};
-
-/**
- * ✅ OBTENER ERROR DE CAMPO
- */
-export const getFieldError = (errors, fieldName) => {
-  if (!errors || !fieldName) {
-    return '';
-  }
-  
-  if (errors[fieldName]) {
-    return errors[fieldName];
-  }
-  
-  return '';
-};
-
-/**
- * ✅ VALIDAR ARCHIVO
- */
-export const validateFile = (file, options = {}) => {
-  const {
-    maxSize = 10 * 1024 * 1024, // 10MB
-    allowedTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/gif',
-      'application/pdf',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ]
-  } = options;
-  
-  if (!file) {
-    return {
-      valid: false,
-      error: 'No se proporcionó archivo'
-    };
-  }
-  
-  // Validar tamaño
-  if (file.size > maxSize) {
-    return {
-      valid: false,
-      error: `El archivo excede el tamaño máximo de ${maxSize / (1024 * 1024)}MB`
-    };
-  }
-  
-  // Validar tipo MIME
-  if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
-    return {
-      valid: false,
-      error: 'Tipo de archivo no permitido'
-    };
-  }
-  
-  return {
-    valid: true,
-    error: null
-  };
-};
-
-// ✅ EXPORTACIÓN POR DEFECTO
-export default {
-  // Esquemas
-  authSchema,
-  productSchema,
-  inventoryMovementSchema,
-  
-  // Funciones de validación
-  validateForm,
-  getFieldError,
-  validateFile
+  });
+  return cleaned;
 };

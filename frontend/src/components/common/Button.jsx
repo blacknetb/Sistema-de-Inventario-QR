@@ -1,140 +1,172 @@
-/**
- * Button.js
- * Componente de botón reutilizable
- * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\components\common\Button.js
- */
-
 import React from 'react';
-import '../../assets/styles/bot/Button.css';
+import PropTypes from 'prop-types';
+import '../../assets/styles/Common/common.css';
 
 const Button = ({
     children,
-    type = 'button',
     variant = 'primary',
     size = 'medium',
+    type = 'button',
     disabled = false,
     loading = false,
     fullWidth = false,
-    onClick,
-    className = '',
+    rounded = false,
+    outlined = false,
     icon,
     iconPosition = 'left',
+    onClick,
+    href,
+    target,
+    rel,
+    className = '',
+    style = {},
     ...props
 }) => {
-    // Determinar clases CSS
+    const variantClasses = {
+        primary: 'btn-primary',
+        secondary: 'btn-secondary',
+        success: 'btn-success',
+        warning: 'btn-warning',
+        danger: 'btn-danger',
+        info: 'btn-info',
+        light: 'btn-light',
+        dark: 'btn-dark',
+        link: 'btn-link',
+        ghost: 'btn-ghost'
+    };
+
+    const sizeClasses = {
+        small: 'btn-sm',
+        medium: 'btn-md',
+        large: 'btn-lg'
+    };
+
     const buttonClasses = [
         'btn',
-        `btn-${variant}`,
-        `btn-${size}`,
+        variantClasses[variant],
+        sizeClasses[size],
         fullWidth ? 'btn-full-width' : '',
-        disabled ? 'btn-disabled' : '',
+        rounded ? 'btn-rounded' : '',
+        outlined ? 'btn-outlined' : '',
         loading ? 'btn-loading' : '',
+        disabled ? 'btn-disabled' : '',
         className
     ].filter(Boolean).join(' ');
 
-    // Contenido del botón
-    const buttonContent = (
+    const handleClick = (e) => {
+        if (!disabled && !loading && onClick) {
+            onClick(e);
+        }
+    };
+
+    const renderIcon = () => {
+        if (!icon) return null;
+        
+        const iconElement = typeof icon === 'string' 
+            ? <i className={icon}></i>
+            : icon;
+        
+        return (
+            <span className={`btn-icon ${iconPosition}`}>
+                {iconElement}
+            </span>
+        );
+    };
+
+    const renderContent = () => (
         <>
-            {icon && iconPosition === 'left' && !loading && (
-                <span className="btn-icon left">{icon}</span>
-            )}
-            
             {loading && (
                 <span className="btn-spinner">
-                    <svg className="spinner" viewBox="0 0 50 50">
-                        <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="5"></circle>
-                    </svg>
+                    <div className="spinner-small"></div>
                 </span>
             )}
             
-            {!loading && children}
+            {iconPosition === 'left' && renderIcon()}
             
-            {icon && iconPosition === 'right' && !loading && (
-                <span className="btn-icon right">{icon}</span>
-            )}
+            <span className="btn-text">{children}</span>
+            
+            {iconPosition === 'right' && renderIcon()}
         </>
     );
 
-    // Renderizar como enlace o botón
-    if (props.href) {
+    // Si es un enlace
+    if (href && !disabled) {
         return (
             <a
-                href={props.href}
+                href={href}
+                target={target}
+                rel={rel}
                 className={buttonClasses}
-                disabled={disabled || loading}
-                onClick={onClick}
+                style={style}
+                onClick={handleClick}
                 {...props}
             >
-                {buttonContent}
+                {renderContent()}
             </a>
         );
     }
 
+    // Si es un botón normal
     return (
         <button
             type={type}
             className={buttonClasses}
+            style={style}
+            onClick={handleClick}
             disabled={disabled || loading}
-            onClick={onClick}
             {...props}
         >
-            {buttonContent}
+            {renderContent()}
         </button>
     );
 };
 
-// Botón con variantes predefinidas
-export const PrimaryButton = (props) => <Button variant="primary" {...props} />;
-export const SecondaryButton = (props) => <Button variant="secondary" {...props} />;
-export const SuccessButton = (props) => <Button variant="success" {...props} />;
-export const DangerButton = (props) => <Button variant="danger" {...props} />;
-export const WarningButton = (props) => <Button variant="warning" {...props} />;
-export const InfoButton = (props) => <Button variant="info" {...props} />;
-export const LightButton = (props) => <Button variant="light" {...props} />;
-export const DarkButton = (props) => <Button variant="dark" {...props} />;
+Button.propTypes = {
+    children: PropTypes.node.isRequired,
+    variant: PropTypes.oneOf([
+        'primary', 'secondary', 'success', 'warning', 
+        'danger', 'info', 'light', 'dark', 'link', 'ghost'
+    ]),
+    size: PropTypes.oneOf(['small', 'medium', 'large']),
+    type: PropTypes.oneOf(['button', 'submit', 'reset']),
+    disabled: PropTypes.bool,
+    loading: PropTypes.bool,
+    fullWidth: PropTypes.bool,
+    rounded: PropTypes.bool,
+    outlined: PropTypes.bool,
+    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    iconPosition: PropTypes.oneOf(['left', 'right']),
+    onClick: PropTypes.func,
+    href: PropTypes.string,
+    target: PropTypes.string,
+    rel: PropTypes.string,
+    className: PropTypes.string,
+    style: PropTypes.object
+};
 
-// Botón con ícono
-export const IconButton = ({ icon, ...props }) => (
-    <Button icon={icon} {...props} />
-);
-
-// Botón de grupo
-export const ButtonGroup = ({ children, vertical = false, className = '' }) => {
-    const groupClasses = [
-        'btn-group',
-        vertical ? 'btn-group-vertical' : 'btn-group-horizontal',
-        className
-    ].filter(Boolean).join(' ');
-
+// Button Group Component
+export const ButtonGroup = ({ 
+    children, 
+    vertical = false,
+    size = 'medium',
+    className = ''
+}) => {
+    const directionClass = vertical ? 'btn-group-vertical' : 'btn-group-horizontal';
+    const sizeClass = `btn-group-${size}`;
+    
     return (
-        <div className={groupClasses} role="group">
+        <div className={`btn-group ${directionClass} ${sizeClass} ${className}`}>
             {children}
         </div>
     );
 };
 
-// Botón de dropdown
-export const DropdownButton = ({ label, children, ...props }) => {
-    const [isOpen, setIsOpen] = React.useState(false);
-
-    return (
-        <div className="btn-dropdown">
-            <Button
-                onClick={() => setIsOpen(!isOpen)}
-                icon="▼"
-                iconPosition="right"
-                {...props}
-            >
-                {label}
-            </Button>
-            
-            {isOpen && (
-                <div className="dropdown-menu">
-                    {children}
-                </div>
-            )}
-        </div>
-    );
+ButtonGroup.propTypes = {
+    children: PropTypes.node.isRequired,
+    vertical: PropTypes.bool,
+    size: PropTypes.oneOf(['small', 'medium', 'large']),
+    className: PropTypes.string
 };
 
 export default Button;
+export { ButtonGroup };

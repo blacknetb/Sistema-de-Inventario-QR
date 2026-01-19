@@ -1,15 +1,13 @@
-/**
- * index.js
- * Archivo de exportación principal para el módulo de inventario
- * Ubicación: E:\portafolio de desarrollo web\app web\proyectos basicos\inventarios basicos\frontend\src\components\inventory\index.js
- */
-
-// Exportar todos los componentes del módulo de inventario
-export { default as InventoryMain } from './InventoryMain';
-export { default as InventoryList } from './InventoryList';
-export { default as InventoryTable } from './InventoryTable';
-export { default as InventoryCard } from './InventoryCard';
-export { default as InventoryFilters } from './InventoryFilters';
+export { default as InventoryLayout } from './InventoryLayout';
+export { default as InventoryHeader } from './InventoryHeader';
+export { default as ProductList } from './ProductList';
+export { default as ProductCard } from './ProductCard';
+export { default as ProductForm } from './ProductForm';
+export { default as CategoryFilter } from './CategoryFilter';
+export { default as SearchBar } from './SearchBar';
 export { default as InventoryStats } from './InventoryStats';
-export { default as InventoryActions } from './InventoryActions';
-export { default as InventoryReports } from './InventoryReports';
+export { default as Pagination } from './Pagination';
+export { default as EmptyState } from './EmptyState';
+export { default as LoadingSpinner } from './LoadingSpinner';
+export { default as ExportButton } from './ExportButton';
+export { default as DeleteConfirmation } from './DeleteConfirmation';
