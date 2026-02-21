@@ -26,13 +26,13 @@ const poolConfig = {
   dateStrings: true,
 
   // // ✅ MEJORA: Configuraciones de SSL
-  // ssl: config.db.ssl === 'true' ? { rejectUnauthorized: false } : undefined,
+  ssl: config.db.ssl === 'true' ? { rejectUnauthorized: false } : undefined,
 
   // // ✅ MEJORA: Soporte para múltiples statements
-  // multipleStatements: config.db.multipleStatements === 'true',
+   multipleStatements: config.db.multipleStatements === 'true',
 
   // // ✅ MEJORA: Configuraciones de debug
-  // debug: config.server.nodeEnv === 'development' && config.db.debug === 'true'
+   debug: config.server.nodeEnv === 'development' && config.db.debug === 'true'
 };
 
 console.log(
