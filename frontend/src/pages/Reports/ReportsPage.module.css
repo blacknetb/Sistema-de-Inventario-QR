@@ -1,0 +1,651 @@
+.reportsPage,
+.reportGenerator {
+    padding: var(--spacing-6);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-6);
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+.headerActions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.tabs {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-6);
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.tab {
+    padding: var(--spacing-3) var(--spacing-6);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-bottom: -2px;
+}
+
+.tab:hover {
+    color: var(--color-primary-500);
+}
+
+.activeTab {
+    color: var(--color-primary-500);
+    border-bottom-color: var(--color-primary-500);
+}
+
+.tabContent {
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    padding: var(--spacing-6);
+}
+
+.generateSection {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--spacing-6);
+}
+
+.formCard,
+.templatesCard {
+    background: var(--color-gray-50);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-4);
+}
+
+.formCard h3,
+.templatesCard h3 {
+    margin-bottom: var(--spacing-4);
+    color: var(--color-text-primary);
+}
+
+.formGroup {
+    margin-bottom: var(--spacing-4);
+}
+
+.label {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.input,
+.select {
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+}
+
+.input:focus,
+.select:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.dateRange {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3);
+}
+
+.formActions {
+    display: flex;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-6);
+}
+
+.generateButton,
+.scheduleButton,
+.exportButton,
+.backButton {
+    padding: var(--spacing-3) var(--spacing-6);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.generateButton {
+    background: var(--color-primary-500);
+    color: white;
+    flex: 2;
+}
+
+.generateButton:hover {
+    background: var(--color-primary-600);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-color-primary);
+}
+
+.scheduleButton {
+    background: var(--color-gray-200);
+    color: var(--color-text-primary);
+    flex: 1;
+}
+
+.scheduleButton:hover {
+    background: var(--color-gray-300);
+}
+
+.exportButton {
+    background: var(--color-success);
+    color: white;
+}
+
+.exportButton:hover {
+    background: var(--color-success-dark);
+}
+
+.backButton {
+    background: var(--color-gray-100);
+    color: var(--color-text-primary);
+}
+
+.backButton:hover {
+    background: var(--color-gray-200);
+}
+
+.templatesGrid {
+    display: grid;
+    gap: var(--spacing-3);
+}
+
+.template {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: white;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.template:hover {
+    border-color: var(--color-primary-500);
+    transform: translateX(5px);
+    box-shadow: var(--shadow);
+}
+
+.templateIcon {
+    font-size: var(--font-size-xl);
+}
+
+.reportsList,
+.scheduledList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-4);
+}
+
+.reportCard,
+.scheduleCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-4);
+    background: var(--color-gray-50);
+    border-radius: var(--border-radius);
+    transition: all var(--transition-fast);
+}
+
+.reportCard:hover,
+.scheduleCard:hover {
+    background: white;
+    box-shadow: var(--shadow);
+}
+
+.reportInfo,
+.scheduleInfo {
+    flex: 1;
+}
+
+.reportInfo h4,
+.scheduleInfo h4 {
+    margin-bottom: var(--spacing-2);
+    color: var(--color-text-primary);
+}
+
+.reportMeta {
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-2);
+}
+
+.reportDescription {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.reportActions,
+.scheduleActions {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.downloadButton,
+.deleteButton {
+    padding: var(--spacing-2) var(--spacing-3);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.downloadButton {
+    background: var(--color-primary-500);
+    color: white;
+}
+
+.downloadButton:hover {
+    background: var(--color-primary-600);
+}
+
+.deleteButton {
+    background: var(--color-error-light);
+    color: var(--color-error-dark);
+}
+
+.deleteButton:hover {
+    background: var(--color-error);
+    color: white;
+}
+
+.scheduleDetails {
+    display: flex;
+    gap: var(--spacing-3);
+    margin: var(--spacing-2) 0;
+}
+
+.scheduleBadge,
+.scheduleTime,
+.statusBadge {
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.scheduleBadge {
+    background: var(--color-info-light);
+    color: var(--color-info-dark);
+}
+
+.scheduleTime {
+    background: var(--color-gray-200);
+    color: var(--color-text-secondary);
+}
+
+.statusBadge {
+    background: var(--color-gray-200);
+    color: var(--color-text-secondary);
+}
+
+.statusBadge.active {
+    background: var(--color-success-light);
+    color: var(--color-success-dark);
+}
+
+.scheduleRecipients {
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-border-light);
+}
+
+.scheduleRecipients ul {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-2) 0 0;
+}
+
+.scheduleRecipients li {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-1);
+}
+
+.emptyState {
+    text-align: center;
+    padding: var(--spacing-8);
+    color: var(--color-text-tertiary);
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-background-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-index-modal);
+    animation: fadeIn var(--transition-fast);
+}
+
+.modal {
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    animation: scaleIn var(--transition-base);
+}
+
+.previewModal {
+    max-width: 800px;
+}
+
+.modalTitle {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-4);
+    font-weight: var(--font-weight-semibold);
+}
+
+.modalContent {
+    margin-bottom: var(--spacing-6);
+}
+
+.recipientRow {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
+}
+
+.removeButton {
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--color-error-light);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--color-error-dark);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.removeButton:hover {
+    background: var(--color-error);
+    color: white;
+}
+
+.addButton {
+    width: 100%;
+    padding: var(--spacing-2);
+    background: var(--color-gray-100);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--border-radius);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.addButton:hover {
+    background: var(--color-gray-200);
+    border-color: var(--color-primary-500);
+    color: var(--color-primary-500);
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    cursor: pointer;
+}
+
+.modalActions {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: flex-end;
+}
+
+.cancelButton,
+.confirmButton {
+    padding: var(--spacing-3) var(--spacing-6);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cancelButton {
+    background: var(--color-gray-100);
+    color: var(--color-text-secondary);
+}
+
+.cancelButton:hover {
+    background: var(--color-gray-200);
+}
+
+.confirmButton {
+    background: var(--color-primary-500);
+    color: white;
+}
+
+.confirmButton:hover {
+    background: var(--color-primary-600);
+}
+
+.previewContent {
+    background: var(--color-gray-900);
+    color: var(--color-gray-100);
+    padding: var(--spacing-4);
+    border-radius: var(--border-radius);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-4);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.previewContent pre {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.summaryCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-4);
+    margin: var(--spacing-6) 0;
+}
+
+.summaryCard {
+    background: white;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-4);
+    text-align: center;
+    transition: all var(--transition-fast);
+}
+
+.summaryCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.summaryValue {
+    display: block;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary-500);
+    margin-bottom: var(--spacing-2);
+}
+
+.summaryLabel {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.tableContainer {
+    overflow-x: auto;
+    margin: var(--spacing-4) 0;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.table th {
+    text-align: left;
+    padding: var(--spacing-3);
+    background: var(--color-gray-100);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-semibold);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.table td {
+    padding: var(--spacing-3);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.stockLow {
+    color: var(--color-error);
+    font-weight: var(--font-weight-bold);
+}
+
+.expiringSoon {
+    color: var(--color-warning);
+    font-weight: var(--font-weight-bold);
+}
+
+.difference {
+    font-weight: var(--font-weight-medium);
+}
+
+.reportMeta {
+    background: var(--color-gray-100);
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-4);
+    display: flex;
+    gap: var(--spacing-4);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.loadingContainer {
+    text-align: center;
+    padding: var(--spacing-8);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--color-gray-200);
+    border-top-color: var(--color-primary-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto var(--spacing-4);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .reportsPage,
+    .reportGenerator {
+        padding: var(--spacing-4);
+    }
+
+    .header {
+        flex-direction: column;
+        gap: var(--spacing-4);
+        align-items: flex-start;
+    }
+
+    .headerActions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .tabs {
+        overflow-x: auto;
+        padding-bottom: var(--spacing-2);
+    }
+
+    .tab {
+        white-space: nowrap;
+    }
+
+    .generateSection {
+        grid-template-columns: 1fr;
+    }
+
+    .formActions {
+        flex-direction: column;
+    }
+
+    .reportCard,
+    .scheduleCard {
+        flex-direction: column;
+        gap: var(--spacing-3);
+        align-items: flex-start;
+    }
+
+    .reportActions,
+    .scheduleActions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .summaryCards {
+        grid-template-columns: 1fr;
+    }
+}

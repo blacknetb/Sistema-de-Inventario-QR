@@ -1,0 +1,105 @@
+.preview {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 4px 8px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.content {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.item {
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+
+.item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.qrImage {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.productName {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.productSku {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.footer {
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+
+  .footer button {
+    width: 100%;
+  }
+}

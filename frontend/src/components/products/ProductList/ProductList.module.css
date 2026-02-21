@@ -1,0 +1,48 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.stockCell {
+  font-weight: 500;
+}
+
+.lowStock {
+  color: #ef4444;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px;
+  color: #9ca3af;
+  font-size: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

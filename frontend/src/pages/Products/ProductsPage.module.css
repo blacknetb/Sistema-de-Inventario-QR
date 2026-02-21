@@ -1,0 +1,461 @@
+.productsPage {
+    padding: var(--spacing-6);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-6);
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+.headerActions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.createButton {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-6);
+    background: var(--color-primary-500);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.createButton:hover {
+    background: var(--color-primary-600);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-color-primary);
+}
+
+.exportButton {
+    padding: var(--spacing-3) var(--spacing-6);
+    background: var(--color-gray-100);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.exportButton:hover {
+    background: var(--color-gray-200);
+}
+
+.buttonIcon {
+    font-size: var(--font-size-lg);
+}
+
+.filters {
+    margin-bottom: var(--spacing-6);
+}
+
+.searchBox {
+    position: relative;
+    margin-bottom: var(--spacing-4);
+}
+
+.searchInput {
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    padding-left: var(--spacing-8);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    transition: all var(--transition-fast);
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.searchIcon {
+    position: absolute;
+    left: var(--spacing-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-tertiary);
+}
+
+.filterGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-3);
+    align-items: center;
+}
+
+.filterSelect {
+    padding: var(--spacing-2) var(--spacing-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    background: white;
+    cursor: pointer;
+}
+
+.filterSelect:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.clearFilters {
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--color-gray-100);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.clearFilters:hover {
+    background: var(--color-gray-200);
+}
+
+.tableContainer {
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-6);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.table th {
+    text-align: left;
+    padding: var(--spacing-4);
+    background: var(--color-gray-50);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-semibold);
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.table td {
+    padding: var(--spacing-4);
+    border-bottom: 1px solid var(--color-border-light);
+    vertical-align: middle;
+}
+
+.tableRow:hover {
+    background: var(--color-gray-50);
+}
+
+.productImage {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border-light);
+}
+
+.productName {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.sku {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.price {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-success-dark);
+}
+
+.stock {
+    display: inline-block;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.stockOk {
+    background: var(--color-success-light);
+    color: var(--color-success-dark);
+}
+
+.stockLow {
+    background: var(--color-warning-light);
+    color: var(--color-warning-dark);
+}
+
+.stockOut {
+    background: var(--color-error-light);
+    color: var(--color-error-dark);
+}
+
+.status {
+    display: inline-block;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: capitalize;
+}
+
+.statusActive {
+    background: var(--color-success-light);
+    color: var(--color-success-dark);
+}
+
+.statusInactive {
+    background: var(--color-gray-200);
+    color: var(--color-gray-700);
+}
+
+.actions {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.actionButton {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.viewButton {
+    background: var(--color-info-light);
+    color: var(--color-info-dark);
+}
+
+.viewButton:hover {
+    background: var(--color-info);
+    color: white;
+}
+
+.editButton {
+    background: var(--color-warning-light);
+    color: var(--color-warning-dark);
+}
+
+.editButton:hover {
+    background: var(--color-warning);
+    color: white;
+}
+
+.deleteButton {
+    background: var(--color-error-light);
+    color: var(--color-error-dark);
+}
+
+.deleteButton:hover {
+    background: var(--color-error);
+    color: white;
+}
+
+.emptyState {
+    text-align: center;
+    padding: var(--spacing-8);
+    color: var(--color-text-tertiary);
+    font-style: italic;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-6);
+}
+
+.pageButton {
+    padding: var(--spacing-2) var(--spacing-3);
+    border: 1px solid var(--color-border);
+    background: var(--color-background-primary);
+    color: var(--color-text-secondary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-width: 40px;
+}
+
+.pageButton:hover:not(:disabled) {
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-500);
+    color: var(--color-primary-700);
+}
+
+.pageButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.activePage {
+    background: var(--color-primary-500);
+    border-color: var(--color-primary-500);
+    color: white;
+}
+
+.activePage:hover {
+    background: var(--color-primary-600);
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-background-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-index-modal);
+    animation: fadeIn var(--transition-fast);
+}
+
+.modal {
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    max-width: 400px;
+    width: 90%;
+    box-shadow: var(--shadow-xl);
+    animation: scaleIn var(--transition-base);
+}
+
+.modalTitle {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-4);
+    font-weight: var(--font-weight-semibold);
+}
+
+.modalMessage {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-6);
+    line-height: var(--line-height-relaxed);
+}
+
+.modalActions {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: flex-end;
+}
+
+.modalButton {
+    padding: var(--spacing-3) var(--spacing-6);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cancelButton {
+    background: var(--color-gray-100);
+    color: var(--color-text-secondary);
+}
+
+.cancelButton:hover {
+    background: var(--color-gray-200);
+}
+
+.confirmButton {
+    background: var(--color-error);
+    color: white;
+}
+
+.confirmButton:hover {
+    background: var(--color-error-dark);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .productsPage {
+        padding: var(--spacing-4);
+    }
+
+    .header {
+        flex-direction: column;
+        gap: var(--spacing-4);
+        align-items: stretch;
+    }
+
+    .headerActions {
+        flex-direction: column;
+    }
+
+    .filterGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .table th,
+    .table td {
+        padding: var(--spacing-2);
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .actionButton {
+        width: 100%;
+    }
+}

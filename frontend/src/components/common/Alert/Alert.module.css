@@ -1,0 +1,134 @@
+/**
+ * Alert.module.css - Estilos para el componente Alert
+ */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tipos de alerta */
+.alert-success {
+  background-color: #ecfdf5;
+  border-left: 4px solid #10b981;
+  color: #065f46;
+}
+
+.alert-error {
+  background-color: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+}
+
+.alert-warning {
+  background-color: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+}
+
+.alert-info {
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  color: #1e40af;
+}
+
+/* Contenedor del icono */
+.iconContainer {
+  flex-shrink: 0;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.textIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Contenido del mensaje */
+.content {
+  flex: 1;
+}
+
+.message {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.description {
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* Botón de cierre */
+.closeButton {
+  flex-shrink: 0;
+  margin-left: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+  color: currentColor;
+  opacity: 0.6;
+}
+
+.closeButton:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.closeButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+.closeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .alert {
+    padding: 12px;
+  }
+  
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .message {
+    font-size: 12px;
+  }
+}

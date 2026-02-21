@@ -1,0 +1,23 @@
+.chart {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  margin: 0 0 20px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.canvasContainer {
+  overflow-x: auto;
+}
+
+.canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}

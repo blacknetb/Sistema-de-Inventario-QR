@@ -1,0 +1,541 @@
+/**
+ * animations.css - Animaciones y keyframes para Inventory QR System
+ * Contiene todas las animaciones reutilizables de la aplicación
+ */
+
+/* ========================================
+   KEYFRAMES BÁSICOS
+   ======================================== */
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+/* ========================================
+   ANIMACIONES DE ENTRADA
+   ======================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* ========================================
+   ANIMACIONES DE SALIDA
+   ======================================== */
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOutUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes fadeOutDown {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+@keyframes scaleOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* ========================================
+   ANIMACIONES DE ATENCIÓN
+   ======================================== */
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes flash {
+    0%, 50%, 100% {
+        opacity: 1;
+    }
+    25%, 75% {
+        opacity: 0;
+    }
+}
+
+@keyframes wiggle {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(5deg);
+    }
+    75% {
+        transform: rotate(-5deg);
+    }
+}
+
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.1);
+    }
+    50% {
+        transform: scale(1);
+    }
+    75% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   CLASES DE ANIMACIÓN
+   ======================================== */
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-ping {
+    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+/* Animaciones de entrada */
+.animate-fade-in {
+    animation: fadeIn var(--transition-base) ease-in-out;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp var(--transition-base) ease-out;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown var(--transition-base) ease-out;
+}
+
+.animate-fade-in-left {
+    animation: fadeInLeft var(--transition-base) ease-out;
+}
+
+.animate-fade-in-right {
+    animation: fadeInRight var(--transition-base) ease-out;
+}
+
+.animate-scale-in {
+    animation: scaleIn var(--transition-base) ease-out;
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft var(--transition-base) ease-out;
+}
+
+.animate-slide-in-right {
+    animation: slideInRight var(--transition-base) ease-out;
+}
+
+/* Animaciones de salida */
+.animate-fade-out {
+    animation: fadeOut var(--transition-base) ease-in-out;
+}
+
+.animate-fade-out-up {
+    animation: fadeOutUp var(--transition-base) ease-in;
+}
+
+.animate-fade-out-down {
+    animation: fadeOutDown var(--transition-base) ease-in;
+}
+
+.animate-scale-out {
+    animation: scaleOut var(--transition-base) ease-in;
+}
+
+.animate-slide-out-left {
+    animation: slideOutLeft var(--transition-base) ease-in;
+}
+
+.animate-slide-out-right {
+    animation: slideOutRight var(--transition-base) ease-in;
+}
+
+/* Animaciones de atención */
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.animate-flash {
+    animation: flash 1s ease-in-out;
+}
+
+.animate-wiggle {
+    animation: wiggle 0.5s ease-in-out;
+}
+
+.animate-heartbeat {
+    animation: heartbeat 1s ease-in-out;
+}
+
+/* ========================================
+   ANIMACIONES DE CARGA
+   ======================================== */
+
+.animate-loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--color-gray-200);
+    border-bottom-color: var(--color-primary-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.animate-loader-dots {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.animate-loader-dots div {
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-primary-500);
+    border-radius: 50%;
+    animation: pulse 1s infinite;
+}
+
+.animate-loader-dots div:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.animate-loader-dots div:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* ========================================
+   ANIMACIONES DE TRANSICIÓN DE PÁGINA
+   ======================================== */
+
+.page-enter-active,
+.page-leave-active {
+    transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.page-enter-from,
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.page-enter-to,
+.page-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========================================
+   ANIMACIONES DE MODAL
+   ======================================== */
+
+.modal-enter-active,
+.modal-leave-active {
+    transition: opacity var(--transition-base);
+}
+
+.modal-enter-from,
+.modal-leave-to {
+    opacity: 0;
+}
+
+.modal-enter-to,
+.modal-leave-from {
+    opacity: 1;
+}
+
+.modal-content-enter-active,
+.modal-content-leave-active {
+    transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.modal-content-enter-from,
+.modal-content-leave-to {
+    transform: scale(0.9);
+    opacity: 0;
+}
+
+.modal-content-enter-to,
+.modal-content-leave-from {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* ========================================
+   ANIMACIONES DE NOTIFICACIÓN/TOAST
+   ======================================== */
+
+.toast-enter-active,
+.toast-leave-active {
+    transition: all var(--transition-base);
+}
+
+.toast-enter-from {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.toast-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+/* ========================================
+   ANIMACIONES DE SIDEBAR
+   ======================================== */
+
+.sidebar-enter-active,
+.sidebar-leave-active {
+    transition: transform var(--transition-base);
+}
+
+.sidebar-enter-from,
+.sidebar-leave-to {
+    transform: translateX(-100%);
+}
+
+.sidebar-enter-to,
+.sidebar-leave-from {
+    transform: translateX(0);
+}
+
+/* ========================================
+   ANIMACIONES DE DROPDOWN
+   ======================================== */
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.dropdown-enter-to,
+.dropdown-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========================================
+   ANIMACIONES DE HOVER
+   ======================================== */
+
+.hover-lift {
+    transition: transform var(--transition-fast);
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+.hover-grow {
+    transition: transform var(--transition-fast);
+}
+
+.hover-grow:hover {
+    transform: scale(1.05);
+}
+
+.hover-glow {
+    transition: box-shadow var(--transition-fast);
+}
+
+.hover-glow:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.hover-border {
+    position: relative;
+}
+
+.hover-border::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-primary-500);
+    transition: width var(--transition-base);
+}
+
+.hover-border:hover::after {
+    width: 100%;
+}

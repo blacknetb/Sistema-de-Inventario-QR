@@ -1,0 +1,69 @@
+.filters {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.searchSection {
+  width: 100%;
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+}
+
+.select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.priceRange {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.separator {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

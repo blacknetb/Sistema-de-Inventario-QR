@@ -1,0 +1,39 @@
+.qrDisplay {
+  position: relative;
+  display: inline-block;
+}
+
+.qrDisplay canvas {
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.downloadButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.qrDisplay:hover .downloadButton {
+  opacity: 1;
+}
+
+.downloadButton:hover {
+  transform: scale(1.1);
+  background: #667eea;
+  color: white;
+}

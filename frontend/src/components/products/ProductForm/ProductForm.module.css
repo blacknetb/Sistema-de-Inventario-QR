@@ -1,0 +1,101 @@
+.form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 20px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.fullWidth {
+  grid-column: span 2;
+}
+
+.selectField {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+}
+
+.select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.select.error {
+  border-color: #ef4444;
+}
+
+.errorText {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: auto;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

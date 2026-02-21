@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Meta tags básicos -->
+    <title>Inventory QR System - Sistema de Gestión de Inventarios</title>
+    <meta name="description" content="Sistema de gestión de inventarios con códigos QR para control de productos, stock, proveedores y reportes" />
+    <meta name="keywords" content="inventario, qr, productos, stock, gestión, proveedores, reportes" />
+    <meta name="author" content="Inventory QR System" />
+    
+    <!-- Meta tags para Open Graph (compartir en redes sociales) -->
+    <meta property="og:title" content="Inventory QR System" />
+    <meta property="og:description" content="Sistema de gestión de inventarios con códigos QR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://inventory-qr-system.com" />
+    <meta property="og:image" content="/og-image.jpg" />
+    
+    <!-- Meta tags para Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Inventory QR System" />
+    <meta name="twitter:description" content="Sistema de gestión de inventarios con códigos QR" />
+    <meta name="twitter:image" content="/twitter-image.jpg" />
+    
+    <!-- Meta tags para PWA (Progressive Web App) -->
+    <meta name="theme-color" content="#0066cc" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Inventory QR" />
+    <meta name="application-name" content="Inventory QR System" />
+    <meta name="msapplication-TileColor" content="#0066cc" />
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png" />
+    
+    <!-- Enlaces a manifest y favicon -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0066cc" />
+    
+    <!-- Fuentes de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Estilos críticos inline para mejorar First Contentful Paint -->
+    <style>
+        /* Estilos mínimos para evitar flash de contenido sin estilos */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+        
+        #root {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .loading-initial {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            background-color: #f3f4f6;
+        }
+        
+        .loading-inner {
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e5e7eb;
+            border-top-color: #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #4b5563;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        /* Animación para el toast offline */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        
+        .offline-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ef4444;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 9999;
+            font-family: 'Inter', sans-serif;
+            animation: slideUp 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <!-- Contenido de carga inicial mientras React se hidrata -->
+        <div class="loading-initial">
+            <div class="loading-inner">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Cargando Inventory QR System...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Script para detectar si el usuario está offline -->
+    <script>
+        (function() {
+            // Mostrar notificación cuando el usuario está offline
+            window.addEventListener('offline', function() {
+                const toast = document.createElement('div');
+                toast.className = 'offline-toast';
+                toast.textContent = '📡 Sin conexión a internet';
+                document.body.appendChild(toast);
+                
+                setTimeout(function() {
+                    if (toast && toast.parentNode) {
+                        toast.style.animation = 'fadeOut 0.3s ease';
+                        setTimeout(function() {
+                            if (toast && toast.parentNode) {
+                                toast.remove();
+                            }
+                        }, 300);
+                    }
+                }, 3000);
+            });
+            
+            // Mostrar notificación cuando el usuario vuelve a estar online
+            window.addEventListener('online', function() {
+                const toast = document.createElement('div');
+                toast.className = 'offline-toast';
+                toast.style.backgroundColor = '#10b981';
+                toast.textContent = '✅ Conexión restablecida';
+                document.body.appendChild(toast);
+                
+                setTimeout(function() {
+                    if (toast && toast.parentNode) {
+                        toast.style.animation = 'fadeOut 0.3s ease';
+                        setTimeout(function() {
+                            if (toast && toast.parentNode) {
+                                toast.remove();
+                            }
+                        }, 300);
+                    }
+                }, 3000);
+            });
+        })();
+    </script>
+    
+    <!-- El módulo principal de la aplicación (inyectado por Vite) -->
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+.profilePage {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profileCard {
+  display: flex;
+  padding: 32px;
+  gap: 32px;
+}
+
+.avatarSection {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.avatarContainer {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 16px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #2563eb;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 600;
+  border: 4px solid #2563eb;
+}
+
+.avatarUpload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: #2563eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: all 0.2s;
+}
+
+.avatarUpload:hover {
+  background: #1d4ed8;
+  transform: scale(1.1);
+}
+
+.avatarInput {
+  display: none;
+}
+
+.uploadIcon {
+  color: white;
+  font-size: 1.25rem;
+}
+
+.userName {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.userRole {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.infoSection {
+  flex: 1;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.infoRow {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  width: 150px;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.infoValue {
+  flex: 1;
+  color: #111827;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.statsCard,
+.actionsCard {
+  padding: 24px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.statValue {
+  display: block;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.accountActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .profileCard {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .avatarContainer {
+    width: 120px;
+    height: 120px;
+  }
+
+  .infoRow {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .infoLabel {
+    width: auto;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .accountActions {
+    flex-direction: column;
+  }
+
+  .accountActions button {
+    width: 100%;
+  }
+}

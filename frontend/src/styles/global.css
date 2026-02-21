@@ -1,0 +1,444 @@
+/**
+ * global.css - Estilos globales para Inventory QR System
+ * Reseteo de estilos y estilos base para toda la aplicación
+ */
+
+/* ========================================
+   IMPORTACIONES
+   ======================================== */
+@import './variables.css';
+@import './mixins.css';
+@import './animations.css';
+@import './responsive.css';
+
+/* ========================================
+   RESET / NORMALIZE
+   ======================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-primary);
+    background-color: var(--color-background-secondary);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ========================================
+   ELEMENTOS DE TEXTO
+   ======================================== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-4);
+}
+
+h1 {
+    font-size: var(--font-size-4xl);
+}
+
+h2 {
+    font-size: var(--font-size-3xl);
+}
+
+h3 {
+    font-size: var(--font-size-2xl);
+}
+
+h4 {
+    font-size: var(--font-size-xl);
+}
+
+h5 {
+    font-size: var(--font-size-lg);
+}
+
+h6 {
+    font-size: var(--font-size-md);
+}
+
+p {
+    margin-bottom: var(--spacing-4);
+}
+
+a {
+    color: var(--color-primary-500);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary-600);
+    text-decoration: underline;
+}
+
+/* ========================================
+   LISTAS
+   ======================================== */
+
+ul, ol {
+    list-style-position: inside;
+    margin-bottom: var(--spacing-4);
+}
+
+li {
+    margin-bottom: var(--spacing-2);
+}
+
+/* ========================================
+   IMÁGENES Y MEDIA
+   ======================================== */
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* ========================================
+   FORMULARIOS
+   ======================================== */
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+button:focus {
+    outline: none;
+}
+
+/* ========================================
+   TABLAS
+   ======================================== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ========================================
+   SCROLLBAR GLOBAL
+   ======================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-gray-400);
+    border-radius: var(--border-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-500);
+}
+
+/* ========================================
+   LAYOUT PRINCIPAL
+   ======================================== */
+
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    padding: var(--spacing-6);
+    margin-left: 0;
+    transition: margin-left var(--transition-base);
+}
+
+@media (min-width: 1024px) {
+    .main-content {
+        margin-left: var(--sidebar-width-expanded);
+    }
+    
+    .main-content.sidebar-collapsed {
+        margin-left: var(--sidebar-width-collapsed);
+    }
+}
+
+/* ========================================
+   CONTENEDORES
+   ======================================== */
+
+.container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-4);
+    padding-right: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+    .container {
+        max-width: var(--container-sm);
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: var(--container-md);
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: var(--container-lg);
+    }
+}
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: var(--container-xl);
+    }
+}
+
+/* ========================================
+   UTILIDADES DE TEXTO
+   ======================================== */
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+.text-primary {
+    color: var(--color-primary-500);
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-info {
+    color: var(--color-info);
+}
+
+.text-muted {
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   UTILIDADES DE FONDO
+   ======================================== */
+
+.bg-primary {
+    background-color: var(--color-primary-500);
+}
+
+.bg-success {
+    background-color: var(--color-success);
+}
+
+.bg-warning {
+    background-color: var(--color-warning);
+}
+
+.bg-error {
+    background-color: var(--color-error);
+}
+
+.bg-info {
+    background-color: var(--color-info);
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.bg-light {
+    background-color: var(--color-background-secondary);
+}
+
+/* ========================================
+   UTILIDADES DE ESPACIADO
+   ======================================== */
+
+.m-0 { margin: 0; }
+.m-1 { margin: var(--spacing-1); }
+.m-2 { margin: var(--spacing-2); }
+.m-3 { margin: var(--spacing-3); }
+.m-4 { margin: var(--spacing-4); }
+
+.mt-1 { margin-top: var(--spacing-1); }
+.mt-2 { margin-top: var(--spacing-2); }
+.mt-3 { margin-top: var(--spacing-3); }
+.mt-4 { margin-top: var(--spacing-4); }
+.mt-6 { margin-top: var(--spacing-6); }
+.mt-8 { margin-top: var(--spacing-8); }
+
+.mb-1 { margin-bottom: var(--spacing-1); }
+.mb-2 { margin-bottom: var(--spacing-2); }
+.mb-3 { margin-bottom: var(--spacing-3); }
+.mb-4 { margin-bottom: var(--spacing-4); }
+.mb-6 { margin-bottom: var(--spacing-6); }
+.mb-8 { margin-bottom: var(--spacing-8); }
+
+.ml-1 { margin-left: var(--spacing-1); }
+.ml-2 { margin-left: var(--spacing-2); }
+.ml-3 { margin-left: var(--spacing-3); }
+.ml-4 { margin-left: var(--spacing-4); }
+.ml-auto { margin-left: auto; }
+
+.mr-1 { margin-right: var(--spacing-1); }
+.mr-2 { margin-right: var(--spacing-2); }
+.mr-3 { margin-right: var(--spacing-3); }
+.mr-4 { margin-right: var(--spacing-4); }
+.mr-auto { margin-right: auto; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: var(--spacing-1); }
+.p-2 { padding: var(--spacing-2); }
+.p-3 { padding: var(--spacing-3); }
+.p-4 { padding: var(--spacing-4); }
+
+/* ========================================
+   UTILIDADES DE VISIBILIDAD
+   ======================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+.invisible {
+    visibility: hidden !important;
+}
+
+/* ========================================
+   UTILIDADES DE BORDE
+   ======================================== */
+
+.rounded {
+    border-radius: var(--border-radius);
+}
+
+.rounded-lg {
+    border-radius: var(--border-radius-lg);
+}
+
+.rounded-full {
+    border-radius: var(--border-radius-full);
+}
+
+.border {
+    border: 1px solid var(--color-border);
+}
+
+.border-top {
+    border-top: 1px solid var(--color-border);
+}
+
+.border-bottom {
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ========================================
+   UTILIDADES DE SOMBRA
+   ======================================== */
+
+.shadow {
+    box-shadow: var(--shadow);
+}
+
+.shadow-md {
+    box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg);
+}
+
+.shadow-xl {
+    box-shadow: var(--shadow-xl);
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--color-gray-200);
+    border-top-color: var(--color-primary-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+}

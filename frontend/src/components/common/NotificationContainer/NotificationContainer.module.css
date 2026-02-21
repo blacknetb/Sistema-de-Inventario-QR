@@ -1,0 +1,108 @@
+.container {
+    position: fixed;
+    top: var(--spacing-6);
+    right: var(--spacing-6);
+    z-index: var(--z-index-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    max-width: 400px;
+    width: calc(100% - var(--spacing-8));
+    pointer-events: none;
+}
+
+.notification {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: slideIn var(--transition-base);
+    pointer-events: auto;
+    border-left: 4px solid transparent;
+}
+
+.success {
+    border-left-color: var(--color-success);
+}
+
+.error {
+    border-left-color: var(--color-error);
+}
+
+.warning {
+    border-left-color: var(--color-warning);
+}
+
+.info {
+    border-left-color: var(--color-info);
+}
+
+.icon {
+    font-size: var(--font-size-xl);
+    line-height: 1;
+}
+
+.content {
+    flex: 1;
+}
+
+.message {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-1);
+}
+
+.description {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: var(--color-gray-400);
+    font-size: var(--font-size-xl);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color var(--transition-fast);
+}
+
+.closeButton:hover {
+    color: var(--color-gray-600);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        top: var(--spacing-4);
+        right: var(--spacing-4);
+        left: var(--spacing-4);
+        max-width: none;
+    }
+}

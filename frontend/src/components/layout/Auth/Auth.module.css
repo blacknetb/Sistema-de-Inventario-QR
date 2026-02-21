@@ -1,0 +1,141 @@
+.authLayout {
+    min-height: 100vh;
+    display: flex;
+    background: var(--color-background-secondary);
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.leftPanel {
+    flex: 1;
+    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-800) 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-8);
+    position: relative;
+    overflow: hidden;
+}
+
+.leftPanel::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+}
+
+.branding {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: var(--spacing-12);
+}
+
+.logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: var(--spacing-4);
+    filter: brightness(0) invert(1);
+}
+
+.title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-3);
+}
+
+.subtitle {
+    font-size: var(--font-size-lg);
+    opacity: 0.9;
+    max-width: 400px;
+}
+
+.features {
+    position: relative;
+    z-index: 1;
+    max-width: 400px;
+    width: 100%;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+    padding: var(--spacing-3);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(10px);
+    transition: transform var(--transition-base);
+}
+
+.feature:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.featureIcon {
+    font-size: var(--font-size-2xl);
+}
+
+.rightPanel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-8);
+}
+
+.formContainer {
+    max-width: 400px;
+    width: 100%;
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-8);
+    animation: fadeInUp var(--transition-slow);
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .leftPanel {
+        display: none;
+    }
+    
+    .rightPanel {
+        padding: var(--spacing-4);
+    }
+    
+    .formContainer {
+        padding: var(--spacing-6);
+    }
+}

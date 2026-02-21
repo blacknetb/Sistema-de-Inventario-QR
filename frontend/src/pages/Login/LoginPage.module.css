@@ -1,0 +1,122 @@
+.loginContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.loginCard {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.form {
+  margin-bottom: 24px;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 24px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.checkbox input {
+  cursor: pointer;
+}
+
+.forgotLink {
+  color: #2563eb;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 24px;
+}
+
+.registerText {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.registerLink {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}
+
+.demoCredentials {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.demoTitle {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.demoCredentials p {
+  margin: 4px 0;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .loginCard {
+    padding: 24px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+}

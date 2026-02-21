@@ -1,0 +1,88 @@
+.activityList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activityItem {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+.iconWrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.green {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.red {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.yellow {
+  background: #fffbeb;
+  color: #f59e0b;
+}
+
+.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.gray {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.content {
+  flex: 1;
+}
+
+.description {
+  margin: 0 0 4px;
+  color: #111827;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.meta {
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+
+.user {
+  color: #2563eb;
+}
+
+.time {
+  color: #9ca3af;
+}
+
+.empty {
+  text-align: center;
+  padding: 32px;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin: 0;
+}
