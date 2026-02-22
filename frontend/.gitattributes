@@ -1,0 +1,104 @@
+# # ========================================
+# # Inventory QR System - Frontend .gitattributes
+# # ========================================
+
+# # Auto detect text files and perform LF normalization
+# * text=auto
+
+# # Source files
+# *.js text eol=lf
+# *.jsx text eol=lf
+# *.ts text eol=lf
+# *.tsx text eol=lf
+# *.css text eol=lf
+# *.scss text eol=lf
+# *.html text eol=lf
+# *.json text eol=lf
+# *.yml text eol=lf
+# *.yaml text eol=lf
+# *.md text eol=lf
+# *.txt text eol=lf
+
+# # Binary files
+# *.png binary
+# *.jpg binary
+# *.jpeg binary
+# *.gif binary
+# *.ico binary
+# *.svg binary
+# *.woff binary
+# *.woff2 binary
+# *.ttf binary
+# *.eot binary
+# *.pdf binary
+# *.zip binary
+# *.tar.gz binary
+
+# # Lock files
+# package-lock.json -diff
+# yarn.lock -diff
+# pnpm-lock.yaml -diff
+
+# # Environment files
+# .env.example text eol=lf
+# .env.development text eol=lf
+# .env.production text eol=lf
+# .env.test text eol=lf
+
+# # Git files
+# .gitattributes export-ignore
+# .gitignore export-ignore
+# .gitkeep export-ignore
+
+# # CI/CD files
+# .github export-ignore
+# .gitlab-ci.yml export-ignore
+# .travis.yml export-ignore
+# .circleci export-ignore
+# jenkins export-ignore
+
+# # IDE files
+# .vscode export-ignore
+# .idea export-ignore
+# *.sublime-* export-ignore
+
+# # Documentation
+# README.md text
+# CHANGELOG.md text
+# CONTRIBUTING.md text
+# CODE_OF_CONDUCT.md text
+# LICENSE text
+
+# # Shell scripts
+# *.sh text eol=lf
+# *.bash text eol=lf
+# *.zsh text eol=lf
+
+# # Windows scripts
+# *.bat text eol=crlf
+# *.cmd text eol=crlf
+# *.ps1 text eol=crlf
+
+# # Database dumps
+# *.sql binary
+
+# # Archives
+# *.tar binary
+# *.gz binary
+# *.bz2 binary
+# *.7z binary
+# *.rar binary
+
+# # Documents
+# *.doc binary
+# *.docx binary
+# *.xls binary
+# *.xlsx binary
+# *.ppt binary
+# *.pptx binary
+
+# # Executables
+# *.exe binary
+# *.dll binary
+# *.so binary
+# *.dylib binary

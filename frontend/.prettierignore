@@ -1,0 +1,86 @@
+# ========================================
+# Inventory QR System - Frontend .prettierignore
+# ========================================
+
+# Dependencias
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+
+# Archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Archivos generados
+*.min.js
+*.min.css
+*.bundle.js
+*.chunk.js
+*.map
+
+# Archivos de caché
+.cache/
+.temp/
+.tmp/
+.eslintcache
+.stylelintcache
+
+# Documentación generada
+docs/
+api-docs/
+jsdoc/
+
+# Archivos de configuración que no queremos formatear
+.prettierrc
+.prettierignore
+.eslintrc
+.eslintignore
+.stylelintrc
+.stylelintignore
+.gitignore
+.gitattributes
+.editorconfig
+
+# Archivos estáticos
+public/
+static/
+assets/
+images/
+fonts/
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Archivos de reportes
+test-results/
+cypress/videos/
+cypress/screenshots/
+playwright-report/
+
+# Archivos de logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos JSON grandes (si los hay)
+*.json
+!package.json
+!tsconfig.json
+!.prettierrc

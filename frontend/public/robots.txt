@@ -1,0 +1,12 @@
+# robots.txt para Inventarios Básicos
+# Permitir que todos los bots accedan a todo el sitio
+User-agent: *
+Allow: /
+
+# Sitemap (si tienes uno)
+# Sitemap: https://tudominio.com/sitemap.xml
+
+# Deshabilitar acceso a ciertas rutas sensibles (opcional)
+# Disallow: /admin/
+# Disallow: /private/
+# Disallow: /tmp/

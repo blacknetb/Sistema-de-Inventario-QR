@@ -1,0 +1,84 @@
+{
+  "semi": true,
+  "trailingComma": "none",
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 4,
+  "useTabs": false,
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "arrowParens": "always",
+  "proseWrap": "preserve",
+  "htmlWhitespaceSensitivity": "css",
+  "endOfLine": "lf",
+  "embeddedLanguageFormatting": "auto",
+  "quoteProps": "as-needed",
+  "jsxSingleQuote": false,
+  "rangeStart": 0,
+  "rangeEnd": 999999999,
+  "requirePragma": false,
+  "insertPragma": false,
+  "vueIndentScriptAndStyle": true,
+  "singleAttributePerLine": false,
+  "bracketSameLine": false,
+  "overrides": [
+    {
+      "files": "*.json",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 80
+      }
+    },
+    {
+      "files": ["*.yml", "*.yaml"],
+      "options": {
+        "tabWidth": 2,
+        "singleQuote": false,
+        "printWidth": 80
+      }
+    },
+    {
+      "files": "*.md",
+      "options": {
+        "tabWidth": 2,
+        "proseWrap": "always",
+        "printWidth": 80
+      }
+    },
+    {
+      "files": ["*.css", "*.scss", "*.sass", "*.less"],
+      "options": {
+        "tabWidth": 2,
+        "singleQuote": false,
+        "printWidth": 80
+      }
+    },
+    {
+      "files": "*.html",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 120
+      }
+    },
+    {
+      "files": "*.vue",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 100
+      }
+    },
+    {
+      "files": "*.graphql",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 80
+      }
+    },
+    {
+      "files": "*.toml",
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}

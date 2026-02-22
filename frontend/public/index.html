@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- Título de la página -->
+    <title>Inventarios Básicos - Sistema de Gestión</title>
+    
+    <!-- Meta descripción para SEO -->
+    <meta name="description" content="Sistema de gestión de inventarios básico - Aplicación web para control de stock y productos">
+    <meta name="keywords" content="inventario, gestión, stock, productos, control, básico">
+    <meta name="author" content="Tu Nombre o Empresa">
+    
+    <!-- Meta para moviles -->
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Inventarios">
+    
+    <!-- Favicon básico -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- Favicon para diferentes dispositivos (basado en manifest.json) -->
+    <link rel="icon" type="image/png" sizes="36x36" href="/android-icon-36x36.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/android-icon-48x48.png">
+    <link rel="icon" type="image/png" sizes="72x72" href="/android-icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/android-icon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/android-icon-144x144.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    
+    <!-- Microsoft Tiles (basado en browserconfig.xml) -->
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- CSS Principal (ajusta la ruta según tu estructura) -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <!-- Estilos básicos mientras carga la app -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #app {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .icon-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .icon-item {
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Logo de la aplicación -->
+        <img src="/android-icon-192x192.png" alt="Logo Inventarios Básicos" style="width: 100px; height: 100px; margin-bottom: 20px;">
+        
+        <h1>Inventarios Básicos</h1>
+        
+        <p>Sistema de gestión de inventarios en desarrollo</p>
+        <p>La aplicación web está cargando...</p>
+        
+        <div class="loader"></div>
+        
+        <div class="status">
+            <p><strong>Estado:</strong> Aplicación en inicialización</p>
+            <p><small>Versión: 1.0.0</small></p>
+        </div>
+        
+        <!-- Información de iconos cargados -->
+        <div class="icon-grid">
+            <div class="icon-item">36x36 ✓</div>
+            <div class="icon-item">48x48 ✓</div>
+            <div class="icon-item">72x72 ✓</div>
+            <div class="icon-item">96x96 ✓</div>
+            <div class="icon-item">144x144 ✓</div>
+            <div class="icon-item">192x192 ✓</div>
+        </div>
+        
+        <!-- Información adicional -->
+        <p style="margin-top: 20px; font-size: 14px; color: #999;">
+            Configuración de iconos cargada desde manifest.json y browserconfig.xml
+        </p>
+    </div>
+
+    <!-- Scripts principales (ajusta las rutas según tu estructura) -->
+    <script src="/js/main.js"></script>
+    
+    <!-- Script de verificación de iconos (opcional) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== Inventarios Básicos - Información de Configuración ===');
+            console.log('Manifest:', document.querySelector('link[rel="manifest"]')?.href || 'No encontrado');
+            console.log('Browser Config:', document.querySelector('meta[name="msapplication-config"]')?.content || 'No encontrado');
+            console.log('Iconos Android:', document.querySelectorAll('link[rel="icon"][sizes]').length);
+            console.log('Iconos Apple:', document.querySelectorAll('link[rel="apple-touch-icon"]').length);
+            console.log('=================================');
+        });
+    </script>
+</body>
+</html>

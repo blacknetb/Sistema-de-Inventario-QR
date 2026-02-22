@@ -1,0 +1,1201 @@
+# # ========================================
+# # Inventory QR System - Frontend .gitignore
+# # ========================================
+
+# # ========================================
+# # DEPENDENCIAS
+# # ========================================
+node_modules/
+package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# bun.lockb
+
+# # ========================================
+# # ARCHIVOS DE ENTORNO
+# # ========================================
+# # Archivos .env (nunca subir estos)
+# .env
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local
+# .env.*.local
+
+# # Ejemplo de archivos de entorno (sí se pueden subir)
+# !.env.example
+
+# # ========================================
+# # BUILD OUTPUTS
+# # ========================================
+# dist/
+# build/
+# out/
+# *.tgz
+# *.tar.gz
+# coverage/
+# .nyc_output/
+
+# # ========================================
+# # LOGS
+# # ========================================
+# logs/
+# *.log
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# pnpm-debug.log*
+# lerna-debug.log*
+# debug.log
+
+# # ========================================
+# # IDE Y EDITORES
+# # ========================================
+# # VS Code
+# .vscode/*
+# !.vscode/extensions.json
+# !.vscode/settings.json
+# !.vscode/launch.json
+# !.vscode/tasks.json
+
+# # WebStorm / IntelliJ
+# .idea/
+# *.iml
+# *.iws
+# *.ipr
+
+# # Eclipse
+# .project
+# .classpath
+# .settings/
+
+# # NetBeans
+# nbproject/
+# nb-configuration.xml
+
+# # Sublime Text
+# *.sublime-project
+# *.sublime-workspace
+
+# # Vim
+# *.swp
+# *.swo
+# *~
+# *.un~
+# Session.vim
+
+# # Emacs
+# *~
+# \#*\#
+# /.emacs.desktop
+# /.emacs.desktop.lock
+# *.elc
+# auto-save-list
+# tramp
+# .\#*
+
+# # ========================================
+# # SISTEMA OPERATIVO
+# # ========================================
+# # Windows
+# Thumbs.db
+# ehthumbs.db
+# Desktop.ini
+# $RECYCLE.BIN/
+# *.cab
+# *.msi
+# *.msm
+# *.msp
+
+# # macOS
+# .DS_Store
+# .AppleDouble
+# .LSOverride
+# Icon
+# ._*
+# .Spotlight-V100
+# .Trashes
+# ehthumbs.db
+
+# # Linux
+# *~
+# .fuse_hidden*
+# .directory
+# .Trash-*
+# .nfs*
+
+# # ========================================
+# # TESTING
+# # ========================================
+# /cypress/videos/
+# /cypress/screenshots/
+# /cypress/downloads/
+# /cypress/fixtures/
+# /cypress/support/
+# /coverage/
+# /test-results/
+# /.test/
+# /tests/e2e/reports/
+# *.test.js.snap
+# *.spec.js.snap
+
+# # ========================================
+# # CACHE
+# # ========================================
+# .cache/
+# .temp/
+# .tmp/
+# .eslintcache
+# .stylelintcache
+# .prettiercache
+# .parcel-cache/
+# .rpt2_cache/
+# .rts2_cache_cjs/
+# .rts2_cache_es/
+# .rts2_cache_umd/
+# .cache-loader/
+# .rollup.cache/
+# .vite/
+# .cache/
+
+# # ========================================
+# # CERTIFICADOS Y CLAVES
+# # ========================================
+# *.pem
+# *.key
+# *.crt
+# *.p12
+# *.pfx
+# *.cert
+# *.private
+# *.public
+# secrets/
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN PERSONAL
+# # ========================================
+# # npm
+# .npmrc
+# .npm
+# .node_repl_history
+
+# # yarn
+# .yarn-integrity
+# .yarn/cache
+# .yarn/unplugged
+# .yarn/build-state.yml
+# .yarn/install-state.gz
+# .pnp.*
+# .pnp.loader.mjs
+
+# # pnpm
+# .pnpm-store/
+
+# # bun
+# .bun
+# bun.lockb
+
+# # ========================================
+# # FRAMEWORKS Y BUILD TOOLS
+# # ========================================
+# # Next.js
+# .next/
+# out/
+
+# # Nuxt.js
+# .nuxt/
+# dist/
+
+# # Gatsby
+# .cache/
+# public/
+
+# # VuePress
+# .vuepress/dist/
+# .vuepress/cache/
+
+# # Vite
+# dist/
+# .vite/
+
+# # Webpack
+# stats.json
+
+# # Parcel
+# .parcel-cache/
+
+# # ========================================
+# # SERVERLESS
+# # ========================================
+# .serverless/
+# .webpack/
+# lambda-dist/
+
+# # ========================================
+# # BASES DE DATOS LOCALES
+# # ========================================
+# *.db
+# *.sqlite
+# *.sqlite3
+# *.db-journal
+# *.rdb
+# *.ldb
+# *.log.*
+# /data/
+
+# # ========================================
+# # ARCHIVOS TEMPORALES
+# # ========================================
+# *.tmp
+# *.temp
+# *.pid
+# *.seed
+# *.pid.lock
+# tmp/
+# temp/
+
+# # ========================================
+# # DOCUMENTACIÓN GENERADA
+# # ========================================
+# /docs/
+# /api-docs/
+# /swagger-ui/
+# /jsdoc/
+
+# # ========================================
+# # ARCHIVOS DE RESPALDO
+# # ========================================
+# *.bak
+# *.backup
+# *.old
+# *.orig
+
+# # ========================================
+# # ARCHIVOS DE DEPURACIÓN
+# # ========================================
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# pnpm-debug.log*
+# lerna-debug.log*
+# debug.log
+
+# # ========================================
+# # ARCHIVOS DE COMPRESIÓN
+# # ========================================
+# *.zip
+# *.tar
+# *.gz
+# *.rar
+# *.7z
+
+# # ========================================
+# # ARCHIVOS DE MEDIA GRANDES
+# # ========================================
+# *.mp4
+# *.avi
+# *.mov
+# *.mkv
+# *.mp3
+# *.wav
+# *.flac
+# *.jpg
+# *.jpeg
+# *.png
+# *.gif
+# *.svg
+# !.gitkeep
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE DOCKER
+# # ========================================
+# docker-compose.override.yml
+# Dockerfile
+# .dockerignore
+# docker-compose.yml
+
+# # ========================================
+# # ARCHIVOS DE GITHUB
+# # ========================================
+# .github/
+# !.github/workflows
+
+# # ========================================
+# # ARCHIVOS DE GIT
+# # ========================================
+# .git/
+# .gitignore
+# .gitattributes
+# .gitmodules
+
+# # ========================================
+# # ARCHIVOS DE HUSKY
+# # ========================================
+# .husky/
+
+# # ========================================
+# # ARCHIVOS DE EDITOR CONFIG
+# # ========================================
+# .editorconfig
+
+# # ========================================
+# # ARCHIVOS DE ESLINT
+# # ========================================
+# .eslintrc.js
+# .eslintrc.json
+# .eslintignore
+
+# # ========================================
+# # ARCHIVOS DE PRETTIER
+# # ========================================
+# .prettierrc
+# .prettierignore
+
+# # ========================================
+# # ARCHIVOS DE STYLELINT
+# # ========================================
+# .stylelintrc
+# .stylelintignore
+
+# # ========================================
+# # ARCHIVOS DE TYPESCRIPT
+# # ========================================
+# tsconfig.json
+# tsconfig.node.json
+# tsconfig.app.json
+# *.tsbuildinfo
+
+# # ========================================
+# # ARCHIVOS DE VITE
+# # ========================================
+# vite.config.js
+# vite.config.ts
+
+# # ========================================
+# # ARCHIVOS DE POSTCSS
+# # ========================================
+# postcss.config.js
+# postcss.config.cjs
+
+# # ========================================
+# # ARCHIVOS DE TAILWIND
+# # ========================================
+# tailwind.config.js
+# tailwind.config.cjs
+
+# # ========================================
+# # ARCHIVOS DE CYPRESS
+# # ========================================
+# cypress.json
+# cypress.config.js
+
+# # ========================================
+# # ARCHIVOS DE PLAYWRIGHT
+# # ========================================
+# playwright.config.js
+# test-results/
+# playwright-report/
+
+# # ========================================
+# # ARCHIVOS DE STORYBOOK
+# # ========================================
+# storybook-static/
+# .storybook/
+
+# # ========================================
+# # ARCHIVOS DE ANALÍTICAS
+# # ========================================
+# *.stats.html
+# *.stats.json
+# bundle-analyzer-report.html
+
+# # ========================================
+# # ARCHIVOS DE COBERTURA
+# # ========================================
+# coverage/
+# .nyc_output/
+# jest-coverage/
+
+# # ========================================
+# # ARCHIVOS DE ERRORES
+# # ========================================
+# error.log
+# crash.log
+# npm-debug.log
+# yarn-error.log
+# pnpm-debug.log
+
+# # ========================================
+# # ARCHIVOS DE PID
+# # ========================================
+# *.pid
+# *.seed
+# *.pid.lock
+
+# # ========================================
+# # ARCHIVOS DE NPM
+# # ========================================
+# .npm
+# .npmrc
+
+# # ========================================
+# # ARCHIVOS DE YARN
+# # ========================================
+# .yarn-integrity
+# .yarn
+# !.yarn/releases
+# !.yarn/plugins
+# !.yarn/sdks
+# !.yarn/versions
+
+# # ========================================
+# # ARCHIVOS DE PNPM
+# # ========================================
+# .pnpm-store/
+
+# # ========================================
+# # ARCHIVOS DE BUN
+# # ========================================
+# .bun
+# bun.lockb
+
+# # ========================================
+# # ARCHIVOS DE DENO
+# # ========================================
+# deno.lock
+
+# # ========================================
+# # ARCHIVOS DE NODE
+# # ========================================
+# .node_repl_history
+# .node
+
+# # ========================================
+# # ARCHIVOS DE NODEMON
+# # ========================================
+# nodemon.json
+
+# # ========================================
+# # ARCHIVOS DE PM2
+# # ========================================
+# pm2
+# pm2-*.log
+# .pm2
+
+# # ========================================
+# # ARCHIVOS DE VERDACCIO
+# # ========================================
+# verdaccio
+# .verdaccio
+
+# # ========================================
+# # ARCHIVOS DE SINOPIA
+# # ========================================
+# sinopia
+# .sinopia
+
+# # ========================================
+# # ARCHIVOS DE ARTIFACTORY
+# # ========================================
+# .artifactory
+
+# # ========================================
+# # ARCHIVOS DE JENKINS
+# # ========================================
+# jenkins
+
+# # ========================================
+# # ARCHIVOS DE GITLAB CI
+# # ========================================
+# .gitlab-ci.yml
+
+# # ========================================
+# # ARCHIVOS DE GITHUB ACTIONS
+# # ========================================
+# .github
+# !.github/workflows
+
+# # ========================================
+# # ARCHIVOS DE TRAVIS CI
+# # ========================================
+# .travis.yml
+
+# # ========================================
+# # ARCHIVOS DE CIRCLE CI
+# # ========================================
+# .circleci
+
+# # ========================================
+# # ARCHIVOS DE CODECOV
+# # ========================================
+# codecov.yml
+
+# # ========================================
+# # ARCHIVOS DE SONARQUBE
+# # ========================================
+# sonar-project.properties
+# .scannerwork/
+
+# # ========================================
+# # ARCHIVOS DE SENTRY
+# # ========================================
+# .sentryclirc
+
+# # ========================================
+# # ARCHIVOS DE FIREBASE
+# # ========================================
+# .firebase
+# .firebaserc
+
+# # ========================================
+# # ARCHIVOS DE NETLIFY
+# # ========================================
+# .netlify
+
+# # ========================================
+# # ARCHIVOS DE VERCEL
+# # ========================================
+# .vercel
+
+# # ========================================
+# # ARCHIVOS DE HEROKU
+# # ========================================
+# .heroku
+
+# # ========================================
+# # ARCHIVOS DE AWS
+# # ========================================
+# .aws
+# .elasticbeanstalk/
+
+# # ========================================
+# # ARCHIVOS DE GCP
+# # ========================================
+# .gcloud
+# .gcp
+
+# # ========================================
+# # ARCHIVOS DE AZURE
+# # ========================================
+# .azure
+
+# # ========================================
+# # ARCHIVOS DE DIGITAL OCEAN
+# # ========================================
+# .digitalocean
+
+# # ========================================
+# # ARCHIVOS DE HASHICORP VAULT
+# # ========================================
+# .vault-token
+# .vault-config
+
+# # ========================================
+# # ARCHIVOS DE DOCKER
+# # ========================================
+# docker-compose.override.yml
+# Dockerfile
+# .dockerignore
+
+# # ========================================
+# # ARCHIVOS DE KUBERNETES
+# # ========================================
+# kubeconfig
+# .kube
+
+# # ========================================
+# # ARCHIVOS DE TERRAFORM
+# # ========================================
+# .terraform
+# *.tfstate
+# *.tfstate.*
+# *.tfplan
+# terraform.tfvars
+
+# # ========================================
+# # ARCHIVOS DE ANSIBLE
+# # ========================================
+# *.retry
+# ansible/
+
+# # ========================================
+# # ARCHIVOS DE VAGRANT
+# # ========================================
+# .vagrant
+
+# # ========================================
+# # ARCHIVOS DE GRAPHQL
+# # ========================================
+# .graphqlconfig
+# .graphqlrc
+
+# # ========================================
+# # ARCHIVOS DE APOLLO
+# # ========================================
+# .apollo
+
+# # ========================================
+# # ARCHIVOS DE PRISMA
+# # ========================================
+# prisma/.env
+# prisma/migrations/
+
+# # ========================================
+# # ARCHIVOS DE TYPEORM
+# # ========================================
+# ormconfig.json
+# typeorm
+
+# # ========================================
+# # ARCHIVOS DE SEQUELIZE
+# # ========================================
+# .sequelizerc
+# config/config.json
+
+# # ========================================
+# # ARCHIVOS DE MONGOOSE
+# # ========================================
+# mongoose
+
+# # ========================================
+# # ARCHIVOS DE REDIS
+# # ========================================
+# dump.rdb
+
+# # ========================================
+# # ARCHIVOS DE ELASTICSEARCH
+# # ========================================
+# elasticsearch
+
+# # ========================================
+# # ARCHIVOS DE POSTGRESQL
+# # ========================================
+# postgresql
+# pgdata
+
+# # ========================================
+# # ARCHIVOS DE MYSQL
+# # ========================================
+# mysql
+# data/
+
+# # ========================================
+# # ARCHIVOS DE SQL SERVER
+# # ========================================
+# sqlserver
+# .mssql
+
+# # ========================================
+# # ARCHIVOS DE ORACLE
+# # ========================================
+# oracle
+# .oracle
+
+# # ========================================
+# # ARCHIVOS DE RABBITMQ
+# # ========================================
+# rabbitmq
+
+# # ========================================
+# # ARCHIVOS DE KAFKA
+# # ========================================
+# kafka
+# .zookeeper
+
+# # ========================================
+# # ARCHIVOS DE NGINX
+# # ========================================
+# nginx
+# .nginx
+
+# # ========================================
+# # ARCHIVOS DE APACHE
+# # ========================================
+# apache
+# .apache
+
+# # ========================================
+# # ARCHIVOS DE PM2
+# # ========================================
+# pm2
+# pm2-*.log
+# .pm2
+
+# # ========================================
+# # ARCHIVOS DE NODEMON
+# # ========================================
+# nodemon.json
+
+# # ========================================
+# # ARCHIVOS DE JEST
+# # ========================================
+# jest.config.js
+# jest.setup.js
+# jest.teardown.js
+# jest-puppeteer.config.js
+
+# # ========================================
+# # ARCHIVOS DE VITEST
+# # ========================================
+# vitest.config.js
+# vitest.setup.js
+
+# # ========================================
+# # ARCHIVOS DE MOCHA
+# # ========================================
+# mocha.opts
+# .mocharc.json
+
+# # ========================================
+# # ARCHIVOS DE JASMINE
+# # ========================================
+# jasmine.json
+
+# # ========================================
+# # ARCHIVOS DE KARMA
+# # ========================================
+# karma.conf.js
+
+# # ========================================
+# # ARCHIVOS DE CYPRESS
+# # ========================================
+# cypress.json
+# cypress.config.js
+# cypress.env.json
+
+# # ========================================
+# # ARCHIVOS DE PLAYWRIGHT
+# # ========================================
+# playwright.config.js
+# test-results/
+# playwright-report/
+
+# # ========================================
+# # ARCHIVOS DE PUPPETEER
+# # ========================================
+# puppeteer
+
+# # ========================================
+# # ARCHIVOS DE STORYBOOK
+# # ========================================
+# storybook-static/
+# .storybook/
+
+# # ========================================
+# # ARCHIVOS DE CHROMATIC
+# # ========================================
+# chromatic
+
+# # ========================================
+# # ARCHIVOS DE PERCY
+# # ========================================
+# percy
+
+# # ========================================
+# # ARCHIVOS DE LOKI
+# # ========================================
+# loki
+# .loki
+
+# # ========================================
+# # ARCHIVOS DE BACKSTOPJS
+# # ========================================
+# backstop_data/
+
+# # ========================================
+# # ARCHIVOS DE BUNDLE ANALYZER
+# # ========================================
+# bundle-analyzer-report.html
+# stats.html
+# stats.json
+
+# # ========================================
+# # ARCHIVOS DE SOURCEMAPS
+# # ========================================
+# *.js.map
+# *.css.map
+
+# # ========================================
+# # ARCHIVOS DE MINIFICADOS
+# # ========================================
+# *.min.js
+# *.min.css
+
+# # ========================================
+# # ARCHIVOS DE COMPRIMIDOS
+# # ========================================
+# *.br
+# *.gz
+
+# # ========================================
+# # ARCHIVOS DE LICENCIAS
+# # ========================================
+# LICENSE
+# LICENSE.txt
+# LICENSE.md
+
+# # ========================================
+# # ARCHIVOS DE README
+# # ========================================
+# README.md
+# README.txt
+
+# # ========================================
+# # ARCHIVOS DE CHANGELOG
+# # ========================================
+# CHANGELOG.md
+# CHANGELOG.txt
+
+# # ========================================
+# # ARCHIVOS DE CONTRIBUTING
+# # ========================================
+# CONTRIBUTING.md
+
+# # ========================================
+# # ARCHIVOS DE CODE OF CONDUCT
+# # ========================================
+# CODE_OF_CONDUCT.md
+
+# # ========================================
+# # ARCHIVOS DE SECURITY
+# # ========================================
+# SECURITY.md
+
+# # ========================================
+# # ARCHIVOS DE SUPPORT
+# # ========================================
+# SUPPORT.md
+
+# # ========================================
+# # ARCHIVOS DE FUNDING
+# # ========================================
+# FUNDING.yml
+
+# # ========================================
+# # ARCHIVOS DE ISSUE TEMPLATES
+# # ========================================
+# .github/ISSUE_TEMPLATE/
+# .github/PULL_REQUEST_TEMPLATE.md
+
+# # ========================================
+# # ARCHIVOS DE HUSKY
+# # ========================================
+# .husky/
+
+# # ========================================
+# # ARCHIVOS DE LINT-STAGED
+# # ========================================
+# .lintstagedrc
+# .lintstagedrc.json
+# .lintstagedrc.js
+
+# # ========================================
+# # ARCHIVOS DE COMMITLINT
+# # ========================================
+# commitlint.config.js
+# .commitlintrc.json
+
+# # ========================================
+# # ARCHIVOS DE SEMANTIC-RELEASE
+# # ========================================
+# .releaserc
+# .releaserc.json
+# .releaserc.js
+
+# # ========================================
+# # ARCHIVOS DE STANDARD-VERSION
+# # ========================================
+# .versionrc
+# .versionrc.json
+# .versionrc.js
+
+# # ========================================
+# # ARCHIVOS DE CHANGELOG GENERATOR
+# # ========================================
+# .changelog
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE NPM
+# # ========================================
+# .npmrc
+# .npmignore
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE YARN
+# # ========================================
+# .yarnrc
+# .yarnrc.yml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE PNPM
+# # ========================================
+# .npmrc
+# .pnpmrc
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE BUN
+# # ========================================
+# bun.lockb
+# bunfig.toml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE NODE
+# # ========================================
+# .nvmrc
+# .node-version
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE RUNTIME
+# # ========================================
+# .runtimeconfig.json
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE DEPENDABOT
+# # ========================================
+# .dependabot
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE RENOVATE
+# # ========================================
+# renovate.json
+# renovate.json5
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE GREENKEEPER
+# # ========================================
+# greenkeeper.json
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE SORBET
+# # ========================================
+# sorbet/
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE RUBOCOP
+# # ========================================
+# .rubocop.yml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE ESLINT
+# # ========================================
+# .eslintrc
+# .eslintrc.js
+# .eslintrc.json
+# .eslintrc.yml
+# .eslintrc.yaml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE PRETTIER
+# # ========================================
+# .prettierrc
+# .prettierrc.js
+# .prettierrc.json
+# .prettierrc.yml
+# .prettierrc.yaml
+# .prettierignore
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE STYLELINT
+# # ========================================
+# .stylelintrc
+# .stylelintrc.js
+# .stylelintrc.json
+# .stylelintrc.yml
+# .stylelintrc.yaml
+# .stylelintignore
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE TYPESCRIPT
+# # ========================================
+# tsconfig.json
+# tsconfig.*.json
+# *.tsbuildinfo
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE BABEL
+# # ========================================
+# babel.config.js
+# babel.config.json
+# .babelrc
+# .babelrc.js
+# .babelrc.json
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE POSTCSS
+# # ========================================
+# postcss.config.js
+# postcss.config.cjs
+# postcss.config.mjs
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE TAILWIND
+# # ========================================
+# tailwind.config.js
+# tailwind.config.cjs
+# tailwind.config.mjs
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE WEBPACK
+# # ========================================
+# webpack.config.js
+# webpack.*.config.js
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE VITE
+# # ========================================
+# vite.config.js
+# vite.config.ts
+# vite.config.mjs
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE ROLLUP
+# # ========================================
+# rollup.config.js
+# rollup.config.mjs
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE ESBUILD
+# # ========================================
+# esbuild.config.js
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE SWC
+# # ========================================
+# .swcrc
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE JEST
+# # ========================================
+# jest.config.js
+# jest.config.ts
+# jest.setup.js
+# jest.teardown.js
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE VITEST
+# # ========================================
+# vitest.config.js
+# vitest.config.ts
+# vitest.setup.js
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE MOCHA
+# # ========================================
+# mocha.opts
+# .mocharc.js
+# .mocharc.json
+# .mocharc.yml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE CYPRESS
+# # ========================================
+# cypress.config.js
+# cypress.config.ts
+# cypress.env.json
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE PLAYWRIGHT
+# # ========================================
+# playwright.config.js
+# playwright.config.ts
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE STORYBOOK
+# # ========================================
+# .storybook/main.js
+# .storybook/main.ts
+# .storybook/preview.js
+# .storybook/preview.ts
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE DOCKER
+# # ========================================
+# Dockerfile
+# .dockerignore
+# docker-compose.yml
+# docker-compose.*.yml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE KUBERNETES
+# # ========================================
+# k8s/
+# *.kubeconfig
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE TERRAFORM
+# # ========================================
+# *.tf
+# *.tfvars
+# .terraform/
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE ANSIBLE
+# # ========================================
+# *.yml
+# *.yaml
+# ansible/
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE GITHUB ACTIONS
+# # ========================================
+# .github/workflows/
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE GITLAB CI
+# # ========================================
+# .gitlab-ci.yml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE JENKINS
+# # ========================================
+# Jenkinsfile
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE TRAVIS CI
+# # ========================================
+# .travis.yml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE CIRCLE CI
+# # ========================================
+# .circleci/
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE NETLIFY
+# # ========================================
+# netlify.toml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE VERCEL
+# # ========================================
+# vercel.json
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE HEROKU
+# # ========================================
+# Procfile
+# app.json
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE FIREBASE
+# # ========================================
+# firebase.json
+# .firebaserc
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE AWS
+# # ========================================
+# .aws/
+# aws-exports.js
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE GCP
+# # ========================================
+# .gcloud/
+# app.yaml
+
+# # ========================================
+# # ARCHIVOS DE CONFIGURACIÓN DE AZURE
+# # ========================================
+# .azure/
+# azure-pipelines.yml
